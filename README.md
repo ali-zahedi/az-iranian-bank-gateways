@@ -31,10 +31,13 @@
  
 # TODO
 
-- [ ]  bank model structure
+- [ ] Documentation
 
-- [ ]  bmi gateway support
+- [ ] Bank model structure
 
-- [ ]  zarinpal gateway support
+- [ ] BMI gateway support
 
-- [ ]  saman gateway support
+- [ ] Zarinpal gateway support
+
+- [ ] Saman gateway support
+
