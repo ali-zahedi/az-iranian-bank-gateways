@@ -20,7 +20,7 @@ class BankFactory:
         raises an AttributeError if a bank can't be found by it's alias
         """
         try:
-            bank_settings = settings.BANK_CHANNELS[self.bank_type]
+            bank_settings = settings.BANK_GATEWAYS[self.bank_type]
         except KeyError:
             raise AttributeError(
                 '"%s" is not a valid delivery bank alias. '
