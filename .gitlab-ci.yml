@@ -1,0 +1,67 @@
+stages:
+  - fetch-version
+  - production
+  - release
+
+variables:
+  AUTHOR: 'Ali Zahedigol'
+
+.node: &node
+  image: node:13
+  tags:
+    - node
+
+.python: &python
+  image: python:3.7
+  tags:
+    - python
+
+
+fetch-version:
+  # Requires Node >= 10.13 version
+  <<: *node
+  stage: fetch-version
+  only:
+    refs:
+    - master
+    - develop
+  script:
+    - npm install @semantic-release/gitlab @semantic-release/exec @semantic-release/changelog
+    - npx semantic-release --generate-notes false --dry-run
+  artifacts:
+    paths:
+    - VERSION.txt
+
+production:
+  <<: *python
+  stage: production
+  environment:
+    name: production
+  script:
+    - echo "Version is $(cat VERSION.txt)"
+    - sed -i "s/version='1.0.0',/version='$(cat VERSION.txt)',/g" setup.py
+    - pip install twine
+    - python setup.py sdist bdist_wheel
+    - TWINE_PASSWORD=${TWINE_TOKEN} TWINE_USERNAME=${TWINE_USERNAME} python -m twine upload dist/*
+  only:
+    - master
+    - develop
+  dependencies:
+    - fetch-version
+
+release:
+  <<: *node
+  stage: release
+  only:
+    refs:
+    - master
+    - develop
+  script:
+    - touch CHANGELOG.md
+    - npm install @semantic-release/gitlab @semantic-release/changelog @semantic-release/exec
+    - npx semantic-release
+  artifacts:
+    paths:
+    - CHANGELOG.md
+  dependencies:
+    - production
