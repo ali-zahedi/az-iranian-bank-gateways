@@ -15,3 +15,9 @@ class BankGatewayRejectPayment(Exception):
 
 class BankGatewayTokenExpired(Exception):
     """The requested bank token expire"""
+
+class BankGatewayUnclear(Exception):
+    """The requested bank unclear"""
+
+class BankGatewayStateInvalid(Exception):
+    """The requested bank unclear"""

@@ -47,6 +47,7 @@ class Bank(models.Model):
     )
     # reference number return from bank
     reference_number = models.CharField(
+        unique=True,
         max_length=255,
         null=False,
         blank=False,
@@ -56,6 +57,11 @@ class Bank(models.Model):
         null=True,
         blank=True,
         verbose_name=_('Bank result')
+    )
+    callback_url = models.TextField(
+        null=False,
+        blank=False,
+        verbose_name=_('Callback url')
     )
 
     created_at = models.DateTimeField(

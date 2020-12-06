@@ -6,7 +6,7 @@ import datetime
 import six
 from django.shortcuts import redirect
 
-from ..exceptions import CurrencyDoesNotSupport, AmountDoesNotSupport, BankGatewayTokenExpired
+from ..exceptions import CurrencyDoesNotSupport, AmountDoesNotSupport, BankGatewayTokenExpired, BankGatewayStateInvalid
 from ..models import Bank, CurrencyEnum, PaymentStatus
 from .. import default_settings as settings
 
@@ -22,6 +22,7 @@ class BaseBank:
     _order_id: int = None
     _reference_number: str = ''
     _transaction_status_text: str = ''
+    _client_callback_url: str = ''
     _bank: Bank = None
 
     def __init__(self, **kwargs):
@@ -63,7 +64,7 @@ class BaseBank:
 
     @abc.abstractmethod
     def prepare_pay(self):
-        logging.debug("prepare pay method")
+        logging.debug("Prepare pay method")
         self.prepare_amount()
         order_id = int(str(uuid.uuid4().int)[-1 * settings.ORDER_CODE_LENGTH:])
         self._set_order_id(order_id)
@@ -74,7 +75,7 @@ class BaseBank:
 
     @abc.abstractmethod
     def pay(self):
-        logging.debug("pay method")
+        logging.debug("Pay method")
         self.prepare_pay()
 
     @abc.abstractmethod
@@ -96,7 +97,18 @@ class BaseBank:
         )
         self._bank = bank
         self._set_payment_status(PaymentStatus.WAITING)
+        if self._client_callback_url:
+            self.set_callback_url(self._client_callback_url)
         return bank
+
+    @abc.abstractmethod
+    def prepare_verify_from_gateway(self, request):
+        pass
+
+    def verify_from_gateway(self, request):
+        self.prepare_verify_from_gateway(request)
+        self._set_payment_status(PaymentStatus.RETURN_FROM_BANK)
+        self.verify()
 
     @abc.abstractmethod
     def get_gateway_payment_url(self):
@@ -117,13 +129,43 @@ class BaseBank:
     def get_mobile_number(self):
         return self._mobile_number
 
-    def set_callback_url(self, callback):
-        # TODO: handle it
-        pass
+    def set_callback_url(self, callback_url):
+
+        if self._bank and self._bank.status != PaymentStatus.WAITING:
+            logging.critical(
+                "You are change the call back url in invalid situation.",
+                extra={
+                    'bank_id': self._bank.pk,
+                    'status': self._bank.status,
+                }
+            )
+            raise BankGatewayStateInvalid(
+                'Bank state not equal to waiting. Probably finish or redirect to bank gateway. status is {}'.format(
+                    self._bank.status
+                )
+            )
+
+        if self._bank.status == PaymentStatus.WAITING:
+            self._bank.callback_url = callback_url
+            self._bank.save()
+        else:
+            self._client_callback_url = callback_url
 
     def _set_reference_number(self, reference_number):
         """reference number get from bank """
         self._reference_number = reference_number
+
+    def set_bank_record(self):
+        try:
+            self._bank = Bank.objects.get(reference_number=self.get_reference_number(), bank_type=self.get_bank_type())
+            logging.debug("Set reference find bank object.")
+        except Bank.DoesNotExist:
+            logging.debug("Cant find bank record object.")
+            raise BankGatewayStateInvalid(
+                "Cant find bank record with reference number reference number is {}".format(
+                    self.get_reference_number()
+                )
+            )
 
     def get_reference_number(self):
         return self._reference_number
@@ -139,6 +181,14 @@ class BaseBank:
         return self._transaction_status_text
 
     def _set_payment_status(self, payment_status):
+        if payment_status == PaymentStatus.RETURN_FROM_BANK and self._bank.status != PaymentStatus.REDIRECT_TO_BANK:
+            logging.debug("Payment status is not status suitable.", extra={'status': self._bank.status})
+            raise BankGatewayStateInvalid(
+                "You change the status bank record before/after this record change status from redirect to bank. "
+                "current status is {}".format(
+                    self._bank.status
+                )
+            )
         self._bank.status = payment_status
         self._bank.save()
         logging.debug("Change bank payment status", extra={'status': payment_status})

@@ -24,6 +24,15 @@ class BMI(BaseBank):
         self._payment_url = "https://sadad.shaparak.ir/VPG/Purchase?Token={}"
         self._verify_api_url = 'https://sadad.shaparak.ir/vpg/api/v0/Advice/Verify'
 
+    def get_bank_type(self):
+        return BankType.BMI
+
+    def set_default_settings(self):
+        for item in ['MERCHANT_CODE', 'TERMINAL_CODE', 'SECRET_KEY']:
+            if item not in self.default_setting_kwargs:
+                raise SettingDoesNotExist()
+            setattr(self, item.lower(), self.default_setting_kwargs[item])
+
     def prepare_pay(self):
         super(BMI, self).prepare_pay()
 
@@ -77,14 +86,14 @@ class BMI(BaseBank):
     def verify(self):
         pass
 
-    def get_bank_type(self):
-        return BankType.BMI
+    def prepare_verify_from_gateway(self, request):
+        super(BMI, self).prepare_verify_from_gateway(request)
+        token = request.POST.get('token', None)
+        self._set_reference_number(token)
+        self.set_bank_record()
 
-    def set_default_settings(self):
-        for item in ['MERCHANT_CODE', 'TERMINAL_CODE', 'SECRET_KEY']:
-            if item not in self.default_setting_kwargs:
-                raise SettingDoesNotExist()
-            setattr(self, item.lower(), self.default_setting_kwargs[item])
+    def verify_from_gateway(self, request):
+        super(BMI, self).verify_from_gateway(request)
 
     @classmethod
     def _pad(cls, text, pad_size=16):
