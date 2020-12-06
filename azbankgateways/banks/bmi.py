@@ -50,7 +50,6 @@ class BMI(BaseBank):
     def pay(self):
         super(BMI, self).pay()
         data = self.get_pay_data()
-        print(data)
         try:
             response = requests.post(self._token_api_url, json=data, timeout=5)
         except requests.Timeout:

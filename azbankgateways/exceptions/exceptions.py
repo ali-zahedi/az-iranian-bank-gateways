@@ -12,3 +12,6 @@ class BankGatewayConnectionError(Exception):
 
 class BankGatewayRejectPayment(Exception):
     """The requested bank reject payment"""
+
+class BankGatewayTokenExpired(Exception):
+    """The requested bank token expire"""

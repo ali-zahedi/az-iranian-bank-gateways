@@ -1,11 +1,12 @@
 import abc
 import logging
 import uuid
+import datetime
 
 import six
 from django.shortcuts import redirect
 
-from ..exceptions import CurrencyDoesNotSupport, AmountDoesNotSupport
+from ..exceptions import CurrencyDoesNotSupport, AmountDoesNotSupport, BankGatewayTokenExpired
 from ..models import Bank, CurrencyEnum, PaymentStatus
 
 
@@ -18,6 +19,7 @@ class BaseBank:
     _gateway_amount: int = 0
     _mobile_number: str = None
     _order_id: int = None
+    _reference_number: str = ''
     _transaction_status_text: str = ''
     _bank: Bank = None
 
@@ -100,6 +102,10 @@ class BaseBank:
         pass
 
     def redirect_gateway(self):
+        if (datetime.datetime.now() - self._bank.created_at).seconds > 120:
+            self._set_payment_status(PaymentStatus.EXPIRE_GATEWAY_TOKEN)
+            logging.debug("Redirect to bank expire!")
+            raise BankGatewayTokenExpired()
         logging.debug("Redirect to bank")
         self._set_payment_status(PaymentStatus.REDIRECT_TO_BANK)
         return redirect(self.get_gateway_payment_url())
@@ -115,11 +121,11 @@ class BaseBank:
         pass
 
     def _set_reference_number(self, reference_number):
-        # reference number get from bank
-        pass
+        """reference number get from bank """
+        self._reference_number = reference_number
 
     def get_reference_number(self):
-        pass
+        return self._reference_number
 
     def get_tracking_code(self):
         # TODO: handle it
@@ -160,4 +166,3 @@ class BaseBank:
 
     def get_order_id(self):
         return self._order_id
-
