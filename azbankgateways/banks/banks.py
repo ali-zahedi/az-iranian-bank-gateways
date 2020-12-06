@@ -19,7 +19,7 @@ class BaseBank:
     _amount: int = 0
     _gateway_amount: int = 0
     _mobile_number: str = None
-    _order_id: int = None
+    _tracking_code: int = None
     _reference_number: str = ''
     _transaction_status_text: str = ''
     _client_callback_url: str = ''
@@ -66,8 +66,8 @@ class BaseBank:
     def prepare_pay(self):
         logging.debug("Prepare pay method")
         self.prepare_amount()
-        order_id = int(str(uuid.uuid4().int)[-1 * settings.ORDER_CODE_LENGTH:])
-        self._set_order_id(order_id)
+        tracking_code = int(str(uuid.uuid4().int)[-1 * settings.TRACKING_CODE_LENGTH:])
+        self._set_tracking_code(tracking_code)
 
     @abc.abstractmethod
     def get_pay_data(self):
@@ -79,12 +79,17 @@ class BaseBank:
         self.prepare_pay()
 
     @abc.abstractmethod
-    def prepare_verify(self):
+    def get_verify_data(self):
         pass
 
     @abc.abstractmethod
+    def prepare_verify(self):
+        logging.debug("Prepare verify method")
+
+    @abc.abstractmethod
     def verify(self):
-        pass
+        logging.debug("Verify method")
+        self.prepare_verify()
 
     def ready(self) -> Bank:
         self.pay()
@@ -93,7 +98,7 @@ class BaseBank:
             amount=self.get_amount(),
             reference_number=self.get_reference_number(),
             response_result=self.get_transaction_status_text(),
-            order_id=self.get_order_id(),
+            tracking_code=self.get_tracking_code(),
         )
         self._bank = bank
         self._set_payment_status(PaymentStatus.WAITING)
@@ -170,10 +175,6 @@ class BaseBank:
     def get_reference_number(self):
         return self._reference_number
 
-    def get_tracking_code(self):
-        # TODO: handle it
-        pass
-
     def _set_transaction_status_text(self, txt):
         self._transaction_status_text = txt
 
@@ -212,8 +213,8 @@ class BaseBank:
     def get_gateway_amount(self):
         return self._gateway_amount
 
-    def _set_order_id(self, order_id):
-        self._order_id = order_id
+    def _set_tracking_code(self, tracking_code):
+        self._tracking_code = tracking_code
 
-    def get_order_id(self):
-        return self._order_id
+    def get_tracking_code(self):
+        return self._tracking_code

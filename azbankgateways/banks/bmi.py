@@ -33,9 +33,6 @@ class BMI(BaseBank):
                 raise SettingDoesNotExist()
             setattr(self, item.lower(), self.default_setting_kwargs[item])
 
-    def prepare_pay(self):
-        super(BMI, self).prepare_pay()
-
     def get_pay_data(self):
         time_now = datetime.datetime.now().strftime('%m/%d/%Y %H:%M:%S %P')
         data = {
@@ -45,16 +42,19 @@ class BMI(BaseBank):
             'SignData': self._encrypt_des3(
                 '{};{};{}'.format(
                     self.terminal_code,
-                    self.get_order_id(),
+                    self.get_tracking_code(),
                     self.get_gateway_amount(),
                 )
             ),
             'ReturnUrl': 'https://google.com',
             'LocalDateTime': time_now,
-            'OrderId': self.get_order_id(),
-            'AdditionalData': 'oi:%s-ou:%s' % (self.get_order_id(), self.get_mobile_number()),
+            'OrderId': self.get_tracking_code(),
+            'AdditionalData': 'oi:%s-ou:%s' % (self.get_tracking_code(), self.get_mobile_number()),
         }
         return data
+
+    def prepare_pay(self):
+        super(BMI, self).prepare_pay()
 
     def pay(self):
         super(BMI, self).pay()
@@ -79,12 +79,22 @@ class BMI(BaseBank):
 
     def get_gateway_payment_url(self):
         return self._payment_url.format(self.get_reference_number())
+    
+    def get_verify_data(self):
+        super(BMI, self).get_verify_data()
+        data = {
+            'Token': self.get_reference_number(),
+            'SignData': self._encrypt_des3(self.get_reference_number()),
+        }
+        return data
 
     def prepare_verify(self):
-        pass
+        super(BMI, self).prepare_verify()
 
     def verify(self):
-        pass
+        super(BMI, self).verify()
+        data = self.get_verify_data()
+
 
     def prepare_verify_from_gateway(self, request):
         super(BMI, self).prepare_verify_from_gateway(request)

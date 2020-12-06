@@ -33,11 +33,12 @@ class Bank(models.Model):
         choices=BankType.choices,
         verbose_name=_('Bank'),
     )
-    order_id = models.CharField(
+    # It's local and generate locally
+    tracking_code = models.CharField(
         max_length=255,
         null=False,
         blank=False,
-        verbose_name=_('Order id')
+        verbose_name=_('Tracking code')
     )
     amount = models.CharField(
         max_length=10,
