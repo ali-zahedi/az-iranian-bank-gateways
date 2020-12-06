@@ -9,7 +9,9 @@ from . import default_settings as settings
 
 class BankFactory:
 
-    def __init__(self, bank_type: BankType):
+    def __init__(self, bank_type: BankType = None):
+        if not bank_type:
+            bank_type = settings.BANK_DEFAULT
         logging.debug('Create bank factory', extra={'bank_type': bank_type})
         self.bank_type = bank_type
 
