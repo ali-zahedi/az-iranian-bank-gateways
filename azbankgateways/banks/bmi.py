@@ -10,12 +10,13 @@ class BMI(BaseBank):
 
     def __init__(self, **kwargs):
         super(BMI, self).__init__(**kwargs)
-        self.set_currency(CurrencyEnum.IRR)
+        self.set_gateway_currency(CurrencyEnum.IRR)
 
     def prepare_pay(self):
         super(BMI, self).prepare_pay()
 
     def pay(self):
+        super(BMI, self).pay()
         amount = self.prepare_amount()
         # TODO: handle it
 

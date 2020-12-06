@@ -47,7 +47,7 @@ class BaseBank:
 
     @abc.abstractmethod
     def pay(self):
-        pass
+        self.prepare_pay()
 
     @abc.abstractmethod
     def prepare_verify(self):
@@ -61,7 +61,7 @@ class BaseBank:
         # TODO: save object and return it
         self.pay()
 
-    def redirect(self):
+    def redirect_gateway(self):
         # TODO: redirect to bank
         pass
 
@@ -73,7 +73,8 @@ class BaseBank:
         # TODO: handle it
         pass
 
-    def set_reference_number(self):
+    def _set_reference_number(self, reference_number):
+        # reference number get from bank
         pass
 
     def get_reference_number(self):
