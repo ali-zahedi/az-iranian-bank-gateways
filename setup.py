@@ -42,6 +42,7 @@ setup(
     install_requires=[
         'six',
         'Django>=2.2',
+        'pycryptodome>=3.9.7',
         'zeep'
     ],
 )
