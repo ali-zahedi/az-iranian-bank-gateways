@@ -1,2 +1,2 @@
 from .banks import Bank
-from .enum import BankType, CurrencyEnum
+from .enum import BankType, CurrencyEnum, PaymentStatus

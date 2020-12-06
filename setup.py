@@ -16,7 +16,7 @@ setup(
     description='Iraninan Bank Gateways for django',
     long_description=README,
     long_description_content_type='text/markdown',
-    url='https://www.aparnik.com/',
+    url='https://github.com/ali-zahedi/az-iranian-bank-gateways',
     author='Ali Zahedi Gol',
     author_email='zahedi@aparnik.com',
     classifiers=[
@@ -42,6 +42,7 @@ setup(
     install_requires=[
         'six',
         'Django>=2.2',
+        'pycryptodome>=3.9.7',
         'zeep'
     ],
 )

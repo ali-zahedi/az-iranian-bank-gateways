@@ -18,3 +18,12 @@ class CurrencyEnum(models.TextChoices):
     @classmethod
     def toman_to_rial(cls, amount):
         return amount * 10
+
+
+class PaymentStatus(models.TextChoices):
+    WAITING = _('Waiting')
+    REDIRECT_TO_BANK = _('Redirect to bank')
+    RETURN_FROM_BANK = _('Return from bank')
+    CANCEL_BY_USER = _('Cancel by user')
+    EXPIRE_GATEWAY_TOKEN = _('Expire gateway token')
+    COMPLETE = _('Complete')

@@ -9,7 +9,9 @@ from . import default_settings as settings
 
 class BankFactory:
 
-    def __init__(self, bank_type: BankType):
+    def __init__(self, bank_type: BankType = None):
+        if not bank_type:
+            bank_type = settings.BANK_DEFAULT
         logging.debug('Create bank factory', extra={'bank_type': bank_type})
         self.bank_type = bank_type
 
@@ -20,7 +22,7 @@ class BankFactory:
         raises an AttributeError if a bank can't be found by it's alias
         """
         try:
-            bank_settings = settings.BANK_CHANNELS[self.bank_type]
+            bank_settings = settings.BANK_GATEWAYS[self.bank_type]
         except KeyError:
             raise AttributeError(
                 '"%s" is not a valid delivery bank alias. '

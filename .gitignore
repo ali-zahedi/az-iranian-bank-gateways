@@ -263,3 +263,4 @@ Temporary Items
 DJANGO_PROJECT
 locale/*
 manage.py
+examples/
