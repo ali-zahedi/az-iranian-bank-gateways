@@ -46,7 +46,7 @@ class BMI(BaseBank):
                     self.get_gateway_amount(),
                 )
             ),
-            'ReturnUrl': 'https://google.com',
+            'ReturnUrl': '/a',
             'LocalDateTime': time_now,
             'OrderId': self.get_tracking_code(),
             'AdditionalData': 'oi:%s-ou:%s' % (self.get_tracking_code(), self.get_mobile_number()),
@@ -59,27 +59,17 @@ class BMI(BaseBank):
     def pay(self):
         super(BMI, self).pay()
         data = self.get_pay_data()
-        try:
-            response = requests.post(self._token_api_url, json=data, timeout=5)
-        except requests.Timeout:
-            logging.exception("BMI time out gateway {}".format(data))
-            raise BankGatewayConnectionError()
-        except requests.ConnectionError:
-            logging.exception("BMI time out gateway {}".format(data))
-            raise BankGatewayConnectionError()
-
-        response_json = get_json(response)
-        self._set_transaction_status_text(response_json['Description'])
+        response_json = self._send_data(self._token_api_url, data)
         if response_json['ResCode'] == '0':
             token = response_json['Token']
             self._set_reference_number(token)
         else:
             logging.critical("BMI gateway reject payment")
-            raise BankGatewayRejectPayment()
+            raise BankGatewayRejectPayment(self.get_transaction_status_text())
 
     def get_gateway_payment_url(self):
         return self._payment_url.format(self.get_reference_number())
-    
+
     def get_verify_data(self):
         super(BMI, self).get_verify_data()
         data = {
@@ -88,19 +78,27 @@ class BMI(BaseBank):
         }
         return data
 
-    def prepare_verify(self):
-        super(BMI, self).prepare_verify()
+    def prepare_verify(self, tracking_code):
+        super(BMI, self).prepare_verify(tracking_code)
 
-    def verify(self):
-        super(BMI, self).verify()
+    def verify(self, transaction_code):
+        super(BMI, self).verify(transaction_code)
         data = self.get_verify_data()
-
+        response_json = self._send_data(self._verify_api_url, data)
+        if response_json['ResCode'] == '0':
+            self._set_payment_status(PaymentStatus.COMPLETE)
+            extra_information = f"RetrivalRefNo={response_json['RetrivalRefNo']},SystemTraceNo={response_json['SystemTraceNo']}"
+            self._bank.extra_information = extra_information
+            self._bank.save()
+        else:
+            self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
+            logging.debug("BMI gateway unapprove payment")
 
     def prepare_verify_from_gateway(self, request):
         super(BMI, self).prepare_verify_from_gateway(request)
         token = request.POST.get('token', None)
         self._set_reference_number(token)
-        self.set_bank_record()
+        self._set_bank_record()
 
     def verify_from_gateway(self, request):
         super(BMI, self).verify_from_gateway(request)
@@ -119,3 +117,17 @@ class BMI(BaseBank):
         cipher = DES3.new(secret_key_bytes, DES3.MODE_ECB)
         cipher_text = cipher.encrypt(str.encode(text))
         return base64.b64encode(cipher_text).decode("utf-8")
+
+    def _send_data(self, api, data):
+        try:
+            response = requests.post(api, json=data, timeout=5)
+        except requests.Timeout:
+            logging.exception("BMI time out gateway {}".format(data))
+            raise BankGatewayConnectionError()
+        except requests.ConnectionError:
+            logging.exception("BMI time out gateway {}".format(data))
+            raise BankGatewayConnectionError()
+
+        response_json = get_json(response)
+        self._set_transaction_status_text(response_json['Description'])
+        return response_json

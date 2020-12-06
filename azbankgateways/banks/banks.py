@@ -4,6 +4,7 @@ import uuid
 import datetime
 
 import six
+from django.db.models import Q
 from django.shortcuts import redirect
 
 from ..exceptions import CurrencyDoesNotSupport, AmountDoesNotSupport, BankGatewayTokenExpired, BankGatewayStateInvalid
@@ -83,13 +84,15 @@ class BaseBank:
         pass
 
     @abc.abstractmethod
-    def prepare_verify(self):
+    def prepare_verify(self, tracking_code):
         logging.debug("Prepare verify method")
+        self._set_tracking_code(tracking_code)
+        self._set_bank_record()
 
     @abc.abstractmethod
-    def verify(self):
+    def verify(self, tracking_code):
         logging.debug("Verify method")
-        self.prepare_verify()
+        self.prepare_verify(tracking_code)
 
     def ready(self) -> Bank:
         self.pay()
@@ -113,7 +116,7 @@ class BaseBank:
     def verify_from_gateway(self, request):
         self.prepare_verify_from_gateway(request)
         self._set_payment_status(PaymentStatus.RETURN_FROM_BANK)
-        self.verify()
+        self.verify(self.get_tracking_code())
 
     @abc.abstractmethod
     def get_gateway_payment_url(self):
@@ -135,8 +138,12 @@ class BaseBank:
         return self._mobile_number
 
     def set_callback_url(self, callback_url):
-
-        if self._bank and self._bank.status != PaymentStatus.WAITING:
+        if not self._bank:
+            self._client_callback_url = callback_url
+        elif self._bank.status == PaymentStatus.WAITING:
+            self._bank.callback_url = callback_url
+            self._bank.save()
+        else:
             logging.critical(
                 "You are change the call back url in invalid situation.",
                 extra={
@@ -150,19 +157,18 @@ class BaseBank:
                 )
             )
 
-        if self._bank.status == PaymentStatus.WAITING:
-            self._bank.callback_url = callback_url
-            self._bank.save()
-        else:
-            self._client_callback_url = callback_url
-
     def _set_reference_number(self, reference_number):
         """reference number get from bank """
         self._reference_number = reference_number
 
-    def set_bank_record(self):
+    def _set_bank_record(self):
         try:
-            self._bank = Bank.objects.get(reference_number=self.get_reference_number(), bank_type=self.get_bank_type())
+            self._bank = Bank.objects.get(
+                Q(
+                    Q(reference_number=self.get_reference_number()) | Q(tracking_code=self.get_tracking_code())
+                ),
+                Q(bank_type=self.get_bank_type())
+            )
             logging.debug("Set reference find bank object.")
         except Bank.DoesNotExist:
             logging.debug("Cant find bank record object.")
@@ -171,6 +177,8 @@ class BaseBank:
                     self.get_reference_number()
                 )
             )
+        self._set_tracking_code(self._bank.tracking_code)
+        self._set_reference_number(self._bank.reference_number)
 
     def get_reference_number(self):
         return self._reference_number

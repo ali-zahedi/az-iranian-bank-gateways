@@ -64,6 +64,11 @@ class Bank(models.Model):
         blank=False,
         verbose_name=_('Callback url')
     )
+    extra_information = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name=_('Extra information')
+    )
 
     created_at = models.DateTimeField(
         auto_now_add=True,
