@@ -22,13 +22,48 @@
         },
     },
     'DEFAULT': 'BMI',
-    'CURRENCY': 'IRR',
+    'CURRENCY': 'IRR', 
     'CALLBACK_URL': '/bankgateways/callback',
     'TRANSACTION_QUERY_PARAM': 'tc',
 }
  
 ```
+
+1. `CHANNELS` : در چنل ها آدرس کلاس اجرا کننده آن بانک قراردارد که می تواند توسط نرم افزار شخصی سازی شود.
+
+1. `DEFAULT`: بانک دیفالت
+
+1. `CURRENCY`: واحد پولی که سیستم از آن استفاده می کند.
+
+1. `TRANSACTION_QUERY_PARAM`: پارامتری که در کوئری استرینگ از آن استفاده خواهد شد.
  
+# Usage
+
+ برای استفاده و اتصال به درگاه بانک کافی است یک فکتوری ایجاد کنیم و پارامترهای اجباری را تنظیم کنیم. سپس کاربر را می توانیم به درگاه بانک هدایت کنیم.
+  
+```python
+from azbankgateways.bankfactories import BankFactory, BankType
+"""
+BankFactory()  می توانید به صورت دیفالت نیز استفاده کنید که از بانک پیش فرض استفاده خواهد کرد.
+یا اینکه بانک مورد نظر را در هنگام ساخت فکتوری به آن ارسال کنید.
+"""
+
+factory = BankFactory() # or BankFactory(BankType.BMI) 
+
+bank = factory.create()
+bank.set_amount(100)
+bank.set_callback_url('/gateway/callback') 
+
+bank.set_mobile_number('+989112221234') #optional
+
+bank.ready()
+
+bank.redirect_gateway()
+
+```
+
+`set_mobile_number` پارامتری است که شماره موبایل کاربری که قصد خرید دارد را با آن تنظیم کرده و این شماره موبایل جهت پرداخت و پیگیری آسان تر به درگاه ارسال می شود
+
 # TODO
 
 - [ ] Documentation
