@@ -13,6 +13,7 @@
 
 ## settings
  
+### settings.py
  در فایل `settings.py` تنظیمات زیر را انجام میدهیم.
  
  ``` python
@@ -28,7 +29,6 @@
     },
     'DEFAULT': 'BMI',
     'CURRENCY': 'IRR', 
-    'CALLBACK_URL': '/bankgateways/callback',
     'TRANSACTION_QUERY_PARAM': 'tc',
     'TRACKING_CODE_LENGTH': 20,
 }
@@ -44,6 +44,28 @@
 1. `TRANSACTION_QUERY_PARAM`: پارامتری که در کوئری استرینگ از آن استفاده خواهد شد.
  
 1. `TRACKING_CODE_LENGTH`: طول آی دی طول شده که به منزله شناسه فاکتور در درگاه ها استفاده خواهد شد. اعداد بزرگتر از ۱۶ ممکن است در برخی درگاه ها شما را با مشکل مواجه کند. به عنوان مثال طول آی دی ۲۰ در بانک ملی کار نمی کند.
+
+
+### urls.py
+
+در فایل `urls.py`
+
+```python
+from django.contrib import admin
+from django.urls import path
+
+from azbankgateways.urls import az_bank_gateways_urls
+
+admin.autodiscover()
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('bankgateways/', az_bank_gateways_urls()),
+]
+```
+
+با اضافه کردن `path('bankgateways/', az_bank_gateways_urls()),` به لیست یو آر ال ها پرداخت ها پس از درگاه به این مسیر هدایت و اعتبار سنجی پرداخت در این مرحله صورت خواهد پذیرفت.
+
 
 # Usage
 
@@ -78,7 +100,7 @@ bank.redirect_gateway()
 
 - [ ] Bank model structure
 
-- [ ] BMI gateway support
+- [X] BMI gateway support
 
 - [ ] Zarinpal gateway support
 

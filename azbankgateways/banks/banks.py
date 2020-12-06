@@ -9,11 +9,12 @@ from django.shortcuts import redirect
 
 from urllib import parse
 
+from django.urls import reverse
+
 from .. import default_settings as settings
 from ..exceptions import CurrencyDoesNotSupport, AmountDoesNotSupport, BankGatewayTokenExpired, BankGatewayStateInvalid
 from ..models import Bank, CurrencyEnum, PaymentStatus
 from ..utils import append_querystring
-
 
 # TODO: handle and expire record after 15 minutes
 @six.add_metaclass(abc.ABCMeta)
@@ -268,7 +269,6 @@ class BaseBank:
             url_parts = list(parse.urlparse(url))
             if not(url_parts[0] and url_parts[1]):
                 url = self.get_request().build_absolute_uri(url)
-            # append querystring
             query = dict(parse.parse_qsl(self.get_request().GET.urlencode()))
             url = append_querystring(url, query)
 
