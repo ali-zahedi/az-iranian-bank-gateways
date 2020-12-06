@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from .enum import BankType
+from .enum import BankType, PaymentStatus
 
 
 class BankQuerySet(models.QuerySet):
@@ -21,19 +21,23 @@ class BankManager(models.Manager):
 
 
 class Bank(models.Model):
+    status = models.CharField(
+        max_length=50,
+        null=False,
+        blank=False,
+        choices=PaymentStatus.choices,
+        verbose_name=_('Status'),
+    )
     bank_type = models.CharField(
         max_length=50,
         choices=BankType.choices,
         verbose_name=_('Bank'),
     )
-    response_result = models.TextField(
-        null=True,
-        blank=True,
-        verbose_name=_('Bank result')
-    )
-    reference_number = models.CharField(
+    order_id = models.CharField(
         max_length=255,
-        verbose_name=_('Reference number')
+        null=False,
+        blank=False,
+        verbose_name=_('Order id')
     )
     amount = models.CharField(
         max_length=10,
@@ -41,6 +45,19 @@ class Bank(models.Model):
         blank=False,
         verbose_name=_('Amount')
     )
+    # reference number return from bank
+    reference_number = models.CharField(
+        max_length=255,
+        null=False,
+        blank=False,
+        verbose_name=_('Reference number')
+    )
+    response_result = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name=_('Bank result')
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True,
         editable=False,

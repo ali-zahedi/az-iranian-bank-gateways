@@ -47,23 +47,21 @@
  برای استفاده و اتصال به درگاه بانک کافی است یک فکتوری ایجاد کنیم و پارامترهای اجباری را تنظیم کنیم. سپس کاربر را می توانیم به درگاه بانک هدایت کنیم.
   
 ```python
-from azbankgateways.bankfactories import BankFactory, BankType
 """
 BankFactory()  می توانید به صورت دیفالت نیز استفاده کنید که از بانک پیش فرض استفاده خواهد کرد.
 یا اینکه بانک مورد نظر را در هنگام ساخت فکتوری به آن ارسال کنید.
 """
+from azbankgateways.bankfactories import BankFactory, BankType
 
 factory = BankFactory() # or BankFactory(BankType.BMI) 
 
 bank = factory.create()
-bank.set_amount(100)
+bank.set_amount(1000)
 bank.set_callback_url('/gateway/callback') 
 
 bank.set_mobile_number('+989112221234') #optional
 
-bank.ready()
-
-order_id = bank.get_order_id()
+bank_record = bank.ready()
 
 bank.redirect_gateway()
 

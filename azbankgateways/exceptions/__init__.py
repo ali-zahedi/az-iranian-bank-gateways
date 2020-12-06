@@ -1,1 +1,1 @@
-from .exceptions import SettingDoesNotExist, CurrencyDoesNotSupport, AmountDoesNotSupport
+from .exceptions import SettingDoesNotExist, CurrencyDoesNotSupport, AmountDoesNotSupport, BankGatewayConnectionError
