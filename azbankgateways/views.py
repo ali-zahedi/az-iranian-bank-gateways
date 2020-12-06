@@ -1,7 +1,5 @@
-from django.shortcuts import redirect
-
-from azbankgateways.exceptions import BankGatewayUnclear
 from azbankgateways.bankfactories import BankFactory
+from azbankgateways.exceptions import BankGatewayUnclear
 
 
 def callback_view(request):
@@ -12,4 +10,4 @@ def callback_view(request):
     factory = BankFactory(bank_type)
     bank = factory.create()
     bank.verify_from_gateway(request)
-    return redirect('https://www.zarinpal.com/pg/StartPay/%s/ZarinGate' % (str(result.Authority)))
+    return bank.redirect_callback()

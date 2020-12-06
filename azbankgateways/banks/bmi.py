@@ -46,7 +46,7 @@ class BMI(BaseBank):
                     self.get_gateway_amount(),
                 )
             ),
-            'ReturnUrl': '/a',
+            'ReturnUrl': self._get_gateway_callback_url(),
             'LocalDateTime': time_now,
             'OrderId': self.get_tracking_code(),
             'AdditionalData': 'oi:%s-ou:%s' % (self.get_tracking_code(), self.get_mobile_number()),
@@ -94,9 +94,9 @@ class BMI(BaseBank):
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
             logging.debug("BMI gateway unapprove payment")
 
-    def prepare_verify_from_gateway(self, request):
-        super(BMI, self).prepare_verify_from_gateway(request)
-        token = request.POST.get('token', None)
+    def prepare_verify_from_gateway(self):
+        super(BMI, self).prepare_verify_from_gateway()
+        token = self.get_request().POST.get('token', None)
         self._set_reference_number(token)
         self._set_bank_record()
 

@@ -1,17 +1,21 @@
 import abc
+import datetime
 import logging
 import uuid
-import datetime
 
 import six
 from django.db.models import Q
 from django.shortcuts import redirect
 
+from urllib import parse
+
+from .. import default_settings as settings
 from ..exceptions import CurrencyDoesNotSupport, AmountDoesNotSupport, BankGatewayTokenExpired, BankGatewayStateInvalid
 from ..models import Bank, CurrencyEnum, PaymentStatus
-from .. import default_settings as settings
+from ..utils import append_querystring
 
 
+# TODO: handle and expire record after 15 minutes
 @six.add_metaclass(abc.ABCMeta)
 class BaseBank:
     """Base bank for sending to gateway."""
@@ -25,6 +29,7 @@ class BaseBank:
     _transaction_status_text: str = ''
     _client_callback_url: str = ''
     _bank: Bank = None
+    _request = None
 
     def __init__(self, **kwargs):
         self.default_setting_kwargs = kwargs
@@ -106,23 +111,27 @@ class BaseBank:
         self._bank = bank
         self._set_payment_status(PaymentStatus.WAITING)
         if self._client_callback_url:
-            self.set_callback_url(self._client_callback_url)
+            self._bank.callback_url = self._client_callback_url
         return bank
 
     @abc.abstractmethod
-    def prepare_verify_from_gateway(self, request):
+    def prepare_verify_from_gateway(self):
         pass
 
     def verify_from_gateway(self, request):
-        self.prepare_verify_from_gateway(request)
+        """زمانی که کاربر از گیت وی بانک باز میگردد این متد فراخوانی می شود."""
+        self.set_request(request)
+        self.prepare_verify_from_gateway()
         self._set_payment_status(PaymentStatus.RETURN_FROM_BANK)
         self.verify(self.get_tracking_code())
 
     @abc.abstractmethod
     def get_gateway_payment_url(self):
+        """این متد بسته به بانک متفاوت پر می شود."""
         pass
 
     def redirect_gateway(self):
+        """کاربر را به درگاه بانک هدایت می کند"""
         if (datetime.datetime.now() - self._bank.created_at).seconds > 120:
             self._set_payment_status(PaymentStatus.EXPIRE_GATEWAY_TOKEN)
             logging.debug("Redirect to bank expire!")
@@ -131,18 +140,29 @@ class BaseBank:
         self._set_payment_status(PaymentStatus.REDIRECT_TO_BANK)
         return redirect(self.get_gateway_payment_url())
 
+    def get_client_callback_url(self):
+        """این متد پس از وریفای شدن استفاده خواهد شد. لینک برگشت را بر میگرداند.حال چه وریفای موفقیت آمیز باشد چه با
+        لغو کاربر مواجه شده باشد """
+        url = append_querystring(self._bank.callback_url, {settings.TRANSACTION_QUERY_PARAM: self.get_tracking_code()})
+        return url
+
+    def redirect_client_callback(self):
+        """"این متد کاربر را به مسیری که نرم افزار میخواهد هدایت خواهد کرد و پس از وریفای شدن استفاده می شود."""
+        logging.debug("Redirect to client")
+        return redirect(self.get_client_callback_url())
+
     def set_mobile_number(self, mobile_number):
+        """شماره موبایل کاربر را جهت ارسال به درگاه برای فتچ کردن شماره کارت ها و ... ارسال خواهد کرد."""
         self._mobile_number = mobile_number
 
     def get_mobile_number(self):
         return self._mobile_number
 
-    def set_callback_url(self, callback_url):
+    def set_client_callback_url(self, callback_url):
+        """ذخیره کال بک از طریق نرم افزار برای بازگردانی کاربر پس از بازگشت درگاه بانک به پکیج و سپس از پکیج به نرم
+        افزار. """
         if not self._bank:
             self._client_callback_url = callback_url
-        elif self._bank.status == PaymentStatus.WAITING:
-            self._bank.callback_url = callback_url
-            self._bank.save()
         else:
             logging.critical(
                 "You are change the call back url in invalid situation.",
@@ -183,6 +203,9 @@ class BaseBank:
     def get_reference_number(self):
         return self._reference_number
 
+    """
+    ترنزکشن تکست متنی است که از طرف درگاه بانک به عنوان پیام باز میگردد.
+    """
     def _set_transaction_status_text(self, txt):
         self._transaction_status_text = txt
 
@@ -203,6 +226,7 @@ class BaseBank:
         logging.debug("Change bank payment status", extra={'status': payment_status})
 
     def set_gateway_currency(self, currency: CurrencyEnum):
+        """واحد پولی درگاه بانک"""
         if currency not in [CurrencyEnum.IRR, CurrencyEnum.IRT]:
             raise CurrencyDoesNotSupport()
         self._gateway_currency = currency
@@ -211,6 +235,7 @@ class BaseBank:
         return self._gateway_currency
 
     def set_currency(self, currency: CurrencyEnum):
+        """"واحد پولی نرم افزار"""
         if currency not in [CurrencyEnum.IRR, CurrencyEnum.IRT]:
             raise CurrencyDoesNotSupport()
         self._currency = currency
@@ -220,9 +245,31 @@ class BaseBank:
 
     def get_gateway_amount(self):
         return self._gateway_amount
-
+    """
+    ترکینگ کد توسط برنامه تولید شده و برای استفاده های بعدی کاربرد خواهد داشت.
+    """
     def _set_tracking_code(self, tracking_code):
         self._tracking_code = tracking_code
 
     def get_tracking_code(self):
         return self._tracking_code
+
+    """ًRequest"""
+    def set_request(self, request):
+        self._request = request
+
+    def get_request(self):
+        return self._request
+
+    """gateway"""
+    def _get_gateway_callback_url(self):
+        url = settings.CALLBACK_URL
+        if self.get_request():
+            url_parts = list(parse.urlparse(url))
+            if not(url_parts[0] and url_parts[1]):
+                url = self.get_request().build_absolute_uri(url)
+            # append querystring
+            query = dict(parse.parse_qsl(self.get_request().GET.urlencode()))
+            url = append_querystring(url, query)
+
+        return url

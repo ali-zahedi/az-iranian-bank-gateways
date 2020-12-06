@@ -59,10 +59,10 @@ from azbankgateways.bankfactories import BankFactory, BankType
 factory = BankFactory() # or BankFactory(BankType.BMI) 
 
 bank = factory.create()
+bank.set_request(request)
 bank.set_amount(1000)
-bank.set_callback_url('/gateway/callback') 
-
-bank.set_mobile_number('+989112221234') #optional
+bank.set_client_callback_url('/gateway/callback') 
+bank.set_mobile_number('+989112221234') # Optional
 
 bank_record = bank.ready()
 
