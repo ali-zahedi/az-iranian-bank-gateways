@@ -1,17 +1,21 @@
 import abc
+import uuid
 
 import six
 
-from ..exceptions import CurrencyDoesNotSupport
+from ..exceptions import CurrencyDoesNotSupport, AmountDoesNotSupport
 from ..models import Bank, CurrencyEnum
 
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseBank:
     """Base bank for sending to gateway."""
-    _gateway_currency = CurrencyEnum.IRR
-    _currency = CurrencyEnum.IRR
-    _amount = 0
+    _gateway_currency: str = CurrencyEnum.IRR
+    _currency: str = CurrencyEnum.IRR
+    _amount: int = 0
+    _gateway_amount: int = 0
+    _mobile_number: str = None
+    _order_id: int = None
 
     def __init__(self, **kwargs):
         self.default_setting_kwargs = kwargs
@@ -25,25 +29,32 @@ class BaseBank:
     def prepare_amount(self):
         """prepare amount"""
         if self._currency == self._gateway_currency:
-            return self._amount
+            self._gateway_amount = self._amount
         elif self._currency == CurrencyEnum.IRR and self._gateway_currency == CurrencyEnum.IRT:
-            return CurrencyEnum.rial_to_toman(self._amount)
+            self._gateway_amount = CurrencyEnum.rial_to_toman(self._amount)
         elif self._currency == CurrencyEnum.IRT and self._gateway_currency == CurrencyEnum.IRR:
-            return CurrencyEnum.toman_to_rial(self._amount)
+            self._gateway_amount = CurrencyEnum.toman_to_rial(self._amount)
+        else:
+            self._gateway_amount = self._amount
 
-        return self._amount
-
+        if self.get_gateway_amount() < 100:
+            raise AmountDoesNotSupport()
+        
     def get_amount(self):
         """get the amount"""
         return self._amount
 
     def set_amount(self, amount):
-        """set the amount"""
+        """set amount"""
+        if int(amount) <= 0:
+            raise AmountDoesNotSupport()
         self._amount = int(amount)
 
     @abc.abstractmethod
     def prepare_pay(self):
-        pass
+        self.prepare_amount()
+        order_id = uuid.uuid4().int
+        self._set_order_id(order_id)
 
     @abc.abstractmethod
     def pay(self):
@@ -66,8 +77,10 @@ class BaseBank:
         pass
 
     def set_mobile_number(self, mobile_number):
-        # TODO: handle mobile number
-        pass
+        self._mobile_number = mobile_number
+
+    def get_mobile_number(self):
+        return self._mobile_number
 
     def set_callback_url(self, callback):
         # TODO: handle it
@@ -103,3 +116,12 @@ class BaseBank:
 
     def get_currency(self):
         return self._currency
+
+    def get_gateway_amount(self):
+        return self._gateway_amount
+
+    def _set_order_id(self, order_id):
+        self._order_id = order_id
+
+    def get_order_id(self):
+        return self._order_id

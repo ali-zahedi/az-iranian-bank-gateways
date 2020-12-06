@@ -63,6 +63,8 @@ bank.set_mobile_number('+989112221234') #optional
 
 bank.ready()
 
+order_id = bank.get_order_id()
+
 bank.redirect_gateway()
 
 ```
