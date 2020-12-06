@@ -105,7 +105,7 @@ bank.redirect_gateway()
 
 - [ ] Documentation
 
-- [ ] Bank model structure
+- [X] Bank model structure
 
 - [X] BMI gateway support
 
