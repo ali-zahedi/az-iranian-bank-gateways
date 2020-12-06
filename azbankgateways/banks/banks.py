@@ -264,12 +264,13 @@ class BaseBank:
 
     """gateway"""
     def _get_gateway_callback_url(self):
-        url = settings.CALLBACK_URL
+        url = reverse(settings.CALLBACK_NAMESPACE)
         if self.get_request():
             url_parts = list(parse.urlparse(url))
             if not(url_parts[0] and url_parts[1]):
                 url = self.get_request().build_absolute_uri(url)
             query = dict(parse.parse_qsl(self.get_request().GET.urlencode()))
+            query.update({'bank_type': self.get_bank_type()})
             url = append_querystring(url, query)
 
         return url
