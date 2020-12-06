@@ -39,7 +39,7 @@ class BaseBank:
 
         if self.get_gateway_amount() < 100:
             raise AmountDoesNotSupport()
-        
+
     def get_amount(self):
         """get the amount"""
         return self._amount

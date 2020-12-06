@@ -29,7 +29,7 @@ class BMI(BaseBank):
             'TerminalId': self.terminal_code,
             'MerchantId': self.merchant_code,
             'Amount': self.get_gateway_amount(),
-            'SignData': self.encrypt_des3(
+            'SignData': self._encrypt_des3(
                 '{};{};{}'.format(
                     self.terminal_code,
                     self.get_order_id(),
@@ -65,7 +65,7 @@ class BMI(BaseBank):
 
     def _encrypt_des3(self, text):
         secret_key_bytes = base64.b64decode(self.secret_key)
-        text = self.pad(text, 8)
+        text = self._pad(text, 8)
         cipher = DES3.new(secret_key_bytes, DES3.MODE_ECB)
         cipher_text = cipher.encrypt(str.encode(text))
         return base64.b64encode(cipher_text).decode("utf-8")
