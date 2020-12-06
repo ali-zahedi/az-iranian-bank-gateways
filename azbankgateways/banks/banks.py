@@ -8,6 +8,7 @@ from django.shortcuts import redirect
 
 from ..exceptions import CurrencyDoesNotSupport, AmountDoesNotSupport, BankGatewayTokenExpired
 from ..models import Bank, CurrencyEnum, PaymentStatus
+from .. import default_settings as settings
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -64,7 +65,7 @@ class BaseBank:
     def prepare_pay(self):
         logging.debug("prepare pay method")
         self.prepare_amount()
-        order_id = int(str(uuid.uuid4().int)[-10:])
+        order_id = int(str(uuid.uuid4().int)[-1 * settings.ORDER_CODE_LENGTH:])
         self._set_order_id(order_id)
 
     @abc.abstractmethod
