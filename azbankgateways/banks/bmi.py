@@ -13,9 +13,9 @@ from azbankgateways.utils import get_json
 
 
 class BMI(BaseBank):
-    merchant_code = None
-    terminal_code = None
-    secret_key = None
+    _merchant_code = None
+    _terminal_code = None
+    _secret_key = None
 
     def __init__(self, **kwargs):
         super(BMI, self).__init__(**kwargs)
@@ -31,17 +31,17 @@ class BMI(BaseBank):
         for item in ['MERCHANT_CODE', 'TERMINAL_CODE', 'SECRET_KEY']:
             if item not in self.default_setting_kwargs:
                 raise SettingDoesNotExist()
-            setattr(self, item.lower(), self.default_setting_kwargs[item])
+            setattr(self, f'_{item.lower()}', self.default_setting_kwargs[item])
 
     def get_pay_data(self):
         time_now = datetime.datetime.now().strftime('%m/%d/%Y %H:%M:%S %P')
         data = {
-            'TerminalId': self.terminal_code,
-            'MerchantId': self.merchant_code,
+            'TerminalId': self._terminal_code,
+            'MerchantId': self._merchant_code,
             'Amount': self.get_gateway_amount(),
             'SignData': self._encrypt_des3(
                 '{};{};{}'.format(
-                    self.terminal_code,
+                    self._terminal_code,
                     self.get_tracking_code(),
                     self.get_gateway_amount(),
                 )
@@ -112,7 +112,7 @@ class BMI(BaseBank):
         return text
 
     def _encrypt_des3(self, text):
-        secret_key_bytes = base64.b64decode(self.secret_key)
+        secret_key_bytes = base64.b64decode(self._secret_key)
         text = self._pad(text, 8)
         cipher = DES3.new(secret_key_bytes, DES3.MODE_ECB)
         cipher_text = cipher.encrypt(str.encode(text))
