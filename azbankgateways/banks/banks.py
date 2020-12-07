@@ -95,6 +95,7 @@ class BaseBank:
         logging.debug("Prepare verify method")
         self._set_tracking_code(tracking_code)
         self._set_bank_record()
+        self.prepare_amount()
 
     @abc.abstractmethod
     def verify(self, tracking_code):
@@ -202,6 +203,7 @@ class BaseBank:
             )
         self._set_tracking_code(self._bank.tracking_code)
         self._set_reference_number(self._bank.reference_number)
+        self.set_amount(self._bank.amount)
 
     def get_reference_number(self):
         return self._reference_number

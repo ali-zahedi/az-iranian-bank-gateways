@@ -31,7 +31,7 @@ class BMI(BaseBank):
         for item in ['MERCHANT_CODE', 'TERMINAL_CODE', 'SECRET_KEY']:
             if item not in self.default_setting_kwargs:
                 raise SettingDoesNotExist()
-            setattr(self, item.lower(), self.default_setting_kwargs[item])
+            setattr(self, f'_{item.lower()}', self.default_setting_kwargs[item])
 
     def get_pay_data(self):
         time_now = datetime.datetime.now().strftime('%m/%d/%Y %H:%M:%S %P')

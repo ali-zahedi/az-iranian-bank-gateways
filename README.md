@@ -35,6 +35,10 @@
             'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
             'SECRET_KEY': '<YOUR SECRET KEY>',
         },
+        'ZARINPAL': {
+            'PATH': 'azbankgateways.banks.Zarinpal',
+            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+        },
     },
     'DEFAULT': 'BMI',
     'CURRENCY': 'IRR', 
