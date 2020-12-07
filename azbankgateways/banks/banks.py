@@ -16,6 +16,7 @@ from ..exceptions import CurrencyDoesNotSupport, AmountDoesNotSupport, BankGatew
 from ..models import Bank, CurrencyEnum, PaymentStatus
 from ..utils import append_querystring
 
+
 # TODO: handle and expire record after 15 minutes
 @six.add_metaclass(abc.ABCMeta)
 class BaseBank:
@@ -144,7 +145,8 @@ class BaseBank:
     def get_client_callback_url(self):
         """این متد پس از وریفای شدن استفاده خواهد شد. لینک برگشت را بر میگرداند.حال چه وریفای موفقیت آمیز باشد چه با
         لغو کاربر مواجه شده باشد """
-        url = append_querystring(self._bank.callback_url, {settings.TRACKING_CODE_QUERY_PARAM: self.get_tracking_code()})
+        url = append_querystring(self._bank.callback_url,
+                                 {settings.TRACKING_CODE_QUERY_PARAM: self.get_tracking_code()})
         return url
 
     def redirect_client_callback(self):
@@ -207,6 +209,7 @@ class BaseBank:
     """
     ترنزکشن تکست متنی است که از طرف درگاه بانک به عنوان پیام باز میگردد.
     """
+
     def _set_transaction_status_text(self, txt):
         self._transaction_status_text = txt
 
@@ -246,9 +249,11 @@ class BaseBank:
 
     def get_gateway_amount(self):
         return self._gateway_amount
+
     """
     ترکینگ کد توسط برنامه تولید شده و برای استفاده های بعدی کاربرد خواهد داشت.
     """
+
     def _set_tracking_code(self, tracking_code):
         self._tracking_code = tracking_code
 
@@ -256,6 +261,7 @@ class BaseBank:
         return self._tracking_code
 
     """ًRequest"""
+
     def set_request(self, request):
         self._request = request
 
@@ -263,11 +269,12 @@ class BaseBank:
         return self._request
 
     """gateway"""
+
     def _get_gateway_callback_url(self):
         url = reverse(settings.CALLBACK_NAMESPACE)
         if self.get_request():
             url_parts = list(parse.urlparse(url))
-            if not(url_parts[0] and url_parts[1]):
+            if not (url_parts[0] and url_parts[1]):
                 url = self.get_request().build_absolute_uri(url)
             query = dict(parse.parse_qsl(self.get_request().GET.urlencode()))
             query.update({'bank_type': self.get_bank_type()})
