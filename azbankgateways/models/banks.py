@@ -67,7 +67,7 @@ class Bank(models.Model):
         blank=False,
         verbose_name=_('Amount')
     )
-    # reference number return from bank
+    # Reference number return from bank
     reference_number = models.CharField(
         unique=True,
         max_length=255,
