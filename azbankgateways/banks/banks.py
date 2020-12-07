@@ -144,7 +144,7 @@ class BaseBank:
     def get_client_callback_url(self):
         """این متد پس از وریفای شدن استفاده خواهد شد. لینک برگشت را بر میگرداند.حال چه وریفای موفقیت آمیز باشد چه با
         لغو کاربر مواجه شده باشد """
-        url = append_querystring(self._bank.callback_url, {settings.TRANSACTION_QUERY_PARAM: self.get_tracking_code()})
+        url = append_querystring(self._bank.callback_url, {settings.TRACKING_CODE_QUERY_PARAM: self.get_tracking_code()})
         return url
 
     def redirect_client_callback(self):

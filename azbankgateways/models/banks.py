@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -18,6 +20,25 @@ class BankManager(models.Manager):
 
     def active(self):
         return self.get_queryset().active()
+
+    def update_expire_records(self):
+        count = self.active().filter(
+            status=PaymentStatus.RETURN_FROM_BANK,
+            update_at__lte=datetime.datetime.now() - datetime.timedelta(minutes=15)
+        ).update(
+            status=PaymentStatus.EXPIRE_VERIFY_PAYMENT
+        )
+
+        count = count + self.active().filter(
+            status=PaymentStatus.REDIRECT_TO_BANK,
+            update_at__lt=datetime.datetime.now() - datetime.timedelta(minutes=15)
+        ).update(
+            status=PaymentStatus.EXPIRE_GATEWAY_TOKEN
+        )
+        return count
+
+    def filter_return_from_bank(self):
+        return self.active().filter(status=PaymentStatus.RETURN_FROM_BANK)
 
 
 class Bank(models.Model):
@@ -84,3 +105,7 @@ class Bank(models.Model):
     class Meta:
         verbose_name = _('Bank gateway')
         verbose_name_plural = _('Bank gateways')
+
+    @property
+    def is_success(self):
+        return self.status == PaymentStatus.COMPLETE
