@@ -209,7 +209,7 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 
 - [X] Documentation
 
-- [ ] Zarinpal gateway support
+- [X] Zarinpal gateway support
 
 - [ ] Saman gateway support
 
