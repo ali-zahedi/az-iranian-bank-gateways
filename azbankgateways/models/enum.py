@@ -26,4 +26,5 @@ class PaymentStatus(models.TextChoices):
     RETURN_FROM_BANK = _('Return from bank')
     CANCEL_BY_USER = _('Cancel by user')
     EXPIRE_GATEWAY_TOKEN = _('Expire gateway token')
+    EXPIRE_VERIFY_PAYMENT = _('Expire verify payment')
     COMPLETE = _('Complete')
