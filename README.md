@@ -20,6 +20,8 @@
  
  1. درگاه پرداخت زیبال
  
+ 1. درگاه پرداخت باهمتا
+ 
 [[_TOC_]]
 
 <h1 dir="rtl">نصب</h1>
@@ -58,6 +60,14 @@
         },
         'ZIBAL': {
             'PATH': 'azbankgateways.banks.Zibal',
+            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+        },
+        'BAHAMTA': {
+            'PATH': 'azbankgateways.banks.Bahamta',
+            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+        },
+        'SIZPAY': {
+            'PATH': 'azbankgateways.banks.SizPay',
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
         },
     },
@@ -235,6 +245,8 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 - [X] IDPay gateway support
 
 - [X] Zibal gateway support
+
+- [X] Bahamta gateway support
 
 - [ ] Saman gateway support
 
