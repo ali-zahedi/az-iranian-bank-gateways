@@ -15,8 +15,6 @@ from azbankgateways.utils import get_json
 
 class Zibal(BaseBank):
     _merchant_code = None
-    _terminal_code = None
-    _secret_key = None
 
     def __init__(self, **kwargs):
         super(Zibal, self).__init__(**kwargs)
@@ -29,7 +27,7 @@ class Zibal(BaseBank):
         return BankType.ZIBAL
 
     def set_default_settings(self):
-        for item in ['MERCHANT_CODE', 'TERMINAL_CODE', 'SECRET_KEY']:
+        for item in ['MERCHANT_CODE']:
             if item not in self.default_setting_kwargs:
                 raise SettingDoesNotExist()
             setattr(self, f'_{item.lower()}', self.default_setting_kwargs[item])
@@ -51,7 +49,7 @@ class Zibal(BaseBank):
         super(Zibal, self).pay()
         data = self.get_pay_data()
         response_json = self._send_data(self._token_api_url, data)
-        if response_json['result'] == '100':
+        if response_json['result'] == 100:
             token = response_json['trackId']
             self._set_reference_number(token)
         else:
@@ -76,7 +74,7 @@ class Zibal(BaseBank):
         super(Zibal, self).verify(transaction_code)
         data = self.get_verify_data()
         response_json = self._send_data(self._verify_api_url, data)
-        if response_json['status'] == '1':
+        if response_json['result'] == 100 and response_json['status'] == 1:
             self._set_payment_status(PaymentStatus.COMPLETE)
             extra_information = json.dumps(response_json)
             self._bank.extra_information = extra_information
@@ -87,7 +85,7 @@ class Zibal(BaseBank):
 
     def prepare_verify_from_gateway(self):
         super(Zibal, self).prepare_verify_from_gateway()
-        token = self.get_request().POST.get('token', None)
+        token = self.get_request().GET.get('trackId', None)
         self._set_reference_number(token)
         self._set_bank_record()
 
