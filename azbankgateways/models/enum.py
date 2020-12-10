@@ -6,6 +6,7 @@ class BankType(models.TextChoices):
     BMI = 'BMI', _('BMI')
     ZARINPAL = 'ZARINPAL', _('Zarinpal')
     IDPAY = 'IDPAY', _('IDPay')
+    ZIBAL = 'ZIBAL', _('Zibal')
 
 
 class CurrencyEnum(models.TextChoices):
