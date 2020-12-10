@@ -8,6 +8,16 @@
 <p dir="rtl">
  کدهای آزاد و متن باز به زبان پایتون (python) که برای ارتباط با درگاه های بانکهای ایرانی در جنگو (Django) توسعه داده شده است.
  
+ <p dir="rtl">
+ در حال حاضر درگاه های با درگاه های زیر می توانید پرداخت کنید.
+ </p>
+ 
+ 1. درگاه پرداخت بانک ملی ایران 
+ 
+ 1. درگاه پرداخت زرین پال
+ 
+ 1. درگاه پرداخت آی دی پی (IDPay)
+ 
  
 [[_TOC_]]
 
@@ -38,6 +48,12 @@
         'ZARINPAL': {
             'PATH': 'azbankgateways.banks.Zarinpal',
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+        },
+        'IDPAY': {
+            'PATH': 'azbankgateways.banks.IDPay',
+            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+            'METHOD': 'POST',  # GET or POST
+            'X_SANDBOX': 0,  # 0 disable, 1 active
         },
     },
     'DEFAULT': 'BMI',
@@ -203,13 +219,15 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 
 # TODO
 
+- [X] Documentation
+
 - [X] Bank model structure
 
 - [X] BMI gateway support
 
-- [X] Documentation
-
 - [X] Zarinpal gateway support
+
+- [X] IDPay gateway support
 
 - [ ] Saman gateway support
 
