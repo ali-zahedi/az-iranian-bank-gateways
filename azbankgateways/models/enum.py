@@ -7,6 +7,7 @@ class BankType(models.TextChoices):
     ZARINPAL = 'ZARINPAL', _('Zarinpal')
     IDPAY = 'IDPAY', _('IDPay')
     ZIBAL = 'ZIBAL', _('Zibal')
+    BAHAMTA = 'BAHAMTA', _('Bahamta')
 
 
 class CurrencyEnum(models.TextChoices):
