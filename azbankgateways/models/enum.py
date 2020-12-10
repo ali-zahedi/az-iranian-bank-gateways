@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 class BankType(models.TextChoices):
     BMI = 'BMI', _('BMI')
     ZARINPAL = 'ZARINPAL', _('Zarinpal')
+    IDPAY = 'IDPAY', _('IDPay')
 
 
 class CurrencyEnum(models.TextChoices):
