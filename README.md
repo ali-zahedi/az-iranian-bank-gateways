@@ -12,15 +12,16 @@
  در حال حاضر درگاه های با درگاه های زیر می توانید پرداخت کنید.
  </p>
  
- 1. درگاه پرداخت بانک ملی ایران 
+ 1. [درگاه پرداخت بانک ملی ایران](https://mmp.sadadpsp.ir/Browse/MerchantRequestForm?@TermType_Shaparakabbr=INT)
  
- 1. درگاه پرداخت زرین پال
+ 1. [درگاه پرداخت زرین پال](https://next.zarinpal.com/auth/register)
  
- 1. درگاه پرداخت آی دی پی (IDPay)
+ 1. [درگاه پرداخت آی دی پی (IDPay)](https://idpay.ir/s/664153)
  
- 1. درگاه پرداخت زیبال
+ 1. [درگاه پرداخت زیبال](https://zibal.ir)
  
- 1. درگاه پرداخت باهمتا
+ 1. [درگاه پرداخت باهمتا](https://webpay.bahamta.com?rc=Sv7oH)
+ 
  
 [[_TOC_]]
 
