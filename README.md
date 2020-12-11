@@ -66,10 +66,6 @@
             'PATH': 'azbankgateways.banks.Bahamta',
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
         },
-        'SIZPAY': {
-            'PATH': 'azbankgateways.banks.SizPay',
-            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
-        },
     },
     'DEFAULT': 'BMI',
     'CURRENCY': 'IRR', 
