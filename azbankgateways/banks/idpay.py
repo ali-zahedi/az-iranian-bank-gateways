@@ -20,7 +20,7 @@ class IDPay(BaseBank):
         super(IDPay, self).__init__(**kwargs)
         self.set_gateway_currency(CurrencyEnum.IRR)
         self._token_api_url = 'https://api.idpay.ir/v1.1/payment'
-        self._verify_api_url = 'https://sadad.shaparak.ir/vpg/api/v0/Advice/Verify'
+        self._verify_api_url = 'https://api.idpay.ir/v1.1/payment/verify'
 
     def get_bank_type(self):
         return BankType.IDPAY
