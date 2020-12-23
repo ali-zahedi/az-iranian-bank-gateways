@@ -1,16 +1,11 @@
 import logging
-import base64
-import datetime
 
-import requests
-from Crypto.Cipher import DES3
 from zeep import Transport, Client
 
 from azbankgateways.banks import BaseBank
-from azbankgateways.exceptions import SettingDoesNotExist, BankGatewayConnectionError
+from azbankgateways.exceptions import SettingDoesNotExist
 from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
 from azbankgateways.models import CurrencyEnum, BankType, PaymentStatus
-from azbankgateways.utils import get_json
 
 
 class Zarinpal(BaseBank):
