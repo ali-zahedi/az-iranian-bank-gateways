@@ -29,6 +29,9 @@ class Bahamta(BaseBank):
                 raise SettingDoesNotExist()
             setattr(self, f'_{item.lower()}', self.default_setting_kwargs[item])
 
+    """
+    pay
+    """
     def get_pay_data(self):
         data = {
             'api_key': self._merchant_code,
@@ -58,6 +61,21 @@ class Bahamta(BaseBank):
     def get_gateway_payment_url(self):
         return self._payment_url.format(self.get_reference_number())
 
+    """
+    verify gateway    
+    """
+    def prepare_verify_from_gateway(self):
+        super(Bahamta, self).prepare_verify_from_gateway()
+        token = self.get_request().GET.get('reference', None)
+        self._set_reference_number(token)
+        self._set_bank_record()
+
+    def verify_from_gateway(self, request):
+        super(Bahamta, self).verify_from_gateway(request)
+
+    """
+    verify
+    """
     def get_verify_data(self):
         super(Bahamta, self).get_verify_data()
         data = {
@@ -82,15 +100,6 @@ class Bahamta(BaseBank):
         else:
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
             logging.debug("Bahamta gateway unapprove payment")
-
-    def prepare_verify_from_gateway(self):
-        super(Bahamta, self).prepare_verify_from_gateway()
-        token = self.get_request().GET.get('reference', None)
-        self._set_reference_number(token)
-        self._set_bank_record()
-
-    def verify_from_gateway(self, request):
-        super(Bahamta, self).verify_from_gateway(request)
 
     def _send_data(self, api, data):
         try:
