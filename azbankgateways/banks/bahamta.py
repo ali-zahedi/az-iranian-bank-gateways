@@ -19,7 +19,7 @@ class Bahamta(BaseBank):
         self.set_gateway_currency(CurrencyEnum.IRR)
         self._token_api_url = 'https://webpay.bahamta.com/api/create_request'
         self._payment_url = None
-        self._verify_api_url = 'https://sadad.shaparak.ir/vpg/api/v0/Advice/Verify'
+        self._verify_api_url = 'https://webpay.bahamta.com/api/confirm_payment'
 
     def get_bank_type(self):
         return BankType.BAHAMTA
