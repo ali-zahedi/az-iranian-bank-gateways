@@ -29,8 +29,17 @@ class Zarinpal(BaseBank):
     gateway
     """
 
-    def get_gateway_payment_url(self):
+    def _get_gateway_payment_url_parameter(self):
         return self._payment_url.format(self.get_reference_number())
+
+    def _get_gateway_payment_parameter(self):
+        params = {
+
+        }
+        return params
+
+    def _get_gateway_payment_method_parameter(self):
+        return "GET"
 
     """
     pay
