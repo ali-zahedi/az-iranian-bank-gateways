@@ -1,10 +1,7 @@
 import json
 import logging
-import base64
-import datetime
 
 import requests
-from Crypto.Cipher import DES3
 
 from azbankgateways.banks import BaseBank
 from azbankgateways.exceptions import SettingDoesNotExist, BankGatewayConnectionError
