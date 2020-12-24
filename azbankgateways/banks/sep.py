@@ -4,6 +4,7 @@ import datetime
 
 import requests
 from Crypto.Cipher import DES3
+from zeep import Transport, Client
 
 from azbankgateways.banks import BaseBank
 from azbankgateways.exceptions import SettingDoesNotExist, BankGatewayConnectionError
@@ -21,7 +22,7 @@ class SEP(BaseBank):
         self.set_gateway_currency(CurrencyEnum.IRR)
         self._token_api_url = 'https://sep.shaparak.ir/MobilePG/MobilePayment'
         self._payment_url = 'https://sep.shaparak.ir/OnlinePG/OnlinePG'
-        self._verify_api_url = 'https://sadad.shaparak.ir/vpg/api/v0/Advice/Verify'
+        self._verify_api_url = 'https://verify.sep.ir/Payments/ReferencePayment.asmx?WSDL'
 
     def get_bank_type(self):
         return BankType.SEP
@@ -74,11 +75,34 @@ class SEP(BaseBank):
         }
         return params
 
+    """
+    verify from gateway
+    """
+    def prepare_verify_from_gateway(self):
+        super(SEP, self).prepare_verify_from_gateway()
+        request = self.get_request()
+        tracking_code = request.GET.get('ResNum', None)
+        token = request.GET.get('Token', None)
+        self._set_tracking_code(tracking_code)
+        self._set_bank_record()
+        ref_num = request.GET.get('RefNum', None)
+        if request.POST.get('State', 'NOK') == 'OK' and ref_num:
+            self._set_reference_number(ref_num)
+            extra_information = f"TRACENO={request.GET.get('TRACENO', None)}, RefNum={ref_num}, Token={token}"
+            self._bank.extra_information = extra_information
+            self._bank.save()
+
+    def verify_from_gateway(self, request):
+        super(SEP, self).verify_from_gateway(request)
+
+    """
+    verify
+    """
     def get_verify_data(self):
         super(SEP, self).get_verify_data()
         data = {
-            'Token': self.get_reference_number(),
-            'SignData': self._encrypt_des3(self.get_reference_number()),
+            'String_1': self.get_reference_number(),
+            'String_2': self._merchant_code,
         }
         return data
 
@@ -88,39 +112,15 @@ class SEP(BaseBank):
     def verify(self, transaction_code):
         super(SEP, self).verify(transaction_code)
         data = self.get_verify_data()
-        response_json = self._send_data(self._verify_api_url, data)
-        if response_json['ResCode'] == '0':
+        client = self._get_client(self._verify_api_url)
+        result = client.service.verifyTransaction(
+            **data
+        )
+        if result == self.get_gateway_amount():
             self._set_payment_status(PaymentStatus.COMPLETE)
-            extra_information = f"RetrivalRefNo={response_json['RetrivalRefNo']},SystemTraceNo={response_json['SystemTraceNo']}"
-            self._bank.extra_information = extra_information
-            self._bank.save()
         else:
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
             logging.debug("SEP gateway unapprove payment")
-
-    def prepare_verify_from_gateway(self):
-        super(SEP, self).prepare_verify_from_gateway()
-        token = self.get_request().POST.get('token', None)
-        self._set_reference_number(token)
-        self._set_bank_record()
-
-    def verify_from_gateway(self, request):
-        super(SEP, self).verify_from_gateway(request)
-
-    @classmethod
-    def _pad(cls, text, pad_size=16):
-        text_length = len(text)
-        last_block_size = text_length % pad_size
-        remaining_space = pad_size - last_block_size
-        text = text + (remaining_space * chr(remaining_space))
-        return text
-
-    def _encrypt_des3(self, text):
-        secret_key_bytes = base64.b64decode(self._secret_key)
-        text = self._pad(text, 8)
-        cipher = DES3.new(secret_key_bytes, DES3.MODE_ECB)
-        cipher_text = cipher.encrypt(str.encode(text))
-        return base64.b64encode(cipher_text).decode("utf-8")
 
     def _send_data(self, api, data):
         try:
@@ -135,3 +135,16 @@ class SEP(BaseBank):
         response_json = get_json(response)
         self._set_transaction_status_text(response_json.get('errorDesc'))
         return response_json
+
+    @staticmethod
+    def _get_client(url):
+        headers = {
+            'Accept': '*/*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0',
+        }
+        transport = Transport(timeout=5, operation_timeout=5)
+        transport.session.headers = headers
+        client = Client(url, transport=transport)
+        return client
