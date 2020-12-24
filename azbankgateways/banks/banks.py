@@ -128,21 +128,6 @@ class BaseBank:
         self._set_payment_status(PaymentStatus.RETURN_FROM_BANK)
         self.verify(self.get_tracking_code())
 
-    @abc.abstractmethod
-    def get_gateway_payment_url(self):
-        """این متد بسته به بانک متفاوت پر می شود."""
-        pass
-
-    def redirect_gateway(self):
-        """کاربر را به درگاه بانک هدایت می کند"""
-        if (datetime.datetime.now() - self._bank.created_at).seconds > 120:
-            self._set_payment_status(PaymentStatus.EXPIRE_GATEWAY_TOKEN)
-            logging.debug("Redirect to bank expire!")
-            raise BankGatewayTokenExpired()
-        logging.debug("Redirect to bank")
-        self._set_payment_status(PaymentStatus.REDIRECT_TO_BANK)
-        return redirect(self.get_gateway_payment_url())
-
     def get_client_callback_url(self):
         """این متد پس از وریفای شدن استفاده خواهد شد. لینک برگشت را بر میگرداند.حال چه وریفای موفقیت آمیز باشد چه با
         لغو کاربر مواجه شده باشد """
@@ -271,6 +256,57 @@ class BaseBank:
         return self._request
 
     """gateway"""
+
+    @abc.abstractmethod
+    def _get_gateway_payment_url_parameter(self):
+        """این متد بسته به بانک متفاوت پر می شود."""
+        """
+        :return
+        url: str
+        """
+        pass
+
+    @abc.abstractmethod
+    def _get_gateway_payment_parameter(self):
+        """این متد بسته به بانک متفاوت پر می شود."""
+        """
+        :return
+        params: dict
+        """
+        pass
+
+    @abc.abstractmethod
+    def _get_gateway_payment_method_parameter(self):
+        """این متد بسته به بانک متفاوت پر می شود."""
+        """
+        :return
+        method: POST, GET
+        """
+        pass
+
+    def redirect_gateway(self):
+        """کاربر را به درگاه بانک هدایت می کند"""
+        if (datetime.datetime.now() - self._bank.created_at).seconds > 120:
+            self._set_payment_status(PaymentStatus.EXPIRE_GATEWAY_TOKEN)
+            logging.debug("Redirect to bank expire!")
+            raise BankGatewayTokenExpired()
+        logging.debug("Redirect to bank")
+        self._set_payment_status(PaymentStatus.REDIRECT_TO_BANK)
+        return redirect(self.get_gateway_payment_url())
+
+    def get_gateway_payment_url(self):
+        redirect_url = reverse(settings.GO_TO_BANK_GATEWAY_NAMESPACE)
+        url = self._get_gateway_payment_url_parameter()
+        params = self._get_gateway_payment_parameter()
+        method = self._get_gateway_payment_method_parameter()
+        params.update({
+            'url': url,
+            'method': method,
+        })
+        redirect_url = append_querystring(redirect_url, params)
+        if self.get_request():
+            redirect_url = self.get_request().build_absolute_uri(redirect_url)
+        return redirect_url
 
     def _get_gateway_callback_url(self):
         url = reverse(settings.CALLBACK_NAMESPACE)

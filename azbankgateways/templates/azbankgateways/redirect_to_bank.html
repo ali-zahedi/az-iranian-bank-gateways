@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<form id='id_form' action="{{ url }}" method="{{ method }}">
+    {% for key, value in params.items %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+    {% endfor %}
+</form>
+
+<script type="text/javascript">
+    window.onload = function () {
+
+        function submitForm() {
+            document.forms['id_form'].submit();
+        }
+
+        submitForm();
+    }
+</script>
+
+</body>
+</html>

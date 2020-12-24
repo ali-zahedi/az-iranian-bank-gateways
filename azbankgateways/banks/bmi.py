@@ -21,7 +21,7 @@ class BMI(BaseBank):
         super(BMI, self).__init__(**kwargs)
         self.set_gateway_currency(CurrencyEnum.IRR)
         self._token_api_url = 'https://sadad.shaparak.ir/vpg/api/v0/Request/PaymentRequest'
-        self._payment_url = "https://sadad.shaparak.ir/VPG/Purchase?Token={}"
+        self._payment_url = "https://sadad.shaparak.ir/VPG/Purchase"
         self._verify_api_url = 'https://sadad.shaparak.ir/vpg/api/v0/Advice/Verify'
 
     def get_bank_type(self):
@@ -67,8 +67,20 @@ class BMI(BaseBank):
             logging.critical("BMI gateway reject payment")
             raise BankGatewayRejectPayment(self.get_transaction_status_text())
 
-    def get_gateway_payment_url(self):
-        return self._payment_url.format(self.get_reference_number())
+    """
+    : gateway
+    """
+    def _get_gateway_payment_method_parameter(self):
+        return "GET"
+
+    def _get_gateway_payment_url_parameter(self):
+        return self._payment_url
+
+    def _get_gateway_payment_parameter(self):
+        params = {
+            'Token': self.get_reference_number()
+        }
+        return params
 
     def get_verify_data(self):
         super(BMI, self).get_verify_data()
