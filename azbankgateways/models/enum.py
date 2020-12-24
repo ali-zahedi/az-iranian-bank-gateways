@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 class BankType(models.TextChoices):
     BMI = 'BMI', _('BMI')
+    SEP = 'SEP', _('SEP')
     ZARINPAL = 'ZARINPAL', _('Zarinpal')
     IDPAY = 'IDPAY', _('IDPay')
     ZIBAL = 'ZIBAL', _('Zibal')

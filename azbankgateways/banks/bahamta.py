@@ -1,27 +1,25 @@
 import json
 import logging
-import base64
-import datetime
 
 import requests
-from Crypto.Cipher import DES3
 
 from azbankgateways.banks import BaseBank
 from azbankgateways.exceptions import SettingDoesNotExist, BankGatewayConnectionError
 from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
 from azbankgateways.models import CurrencyEnum, BankType, PaymentStatus
-from azbankgateways.utils import get_json
+from azbankgateways.utils import get_json, append_querystring, split_to_dict_querystring
 
 
 class Bahamta(BaseBank):
     _merchant_code = None
+    _params = {}
 
     def __init__(self, **kwargs):
         super(Bahamta, self).__init__(**kwargs)
         self.set_gateway_currency(CurrencyEnum.IRR)
         self._token_api_url = 'https://webpay.bahamta.com/api/create_request'
-        self._payment_url = "https://sadad.shaparak.ir/VPG/Purchase?Token={}"
-        self._verify_api_url = 'https://sadad.shaparak.ir/vpg/api/v0/Advice/Verify'
+        self._payment_url = None
+        self._verify_api_url = 'https://webpay.bahamta.com/api/confirm_payment'
 
     def get_bank_type(self):
         return BankType.BAHAMTA
@@ -32,6 +30,24 @@ class Bahamta(BaseBank):
                 raise SettingDoesNotExist()
             setattr(self, f'_{item.lower()}', self.default_setting_kwargs[item])
 
+    """
+    Gateway
+    """
+    def _get_gateway_payment_url_parameter(self):
+        return self._payment_url
+
+    def _get_gateway_payment_parameter(self):
+        params = {
+        }
+        params.update(self._params)
+        return params
+
+    def _get_gateway_payment_method_parameter(self):
+        return "GET"
+
+    """
+    pay
+    """
     def get_pay_data(self):
         data = {
             'api_key': self._merchant_code,
@@ -52,15 +68,27 @@ class Bahamta(BaseBank):
         if response_json['ok']:
             # در این سیستم رفرنس برای ذخیره سازی بر نمی گردد!
             token = self.get_tracking_code()
-            self._payment_url = response_json['payment_url']
+            self._payment_url, self._params = split_to_dict_querystring(response_json['result']['payment_url'])
             self._set_reference_number(token)
         else:
             logging.critical("Bahamta gateway reject payment")
             raise BankGatewayRejectPayment(self.get_transaction_status_text())
 
-    def get_gateway_payment_url(self):
-        return self._payment_url.format(self.get_reference_number())
+    """
+    verify gateway    
+    """
+    def prepare_verify_from_gateway(self):
+        super(Bahamta, self).prepare_verify_from_gateway()
+        token = self.get_request().GET.get('reference', None)
+        self._set_reference_number(token)
+        self._set_bank_record()
 
+    def verify_from_gateway(self, request):
+        super(Bahamta, self).verify_from_gateway(request)
+
+    """
+    verify
+    """
     def get_verify_data(self):
         super(Bahamta, self).get_verify_data()
         data = {
@@ -77,7 +105,7 @@ class Bahamta(BaseBank):
         super(Bahamta, self).verify(transaction_code)
         data = self.get_verify_data()
         response_json = self._send_data(self._verify_api_url, data)
-        if response_json.get('ok', False) and response_json.get('result', {}).get('state', 'paid'):
+        if response_json.get('ok', False) and response_json.get('result', {}).get('state', None) == 'paid':
             self._set_payment_status(PaymentStatus.COMPLETE)
             extra_information = json.dumps(response_json.get('result', {}))
             self._bank.extra_information = extra_information
@@ -86,18 +114,10 @@ class Bahamta(BaseBank):
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
             logging.debug("Bahamta gateway unapprove payment")
 
-    def prepare_verify_from_gateway(self):
-        super(Bahamta, self).prepare_verify_from_gateway()
-        token = self.get_request().GET.get('reference', None)
-        self._set_reference_number(token)
-        self._set_bank_record()
-
-    def verify_from_gateway(self, request):
-        super(Bahamta, self).verify_from_gateway(request)
-
     def _send_data(self, api, data):
         try:
-            response = requests.get(api, json=data, timeout=5)
+            url = append_querystring(api, data)
+            response = requests.get(url, timeout=5)
         except requests.Timeout:
             logging.exception("Bahamta time out gateway {}".format(data))
             raise BankGatewayConnectionError()

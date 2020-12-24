@@ -1,16 +1,11 @@
 import logging
-import base64
-import datetime
 
-import requests
-from Crypto.Cipher import DES3
 from zeep import Transport, Client
 
 from azbankgateways.banks import BaseBank
-from azbankgateways.exceptions import SettingDoesNotExist, BankGatewayConnectionError
+from azbankgateways.exceptions import SettingDoesNotExist
 from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
 from azbankgateways.models import CurrencyEnum, BankType, PaymentStatus
-from azbankgateways.utils import get_json
 
 
 class Zarinpal(BaseBank):
@@ -29,6 +24,26 @@ class Zarinpal(BaseBank):
             if item not in self.default_setting_kwargs:
                 raise SettingDoesNotExist()
             setattr(self, f'_{item.lower()}', self.default_setting_kwargs[item])
+
+    """
+    gateway
+    """
+
+    def _get_gateway_payment_url_parameter(self):
+        return self._payment_url.format(self.get_reference_number())
+
+    def _get_gateway_payment_parameter(self):
+        params = {
+
+        }
+        return params
+
+    def _get_gateway_payment_method_parameter(self):
+        return "GET"
+
+    """
+    pay
+    """
 
     def get_pay_data(self):
         description = 'خرید با شماره پیگیری - {}'.format(self.get_tracking_code())
@@ -58,8 +73,22 @@ class Zarinpal(BaseBank):
             logging.critical("Zarinpal gateway reject payment")
             raise BankGatewayRejectPayment(self.get_transaction_status_text())
 
-    def get_gateway_payment_url(self):
-        return self._payment_url.format(self.get_reference_number())
+    """
+    verify from gateway
+    """
+
+    def prepare_verify_from_gateway(self):
+        super(Zarinpal, self).prepare_verify_from_gateway()
+        token = self.get_request().GET.get('Authority', None)
+        self._set_reference_number(token)
+        self._set_bank_record()
+
+    def verify_from_gateway(self, request):
+        super(Zarinpal, self).verify_from_gateway(request)
+
+    """
+    verify
+    """
 
     def get_verify_data(self):
         super(Zarinpal, self).get_verify_data()
@@ -83,15 +112,6 @@ class Zarinpal(BaseBank):
         else:
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
             logging.debug("Zarinpal gateway unapprove payment")
-
-    def prepare_verify_from_gateway(self):
-        super(Zarinpal, self).prepare_verify_from_gateway()
-        token = self.get_request().GET.get('Authority', None)
-        self._set_reference_number(token)
-        self._set_bank_record()
-
-    def verify_from_gateway(self, request):
-        super(Zarinpal, self).verify_from_gateway(request)
 
     @staticmethod
     def _get_client():

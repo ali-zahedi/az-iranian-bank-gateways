@@ -12,7 +12,9 @@
  در حال حاضر درگاه های با درگاه های زیر می توانید پرداخت کنید.
  </p>
  
- 1. [درگاه پرداخت بانک ملی ایران](https://mmp.sadadpsp.ir/Browse/MerchantRequestForm?@TermType_Shaparakabbr=INT)
+ 1. [درگاه پرداخت بانک ملی ایران (BMI)](https://mmp.sadadpsp.ir/Browse/MerchantRequestForm?@TermType_Shaparakabbr=INT)
+ 
+ 1. [درگاه پرداخت بانک سامان (SEP)](https://www.sep.ir/iemerchantregister)
  
  1. [درگاه پرداخت زرین پال](https://next.zarinpal.com/auth/register)
  
@@ -48,6 +50,11 @@
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
             'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
             'SECRET_KEY': '<YOUR SECRET KEY>',
+        },
+        'SEP': {
+            'PATH': 'azbankgateways.banks.SEP',
+            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+            'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
         },
         'ZARINPAL': {
             'PATH': 'azbankgateways.banks.Zarinpal',
@@ -245,7 +252,7 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 
 - [X] Bahamta gateway support
 
-- [ ] Saman gateway support
+- [X] Saman gateway support
 
 
 ## توسعه
