@@ -7,7 +7,7 @@ from azbankgateways.banks import BaseBank
 from azbankgateways.exceptions import SettingDoesNotExist, BankGatewayConnectionError
 from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
 from azbankgateways.models import CurrencyEnum, BankType, PaymentStatus
-from azbankgateways.utils import get_json
+from azbankgateways.utils import get_json, split_to_dict_querystring
 
 
 class IDPay(BaseBank):
@@ -15,6 +15,7 @@ class IDPay(BaseBank):
     _method = None
     _x_sandbox = None
     _payment_url = None
+    _params = {}
 
     def __init__(self, **kwargs):
         super(IDPay, self).__init__(**kwargs)
@@ -32,6 +33,25 @@ class IDPay(BaseBank):
             setattr(self, f'_{item.lower()}', self.default_setting_kwargs[item])
 
         self._x_sandbox = str(self._x_sandbox)
+
+    """
+    gateway
+    """
+
+    def _get_gateway_payment_url_parameter(self):
+        return self._payment_url
+
+    def _get_gateway_payment_parameter(self):
+        params = {}
+        params.update(self._params)
+        return params
+
+    def _get_gateway_payment_method_parameter(self):
+        return "GET"
+
+    """
+    pay
+    """
 
     def get_pay_data(self):
         data = {
@@ -51,14 +71,31 @@ class IDPay(BaseBank):
         response_json = self._send_data(self._token_api_url, data)
         if 'id' in response_json and 'link' in response_json and response_json['link'] and response_json['id']:
             token = response_json['id']
-            self._payment_url = response_json['link']
+            self._payment_url, self._params = split_to_dict_querystring(response_json['link'])
             self._set_reference_number(token)
         else:
             logging.critical("IDPay gateway reject payment")
             raise BankGatewayRejectPayment(self.get_transaction_status_text())
 
-    def get_gateway_payment_url(self):
-        return self._payment_url
+    """
+    verify gateway
+    """
+
+    def prepare_verify_from_gateway(self):
+        super(IDPay, self).prepare_verify_from_gateway()
+        if self._method == 'POST':
+            token = self.get_request().POST.get('id', None)
+        else:
+            token = self.get_request().GET.get('id', None)
+        self._set_reference_number(token)
+        self._set_bank_record()
+
+    def verify_from_gateway(self, request):
+        super(IDPay, self).verify_from_gateway(request)
+
+    """
+    verify
+    """
 
     def get_verify_data(self):
         super(IDPay, self).get_verify_data()
@@ -83,18 +120,6 @@ class IDPay(BaseBank):
         else:
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
             logging.debug("IDPay gateway unapprove payment")
-
-    def prepare_verify_from_gateway(self):
-        super(IDPay, self).prepare_verify_from_gateway()
-        if self._method == 'POST':
-            token = self.get_request().POST.get('id', None)
-        else:
-            token = self.get_request().GET.get('id', None)
-        self._set_reference_number(token)
-        self._set_bank_record()
-
-    def verify_from_gateway(self, request):
-        super(IDPay, self).verify_from_gateway(request)
 
     def _send_data(self, api, data):
         headers = {
