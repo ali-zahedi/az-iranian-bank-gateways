@@ -29,6 +29,24 @@ class Zibal(BaseBank):
                 raise SettingDoesNotExist()
             setattr(self, f'_{item.lower()}', self.default_setting_kwargs[item])
 
+    """
+    gateway
+    """
+
+    def _get_gateway_payment_url_parameter(self):
+        return self._payment_url.format(self.get_reference_number())
+
+    def _get_gateway_payment_parameter(self):
+        params = {}
+        return params
+
+    def _get_gateway_payment_method_parameter(self):
+        return "GET"
+
+    """
+    pay
+    """
+
     def get_pay_data(self):
         data = {
             'merchant': self._merchant_code,
@@ -53,8 +71,22 @@ class Zibal(BaseBank):
             logging.critical("Zibal gateway reject payment")
             raise BankGatewayRejectPayment(self.get_transaction_status_text())
 
-    def get_gateway_payment_url(self):
-        return self._payment_url.format(self.get_reference_number())
+    """
+    verify from gateway
+    """
+
+    def prepare_verify_from_gateway(self):
+        super(Zibal, self).prepare_verify_from_gateway()
+        token = self.get_request().GET.get('trackId', None)
+        self._set_reference_number(token)
+        self._set_bank_record()
+
+    def verify_from_gateway(self, request):
+        super(Zibal, self).verify_from_gateway(request)
+
+    """
+    verify
+    """
 
     def get_verify_data(self):
         super(Zibal, self).get_verify_data()
@@ -79,15 +111,6 @@ class Zibal(BaseBank):
         else:
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
             logging.debug("Zibal gateway unapprove payment")
-
-    def prepare_verify_from_gateway(self):
-        super(Zibal, self).prepare_verify_from_gateway()
-        token = self.get_request().GET.get('trackId', None)
-        self._set_reference_number(token)
-        self._set_bank_record()
-
-    def verify_from_gateway(self, request):
-        super(Zibal, self).verify_from_gateway(request)
 
     def _send_data(self, api, data):
         try:
