@@ -86,7 +86,7 @@ class SEP(BaseBank):
         self._set_tracking_code(tracking_code)
         self._set_bank_record()
         ref_num = request.GET.get('RefNum', None)
-        if request.POST.get('State', 'NOK') == 'OK' and ref_num:
+        if request.GET.get('State', 'NOK') == 'OK' and ref_num:
             self._set_reference_number(ref_num)
             extra_information = f"TRACENO={request.GET.get('TRACENO', None)}, RefNum={ref_num}, Token={token}"
             self._bank.extra_information = extra_information
