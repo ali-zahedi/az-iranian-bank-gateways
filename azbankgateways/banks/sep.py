@@ -38,7 +38,7 @@ class SEP(BaseBank):
             'Action': 'Token',
             'Amount': self.get_gateway_amount(),
             'Wage': 0,
-            'TerminalId': self._terminal_code,
+            'TerminalId': self._merchant_code,
             'ResNum': self.get_tracking_code(),
             'RedirectURL': self._get_gateway_callback_url(),
             'CellNumber': self.get_mobile_number(),
@@ -86,8 +86,9 @@ class SEP(BaseBank):
         self._set_tracking_code(tracking_code)
         self._set_bank_record()
         ref_num = request.GET.get('RefNum', None)
-        if request.POST.get('State', 'NOK') == 'OK' and ref_num:
+        if request.GET.get('State', 'NOK') == 'OK' and ref_num:
             self._set_reference_number(ref_num)
+            self._bank.reference_number = ref_num
             extra_information = f"TRACENO={request.GET.get('TRACENO', None)}, RefNum={ref_num}, Token={token}"
             self._bank.extra_information = extra_information
             self._bank.save()
@@ -100,10 +101,7 @@ class SEP(BaseBank):
     """
     def get_verify_data(self):
         super(SEP, self).get_verify_data()
-        data = {
-            'String_1': self.get_reference_number(),
-            'String_2': self._merchant_code,
-        }
+        data = self.get_reference_number(), self._merchant_code
         return data
 
     def prepare_verify(self, tracking_code):
@@ -114,7 +112,7 @@ class SEP(BaseBank):
         data = self.get_verify_data()
         client = self._get_client(self._verify_api_url)
         result = client.service.verifyTransaction(
-            **data
+            *data
         )
         if result == self.get_gateway_amount():
             self._set_payment_status(PaymentStatus.COMPLETE)
