@@ -1,4 +1,4 @@
 include LICENSE.md
 include README.md
-recursive-include az-iraninan-bank-gateways *
+recursive-include azbankgateways *
 recursive-include docs *
