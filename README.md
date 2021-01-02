@@ -47,14 +47,13 @@ INSTALLED_APPS = [
     'azbankgateways',
     # ...
 ]
-
 AZ_IRANIAN_BANK_GATEWAYS = {
-    'CHANNELS': {
+    'GATEWAYS': {
         'BMI': {
             'PATH': 'azbankgateways.banks.BMI',
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
             'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
-            'SECRET_KEY': '<YOUR SECRET KEY>',
+            'SECRET_KEY': '<YOUR SECRET CODE>',
         },
         'SEP': {
             'PATH': 'azbankgateways.banks.SEP',
@@ -81,13 +80,13 @@ AZ_IRANIAN_BANK_GATEWAYS = {
         },
     },
     'DEFAULT': 'BMI',
-    'CURRENCY': 'IRR', 
+    'CURRENCY': 'IRR',
     'TRACKING_CODE_QUERY_PARAM': 'tc',
     'TRACKING_CODE_LENGTH': 16,
 }
  ```
 
-1. `CHANNELS` :  تنظیمات مربوط به هر بانک به صورت دیکشنری های جدا در این قسمت وجود دارد. تنظیماتی مانند کلاس اجرا کننده، کلیدهای امنیتی که توسط بانک در اختیار شما قرار می گیرد.
+1. `GATEWAYS` :  تنظیمات مربوط به هر بانک به صورت دیکشنری های جدا در این قسمت وجود دارد. تنظیماتی مانند کلاس اجرا کننده، کلیدهای امنیتی که توسط بانک در اختیار شما قرار می گیرد.
 
 1. `DEFAULT`: در زمانی که به سازنده فکتوری پارامتری ارسال نشود از این تنظیم به عنوان بانک پیش فرض استفاده خواهد شد و ارتباطات با این بانک برقرار می شود. 
 
