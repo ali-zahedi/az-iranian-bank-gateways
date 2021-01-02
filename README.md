@@ -42,8 +42,13 @@
 
  
  ``` python
+INSTALLED_APPS = [
+    # ....
+    'azbankgateways',
+    # ...
+]
 
- AZ_IRANIAN_BANK_GATEWAYS = {
+AZ_IRANIAN_BANK_GATEWAYS = {
     'CHANNELS': {
         'BMI': {
             'PATH': 'azbankgateways.banks.BMI',
@@ -115,6 +120,15 @@ urlpatterns = [
 <p dir="rtl">
 با اضافه کردن آدرس بالا به لیست یو آر ال ها، پرداخت ها پس از درگاه به این مسیر هدایت و اعتبار سنجی می شوند و سپس مجدد به سمت کال بکی که به ازای هر درخواست تنظیم می شود، مسیر یابی خواهد شد.
 </p>
+
+### Migrate
+<p dir="rtl">
+بعد از انجام تنظیمات دستور زیر را اجرا می کنیم.
+</p>
+
+```
+python manage.py migrate
+```
 
 
 <h1 dir="rtl">نحوه استفاده</h1>

@@ -2,7 +2,14 @@
 
 from django.conf import settings
 from azbankgateways.apps import AZIranianBankGatewaysConfig
+import django
 
+if django.__version__ >= '3.0':
+    from django.db import models
+    TEXT_CHOICES = models.TextChoices
+else:
+    from .models.enum_django import TextChoices
+    TEXT_CHOICES = TextChoices
 _AZ_IRANIAN_BANK_GATEWAYS = getattr(settings, 'AZ_IRANIAN_BANK_GATEWAYS', {})
 BANK_GATEWAYS = _AZ_IRANIAN_BANK_GATEWAYS.get('GATEWAYS', {})
 BANK_DEFAULT = _AZ_IRANIAN_BANK_GATEWAYS.get('DEFAULT', 'BMI')
