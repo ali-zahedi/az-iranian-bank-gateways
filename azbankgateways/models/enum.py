@@ -1,8 +1,9 @@
-from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+import azbankgateways.default_settings as settings
 
-class BankType(models.TextChoices):
+
+class BankType(settings.TEXT_CHOICES):
     BMI = 'BMI', _('BMI')
     SEP = 'SEP', _('SEP')
     ZARINPAL = 'ZARINPAL', _('Zarinpal')
@@ -11,7 +12,7 @@ class BankType(models.TextChoices):
     BAHAMTA = 'BAHAMTA', _('Bahamta')
 
 
-class CurrencyEnum(models.TextChoices):
+class CurrencyEnum(settings.TEXT_CHOICES):
     IRR = 'IRR', _('Rial')
     IRT = 'IRT', _('Toman')
 
@@ -24,7 +25,7 @@ class CurrencyEnum(models.TextChoices):
         return amount * 10
 
 
-class PaymentStatus(models.TextChoices):
+class PaymentStatus(settings.TEXT_CHOICES):
     WAITING = _('Waiting')
     REDIRECT_TO_BANK = _('Redirect to bank')
     RETURN_FROM_BANK = _('Return from bank')

@@ -42,14 +42,18 @@
 
  
  ``` python
-
- AZ_IRANIAN_BANK_GATEWAYS = {
-    'CHANNELS': {
+INSTALLED_APPS = [
+    # ....
+    'azbankgateways',
+    # ...
+]
+AZ_IRANIAN_BANK_GATEWAYS = {
+    'GATEWAYS': {
         'BMI': {
             'PATH': 'azbankgateways.banks.BMI',
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
             'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
-            'SECRET_KEY': '<YOUR SECRET KEY>',
+            'SECRET_KEY': '<YOUR SECRET CODE>',
         },
         'SEP': {
             'PATH': 'azbankgateways.banks.SEP',
@@ -76,13 +80,13 @@
         },
     },
     'DEFAULT': 'BMI',
-    'CURRENCY': 'IRR', 
+    'CURRENCY': 'IRR',
     'TRACKING_CODE_QUERY_PARAM': 'tc',
     'TRACKING_CODE_LENGTH': 16,
 }
  ```
 
-1. `CHANNELS` :  تنظیمات مربوط به هر بانک به صورت دیکشنری های جدا در این قسمت وجود دارد. تنظیماتی مانند کلاس اجرا کننده، کلیدهای امنیتی که توسط بانک در اختیار شما قرار می گیرد.
+1. `GATEWAYS` :  تنظیمات مربوط به هر بانک به صورت دیکشنری های جدا در این قسمت وجود دارد. تنظیماتی مانند کلاس اجرا کننده، کلیدهای امنیتی که توسط بانک در اختیار شما قرار می گیرد.
 
 1. `DEFAULT`: در زمانی که به سازنده فکتوری پارامتری ارسال نشود از این تنظیم به عنوان بانک پیش فرض استفاده خواهد شد و ارتباطات با این بانک برقرار می شود. 
 
@@ -115,6 +119,15 @@ urlpatterns = [
 <p dir="rtl">
 با اضافه کردن آدرس بالا به لیست یو آر ال ها، پرداخت ها پس از درگاه به این مسیر هدایت و اعتبار سنجی می شوند و سپس مجدد به سمت کال بکی که به ازای هر درخواست تنظیم می شود، مسیر یابی خواهد شد.
 </p>
+
+### Migrate
+<p dir="rtl">
+بعد از انجام تنظیمات دستور زیر را اجرا می کنیم.
+</p>
+
+```
+python manage.py migrate
+```
 
 
 <h1 dir="rtl">نحوه استفاده</h1>
