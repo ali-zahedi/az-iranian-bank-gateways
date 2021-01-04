@@ -20,9 +20,6 @@ class DefaultReader(Reader):
         """
         return settings.BANK_GATEWAYS[bank_type]
 
-    def klass(self, bank_type: BankType, identifier: str) -> dict:
-        return settings.BANK_CLASS[bank_type]
-
     def default(self, identifier: str):
         return settings.BANK_DEFAULT
 

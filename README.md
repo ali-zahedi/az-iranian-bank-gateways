@@ -148,7 +148,7 @@ def go_to_gateway_view(request):
     user_mobile_number = '+989112221234'  # اختیاری
 
     factory = bankfactories.BankFactory()
-    bank = factory.create() # or factory.create(bank_models.BankType.BMI)
+    bank = factory.create() # or factory.create(bank_models.BankType.BMI) or set identifier
     bank.set_request(request)
     bank.set_amount(amount)
     # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند

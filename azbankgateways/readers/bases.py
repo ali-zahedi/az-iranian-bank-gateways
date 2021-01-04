@@ -3,6 +3,7 @@ import abc
 import six
 
 from azbankgateways.models import BankType
+from azbankgateways import default_settings as settings
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -24,9 +25,8 @@ class Reader:
         """
         pass
 
-    @abc.abstractmethod
     def klass(self, bank_type: BankType, identifier: str) -> dict:
-        pass
+        return settings.BANK_CLASS[bank_type]
 
     @abc.abstractmethod
     def default(self, identifier: str):
