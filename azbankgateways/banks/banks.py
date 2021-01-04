@@ -33,7 +33,8 @@ class BaseBank:
     _bank: Bank = None
     _request = None
 
-    def __init__(self, **kwargs):
+    def __init__(self, identifier: str, **kwargs):
+        self.identifier = identifier
         self.default_setting_kwargs = kwargs
         self.set_default_settings()
 
@@ -105,6 +106,7 @@ class BaseBank:
     def ready(self) -> Bank:
         self.pay()
         bank = Bank.objects.create(
+            bank_choose_identifier=self.identifier,
             bank_type=self.get_bank_type(),
             amount=self.get_amount(),
             reference_number=self.get_reference_number(),
