@@ -288,7 +288,7 @@ class BaseBank:
 
     def redirect_gateway(self):
         """کاربر را به درگاه بانک هدایت می کند"""
-        if (datetime.datetime.now() - self._bank.created_at).seconds > 120:
+        if (datetime.datetime.now().astimezone() - self._bank.created_at).seconds > 120:
             self._set_payment_status(PaymentStatus.EXPIRE_GATEWAY_TOKEN)
             logging.debug("Redirect to bank expire!")
             raise BankGatewayTokenExpired()
