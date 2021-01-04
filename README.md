@@ -140,10 +140,6 @@ python manage.py migrate
 
   
 ```python
-"""
-BankFactory()  می توانید به صورت دیفالت نیز استفاده کنید که از بانک پیش فرض استفاده خواهد کرد.
-یا اینکه بانک مورد نظر را در هنگام ساخت فکتوری به آن ارسال کنید.
-"""
 from django.urls import reverse
 from azbankgateways import bankfactories, models as bank_models, default_settings as settings
 
@@ -155,8 +151,8 @@ def go_to_gateway_view(request):
     # تنظیم شماره موبایل کاربر از هر جایی که مد نظر است
     user_mobile_number = '+989112221234'  # اختیاری
 
-    factory = bankfactories.BankFactory()  # or bankfactories.BankFactory(bank_models.BankType.BMI)
-    bank = factory.create()
+    factory = bankfactories.BankFactory()
+    bank = factory.create() # or factory.create(bank_models.BankType.BMI)
     bank.set_request(request)
     bank.set_amount(amount)
     # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند
@@ -233,14 +229,14 @@ def callback_gateway_view(request):
 import logging
 from azbankgateways import bankfactories, models as bank_models, default_settings as settings
 
-factory = bankfactories.BankFactory()  # or bankfactories.BankFactory(bank_models.BankType.BMI)
+factory = bankfactories.BankFactory()
 
 # غیر فعال کردن رکورد های قدیمی
 bank_models.Bank.objects.update_expire_records()
 
 # مشخص کردن رکوردهایی که باید تعیین وضعیت شوند
 for item in bank_models.Bank.objects.filter_return_from_bank():
-	bank = factory.create()
+	bank = factory.create(item.bank_type)
 	bank.verify(item.tracking_code)		
 	bank_record = bank_models.Bank.objects.get(tracking_code=item.tracking_code)
 	if bank_record.is_success:
@@ -252,6 +248,8 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 # TODO
 
 - [X] Documentation
+
+- [ ] Support multiple provider
 
 - [X] Bank model structure
 
