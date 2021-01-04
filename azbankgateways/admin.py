@@ -11,6 +11,7 @@ class BankAdmin(admin.ModelAdmin):
         'response_result',
         'callback_url',
         'extra_information',
+        'bank_choose_identifier',
         'created_at',
         'update_at',
     ]
@@ -23,6 +24,7 @@ class BankAdmin(admin.ModelAdmin):
         'response_result',
         'callback_url',
         'extra_information',
+        'bank_choose_identifier',
         'created_at',
         'update_at',
     ]

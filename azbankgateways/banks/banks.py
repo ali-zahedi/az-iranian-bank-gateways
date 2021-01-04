@@ -1,14 +1,12 @@
 import abc
-import datetime
 import logging
 import uuid
-
+from urllib import parse
 import six
+
 from django.db.models import Q
 from django.shortcuts import redirect
-
-from urllib import parse
-
+from django.utils import timezone
 from django.urls import reverse
 
 from .. import default_settings as settings
@@ -33,7 +31,8 @@ class BaseBank:
     _bank: Bank = None
     _request = None
 
-    def __init__(self, **kwargs):
+    def __init__(self, identifier: str, **kwargs):
+        self.identifier = identifier
         self.default_setting_kwargs = kwargs
         self.set_default_settings()
 
@@ -105,6 +104,7 @@ class BaseBank:
     def ready(self) -> Bank:
         self.pay()
         bank = Bank.objects.create(
+            bank_choose_identifier=self.identifier,
             bank_type=self.get_bank_type(),
             amount=self.get_amount(),
             reference_number=self.get_reference_number(),
@@ -286,7 +286,7 @@ class BaseBank:
 
     def redirect_gateway(self):
         """کاربر را به درگاه بانک هدایت می کند"""
-        if (datetime.datetime.now() - self._bank.created_at).seconds > 120:
+        if (timezone.now() - self._bank.created_at).seconds > 120:
             self._set_payment_status(PaymentStatus.EXPIRE_GATEWAY_TOKEN)
             logging.debug("Redirect to bank expire!")
             raise BankGatewayTokenExpired()

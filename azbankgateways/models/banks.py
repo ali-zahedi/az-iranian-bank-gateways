@@ -90,6 +90,12 @@ class Bank(models.Model):
         blank=True,
         verbose_name=_('Extra information')
     )
+    bank_choose_identifier = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name=_('Bank choose identifier')
+    )
 
     created_at = models.DateTimeField(
         auto_now_add=True,
