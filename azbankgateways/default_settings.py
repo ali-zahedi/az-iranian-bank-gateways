@@ -6,10 +6,24 @@ import django
 
 if django.__version__ >= '3.0':
     from django.db import models
+
     TEXT_CHOICES = models.TextChoices
 else:
     from .models.enum_django import TextChoices
+
     TEXT_CHOICES = TextChoices
+BANK_CLASS = getattr(
+    settings,
+    'CLASS',
+    {
+        'BMI': 'azbankgateways.banks.BMI',
+        'SEP': 'azbankgateways.banks.SEP',
+        'ZARINPAL': 'azbankgateways.banks.Zarinpal',
+        'IDPAY': 'azbankgateways.banks.IDPay',
+        'ZIBAL': 'azbankgateways.banks.Zibal',
+        'BAHAMTA': 'azbankgateways.banks.Bahamta',
+    }
+)
 _AZ_IRANIAN_BANK_GATEWAYS = getattr(settings, 'AZ_IRANIAN_BANK_GATEWAYS', {})
 BANK_GATEWAYS = _AZ_IRANIAN_BANK_GATEWAYS.get('GATEWAYS', {})
 BANK_DEFAULT = _AZ_IRANIAN_BANK_GATEWAYS.get('DEFAULT', 'BMI')
@@ -18,3 +32,4 @@ TRACKING_CODE_QUERY_PARAM = _AZ_IRANIAN_BANK_GATEWAYS.get('TRACKING_CODE_QUERY_P
 TRACKING_CODE_LENGTH = _AZ_IRANIAN_BANK_GATEWAYS.get('TRACKING_CODE_LENGTH', 16)
 CALLBACK_NAMESPACE = f'{AZIranianBankGatewaysConfig.name}:callback'
 GO_TO_BANK_GATEWAY_NAMESPACE = f'{AZIranianBankGatewaysConfig.name}:go-to-bank-gateway'
+SETTING_VALUE_READER_CLASS = getattr(settings, 'SETTING_VALUE_READER_CLASS', 'azbankgateways.readers.DefaultReader')

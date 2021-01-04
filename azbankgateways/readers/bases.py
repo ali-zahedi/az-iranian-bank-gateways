@@ -1,0 +1,37 @@
+import abc
+
+import six
+
+from azbankgateways.models import BankType
+
+
+@six.add_metaclass(abc.ABCMeta)
+class Reader:
+
+    @abc.abstractmethod
+    def read(self, bank_type: BankType, identifier: str) -> dict:
+        """
+
+        :param bank_type:
+        :param identifier:
+        :return:
+        base on bank type for example for BMI:
+        {
+            'MERCHANT_CODE': '<YOUR INFO>',
+            'TERMINAL_CODE': '<YOUR INFO>',
+            'SECRET_KEY': '<YOUR INFO>',
+        }
+        """
+        pass
+
+    @abc.abstractmethod
+    def klass(self, bank_type: BankType, identifier: str) -> dict:
+        pass
+
+    @abc.abstractmethod
+    def default(self, identifier: str):
+        pass
+
+    @abc.abstractmethod
+    def currency(self, identifier: str):
+        pass

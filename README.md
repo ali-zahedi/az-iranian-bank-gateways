@@ -50,39 +50,34 @@ INSTALLED_APPS = [
 AZ_IRANIAN_BANK_GATEWAYS = {
     'GATEWAYS': {
         'BMI': {
-            'PATH': 'azbankgateways.banks.BMI',
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
             'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
             'SECRET_KEY': '<YOUR SECRET CODE>',
         },
         'SEP': {
-            'PATH': 'azbankgateways.banks.SEP',
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
             'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
         },
         'ZARINPAL': {
-            'PATH': 'azbankgateways.banks.Zarinpal',
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
         },
         'IDPAY': {
-            'PATH': 'azbankgateways.banks.IDPay',
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
             'METHOD': 'POST',  # GET or POST
             'X_SANDBOX': 0,  # 0 disable, 1 active
         },
         'ZIBAL': {
-            'PATH': 'azbankgateways.banks.Zibal',
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
         },
         'BAHAMTA': {
-            'PATH': 'azbankgateways.banks.Bahamta',
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
         },
     },
     'DEFAULT': 'BMI',
-    'CURRENCY': 'IRR',
-    'TRACKING_CODE_QUERY_PARAM': 'tc',
-    'TRACKING_CODE_LENGTH': 16,
+    'CURRENCY': 'IRR', # اختیاری
+    'TRACKING_CODE_QUERY_PARAM': 'tc', # اختیاری
+    'TRACKING_CODE_LENGTH': 16, # اختیاری
+    'SETTING_VALUE_READER_CLASS': 'azbankgateways.readers.DefaultReader', # اختیاری
 }
  ```
 
@@ -96,7 +91,8 @@ AZ_IRANIAN_BANK_GATEWAYS = {
  
 1. `TRACKING_CODE_LENGTH`: طول کد پیگیری تولید شده توسط سیستم است. دقت شود که در برخی درگاه ها مانند درگاه بانک ملی ایران، طول ۲۰ کاراکتر خطای `شماره سفارش ارسال نشده است` را می دهد. 
 
-
+1. `SETTING_VALUE_READER_CLASS`: با مقدار دهی به این تنظیم شما می توانید حالت یک متغیر خوان اضافه کنید که قابلیت های دیگری مثل پروایدر و پشتیبانی از یک بانک با چند اکانت و ... را به آن اضافه کنید.
+ 
 ### urls.py
 
 <p dir="rtl">
@@ -236,7 +232,7 @@ bank_models.Bank.objects.update_expire_records()
 
 # مشخص کردن رکوردهایی که باید تعیین وضعیت شوند
 for item in bank_models.Bank.objects.filter_return_from_bank():
-	bank = factory.create(item.bank_type)
+	bank = factory.create(bank_type=item.bank_type, identifier=item.bank_choose_identifier)
 	bank.verify(item.tracking_code)		
 	bank_record = bank_models.Bank.objects.get(tracking_code=item.tracking_code)
 	if bank_record.is_success:
@@ -250,6 +246,14 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 - [X] Documentation
 
 - [ ] Support multiple provider
+
+- [ ] Random bank selection 
+
+- [ ] Auto rotation
+
+- [ ] Priority auto rotation
+
+- [ ] Bank connection fail handling for auto rotation
 
 - [X] Bank model structure
 
