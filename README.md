@@ -245,7 +245,7 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 
 - [X] Documentation
 
-- [ ] Support multiple provider
+- [X] Support multiple provider
 
 - [ ] Random bank selection 
 
