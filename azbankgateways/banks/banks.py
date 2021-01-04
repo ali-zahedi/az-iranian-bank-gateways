@@ -2,8 +2,8 @@ import abc
 import logging
 import uuid
 from urllib import parse
-
 import six
+
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.utils import timezone
