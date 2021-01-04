@@ -13,8 +13,8 @@ def callback_view(request):
         logging.critical("Bank type is required. but it doesnt send.")
         raise BankGatewayUnclear("Bank type is required")
 
-    factory = BankFactory(bank_type)
-    bank = factory.create()
+    factory = BankFactory()
+    bank = factory.create(bank_type)
     bank.verify_from_gateway(request)
     return bank.redirect_client_callback()
 
