@@ -78,6 +78,11 @@ AZ_IRANIAN_BANK_GATEWAYS = {
     'TRACKING_CODE_QUERY_PARAM': 'tc', # اختیاری
     'TRACKING_CODE_LENGTH': 16, # اختیاری
     'SETTING_VALUE_READER_CLASS': 'azbankgateways.readers.DefaultReader', # اختیاری
+    'BANK_PRIORITIES': [
+        'BMI',
+        'SEP',
+        # and so on ...
+    ], # اختیاری
 }
  ```
 
@@ -93,6 +98,8 @@ AZ_IRANIAN_BANK_GATEWAYS = {
 
 1. `SETTING_VALUE_READER_CLASS`: با مقدار دهی به این تنظیم شما می توانید حالت یک متغیر خوان اضافه کنید که قابلیت های دیگری مثل پروایدر و پشتیبانی از یک بانک با چند اکانت و ... را به آن اضافه کنید.
  
+1. `BANK_PRIORITIES`: این آرایه اختیاری است. زمانی که وضعیت اتصال به درگاه به صورت خودکار تعیین شده باشد، ابتدا به بانک پیش فرض متصل می شود و سپس بر این اساس شروع به اتصال خواهد کرد، تا به اولین درگاه فعال برسد. در حالت پیش فرض این آرایه خالی است که بعد از اتصال به درگاه مورد نظر در صورت خطا بقیه درگاه ها امتحان نخواهند شد.
+
 ### urls.py
 
 <p dir="rtl">
@@ -163,6 +170,11 @@ def go_to_gateway_view(request):
     return bank.redirect_gateway()
 
 ```
+
+<p dir="rtl"> 
+در صورتیکه تمایل دارید به صورت خودکار به اولین درگاه در دسترس متصل شوید. ابتدا از قسمت تنظیمات در بخش `BANK_PRIORITIES
+` اولویت های بانک های مد نظر را وارید کنید. سپس به جای استفاده از متد `factory.create` از متد ‍`factory.auto_create` در این بخش استفاده کنید.
+ </p>
 
 `set_mobile_number` متدی است که پارامتر شماره موبایل کاربری که قصد خرید دارد را به آن پاس میدهیم. این شماره موبایل جهت پرداخت و پیگیری آسان تر به درگاه ارسال می شود
 
@@ -245,15 +257,13 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 
 - [X] Documentation
 
-- [X] Support multiple provider
+- [X] Support multiple provider 
 
-- [ ] Random bank selection 
+- [X] Auto rotation
 
-- [ ] Auto rotation
+- [X] Priority auto rotation
 
-- [ ] Priority auto rotation
-
-- [ ] Bank connection fail handling for auto rotation
+- [X] Bank connection fail handling for auto rotation
 
 - [X] Bank model structure
 

@@ -29,6 +29,10 @@ class Reader:
         return settings.BANK_CLASS[bank_type]
 
     @abc.abstractmethod
+    def get_bank_priorities(self, identifier: str) -> list:
+        pass
+
+    @abc.abstractmethod
     def default(self, identifier: str):
         pass
 
