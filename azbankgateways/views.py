@@ -9,12 +9,13 @@ from azbankgateways.exceptions import BankGatewayUnclear
 
 def callback_view(request):
     bank_type = request.GET.get('bank_type', None)
+    identifier = request.GET.get('identifier', None)
     if not bank_type:
         logging.critical("Bank type is required. but it doesnt send.")
         raise BankGatewayUnclear("Bank type is required")
 
     factory = BankFactory()
-    bank = factory.create(bank_type)
+    bank = factory.create(bank_type, identifier=identifier)
     bank.verify_from_gateway(request)
     return bank.redirect_client_callback()
 

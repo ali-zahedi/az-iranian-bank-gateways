@@ -325,6 +325,7 @@ class BaseBank:
                 url = self.get_request().build_absolute_uri(url)
             query = dict(parse.parse_qsl(self.get_request().GET.urlencode()))
             query.update({'bank_type': self.get_bank_type()})
+            query.update({'identifier': self.identifier})
             url = append_querystring(url, query)
 
         return url
