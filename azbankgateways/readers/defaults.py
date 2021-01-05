@@ -25,3 +25,8 @@ class DefaultReader(Reader):
 
     def currency(self, identifier: str):
         return settings.CURRENCY
+
+    def get_bank_priorities(self, identifier: str) -> list:
+        priorities = [self.default(identifier)]
+        priorities = list(set(priorities + settings.BANK_PRIORITIES))
+        return priorities

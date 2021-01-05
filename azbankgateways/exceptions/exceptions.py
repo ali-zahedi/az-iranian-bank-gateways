@@ -21,3 +21,6 @@ class BankGatewayUnclear(Exception):
 
 class BankGatewayStateInvalid(Exception):
     """The requested bank unclear"""
+
+class BankGatewayAutoConnectionFailed(Exception):
+    """The auto connection cant find bank"""

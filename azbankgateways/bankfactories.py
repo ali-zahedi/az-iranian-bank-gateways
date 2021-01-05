@@ -2,6 +2,8 @@ from __future__ import absolute_import, unicode_literals
 import importlib
 
 import logging
+
+from .exceptions.exceptions import BankGatewayAutoConnectionFailed
 from .models import BankType
 from .banks import BaseBank
 from . import default_settings as settings
@@ -42,3 +44,16 @@ class BankFactory:
 
         logging.debug('Create bank')
         return bank
+
+    def auto_create(self, identifier: str = '1') -> BaseBank:
+        logging.debug('Request create bank automatically')
+        for bank_type in self._secret_value_reader.get_bank_priorities(identifier):
+            try:
+                bank = self.create(bank_type, identifier)
+                bank.check_gateway()
+                return bank
+            except Exception as e:
+                logging.debug(str(e))
+                logging.debug('Try to connect another bank...')
+                continue
+        raise BankGatewayAutoConnectionFailed()
