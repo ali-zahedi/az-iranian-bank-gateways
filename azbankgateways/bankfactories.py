@@ -47,7 +47,8 @@ class BankFactory:
 
     def auto_create(self, identifier: str = '1') -> BaseBank:
         logging.debug('Request create bank automatically')
-        for bank_type in self._secret_value_reader.get_bank_priorities(identifier):
+        bank_list = self._secret_value_reader.get_bank_priorities(identifier)
+        for bank_type in bank_list:
             try:
                 bank = self.create(bank_type, identifier)
                 bank.check_gateway()
