@@ -1,8 +1,8 @@
 <!--![GitHub All Releases](https://img.shields.io/github/downloads/ali-zahedi/az-iranian-bank-gateways/total)-->
 <!--![GitHub issues](https://img.shields.io/github/issues/ali-zahedi/az-iranian-bank-gateways)-->
 ![GitHub](https://img.shields.io/github/license/ali-zahedi/az-iranian-bank-gateways)
-![GitHub](https://img.shields.io/pypi/pyversions/az-iranina-bank-gateways.svg?maxAge=2592000)
-![GitHub](https://img.shields.io/pypi/v/az-iranina-bank-gateways.svg?maxAge=2592000)
+![GitHub](https://img.shields.io/pypi/pyversions/az-iranian-bank-gateways.svg?maxAge=2592000)
+![GitHub](https://img.shields.io/pypi/v/az-iranian-bank-gateways.svg?maxAge=2592000)
 # AZ Iranian Bank Gateway Framework config
 
 <p dir="rtl">
