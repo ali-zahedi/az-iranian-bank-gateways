@@ -1,9 +1,6 @@
 import logging
-import base64
-import datetime
 
 import requests
-from Crypto.Cipher import DES3
 from zeep import Transport, Client
 
 from azbankgateways.banks import BaseBank

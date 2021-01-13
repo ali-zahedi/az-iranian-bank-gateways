@@ -16,6 +16,8 @@
  
  1. [درگاه پرداخت بانک سامان (SEP)](https://www.sep.ir/iemerchantregister)
  
+ 1. [درگاه پرداخت بانک تجارت (IKC)](https://www.tejaratbank.ir/web_directory/2559-درخواست-غیرحضوری-درگاه-پرداخت.html)
+ 
  1. [درگاه پرداخت زرین پال](https://next.zarinpal.com/auth/register)
  
  1. [درگاه پرداخت آی دی پی (IDPay)](https://idpay.ir/s/664153)
@@ -72,6 +74,10 @@ AZ_IRANIAN_BANK_GATEWAYS = {
         'BAHAMTA': {
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
         },
+        'IKC': {
+            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+            'SHA_1_KEY': '<YOUR SHA_1_KEY CODE>',
+        }, # بانک تجارت
     },
     'DEFAULT': 'BMI',
     'CURRENCY': 'IRR', # اختیاری

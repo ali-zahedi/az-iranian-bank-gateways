@@ -43,6 +43,7 @@ setup(
         'six',
         'Django>=2.2',
         'pycryptodome>=3.9.7',
-        'zeep'
+        'zeep',
+        'az-iranian-bank-intro>=1.2.2',
     ],
 )

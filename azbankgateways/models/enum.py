@@ -6,6 +6,7 @@ import azbankgateways.default_settings as settings
 class BankType(settings.TEXT_CHOICES):
     BMI = 'BMI', _('BMI')
     SEP = 'SEP', _('SEP')
+    IKC = 'IKC', _('IKC')
     ZARINPAL = 'ZARINPAL', _('Zarinpal')
     IDPAY = 'IDPAY', _('IDPay')
     ZIBAL = 'ZIBAL', _('Zibal')
