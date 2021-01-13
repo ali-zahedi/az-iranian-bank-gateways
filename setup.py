@@ -44,6 +44,5 @@ setup(
         'Django>=2.2',
         'pycryptodome>=3.9.7',
         'zeep',
-        'az-iranian-bank-intro>=1.2.2',
     ],
 )
