@@ -52,8 +52,15 @@ class BaseBank:
         else:
             self._gateway_amount = self._amount
 
-        if self.get_gateway_amount() < 1000:
+        if not self.check_amount():
             raise AmountDoesNotSupport()
+
+    def check_amount(self):
+        return self.get_gateway_amount() > self.get_minimum_amount()
+
+    @classmethod
+    def get_minimum_amount(cls):
+        return 1000
 
     @abc.abstractmethod
     def get_bank_type(self):
@@ -256,14 +263,18 @@ class BaseBank:
         return self._request
 
     """gateway"""
-    def _prepare_check_gateway(self):
+
+    def _prepare_check_gateway(self, amount=None):
         """ست کردن داده های اولیه"""
-        self.set_amount(10000)
+        if amount:
+            self.set_amount(amount)
+        else:
+            self.set_amount(10000)
         self.set_client_callback_url('/')
 
-    def check_gateway(self):
+    def check_gateway(self, amount=None):
         """با این متد از صحت و سلامت گیت وی برای اتصال اطمینان حاصل می کنیم."""
-        self._prepare_check_gateway()
+        self._prepare_check_gateway(amount)
         self.pay()
 
     @abc.abstractmethod
