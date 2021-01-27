@@ -7,7 +7,7 @@ from Crypto.Cipher import DES3
 
 from azbankgateways.banks import BaseBank
 from azbankgateways.exceptions import SettingDoesNotExist, BankGatewayConnectionError
-from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
+from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment, BankGatewayStateInvalid
 from azbankgateways.models import CurrencyEnum, BankType, PaymentStatus
 from azbankgateways.utils import get_json
 
@@ -108,7 +108,13 @@ class BMI(BaseBank):
 
     def prepare_verify_from_gateway(self):
         super(BMI, self).prepare_verify_from_gateway()
-        token = self.get_request().POST.get('token', None)
+        request = self.get_request()
+        for method in ['POST', 'GET', 'data', 'PUT']:
+            token = getattr(request, method, {}).get('token', None)
+            if token:
+                break
+        if not token:
+            raise BankGatewayStateInvalid
         self._set_reference_number(token)
         self._set_bank_record()
 
