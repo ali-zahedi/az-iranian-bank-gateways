@@ -170,7 +170,6 @@ def go_to_gateway_view(request):
     return bank.redirect_gateway()
 
 ```
-
 <p dir="rtl"> 
 در صورتیکه تمایل دارید به صورت خودکار به اولین درگاه در دسترس متصل شوید. ابتدا از قسمت تنظیمات در بخش `BANK_PRIORITIES
 ` اولویت های بانک های مد نظر را وارید کنید. سپس به جای استفاده از متد `factory.create` از متد ‍`factory.auto_create` در این بخش استفاده کنید.
