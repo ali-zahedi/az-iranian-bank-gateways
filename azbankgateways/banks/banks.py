@@ -264,14 +264,17 @@ class BaseBank:
 
     """gateway"""
 
-    def _prepare_check_gateway(self):
+    def _prepare_check_gateway(self, amount=None):
         """ست کردن داده های اولیه"""
-        self.set_amount(10000)
+        if amount:
+            self.set_amount(amount)
+        else:
+            self.set_amount(10000)
         self.set_client_callback_url('/')
 
-    def check_gateway(self):
+    def check_gateway(self, amount=None):
         """با این متد از صحت و سلامت گیت وی برای اتصال اطمینان حاصل می کنیم."""
-        self._prepare_check_gateway()
+        self._prepare_check_gateway(amount)
         self.pay()
 
     @abc.abstractmethod
