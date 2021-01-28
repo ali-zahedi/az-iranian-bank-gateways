@@ -132,7 +132,7 @@ urlpatterns = [
 python manage.py migrate
 ```
 
-<h4 dir="rtl">اگر از reverse proxy و https استفاده می کنید برای رفع موارد احتمالی حتما تنظیمات این  [https://stackoverflow.com/questions/62047354/build-absolute-uri-with-https-behind-reverse-proxy/65934202#65934202را][لینک] انجام دهید.</h4>
+<h4 dir="rtl">اگر از reverse proxy و https استفاده می کنید برای رفع موارد احتمالی حتما تنظیمات این [لینک](https://stackoverflow.com/questions/62047354/build-absolute-uri-with-https-behind-reverse-proxy/65934202#65934202) انجام دهید.</h4>
 
 
 <h1 dir="rtl">نحوه استفاده</h1>
@@ -297,3 +297,6 @@ The MIT License (MIT). Please see [License File](LICENSE) for more information.
 
 
 [لینک]: https://stackoverflow.com/questions/62047354/build-absolute-uri-with-https-behind-reverse-proxy/65934202#65934202را
+
+
+[لینک]: https://stackoverflow.com/questions/62047354/build-absolute-uri-with-https-behind-reverse-proxy/65934202#65934202
