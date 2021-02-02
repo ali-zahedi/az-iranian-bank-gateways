@@ -112,6 +112,9 @@ class Bank(models.Model):
         verbose_name = _('Bank gateway')
         verbose_name_plural = _('Bank gateways')
 
+    def __str__(self):
+        return '{}-{}'.format(self.pk, self.tracking_code)
+
     @property
     def is_success(self):
         return self.status == PaymentStatus.COMPLETE
