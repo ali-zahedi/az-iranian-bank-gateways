@@ -3,6 +3,7 @@ from .models import Bank
 
 class BankAdmin(admin.ModelAdmin):
     fields = [
+        'pk',
         'status',
         'bank_type',
         'tracking_code',
@@ -16,6 +17,7 @@ class BankAdmin(admin.ModelAdmin):
         'update_at',
     ]
     list_display = [
+        'pk',
         'status',
         'bank_type',
         'tracking_code',
