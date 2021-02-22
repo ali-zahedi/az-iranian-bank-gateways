@@ -4,7 +4,7 @@ from urllib.parse import unquote
 from django.shortcuts import render
 
 from azbankgateways.bankfactories import BankFactory
-from azbankgateways.exceptions import BankGatewayUnclear
+from azbankgateways.exceptions import BankGatewayUnclear, BankGatewayStateInvalid
 
 
 def callback_view(request):
@@ -16,7 +16,10 @@ def callback_view(request):
 
     factory = BankFactory()
     bank = factory.create(bank_type, identifier=identifier)
-    bank.verify_from_gateway(request)
+    try:
+        bank.verify_from_gateway(request)
+    except BankGatewayStateInvalid:
+        pass
     return bank.redirect_client_callback()
 
 
