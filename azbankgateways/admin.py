@@ -48,9 +48,11 @@ class BankAdmin(admin.ModelAdmin):
         'created_at',
         'update_at',
     ]
-    exclude = []
+    exclude = [
+    ]
     dynamic_raw_id_fields = []
     readonly_fields = [
+        'pk',
         'status',
         'bank_type',
         'tracking_code',
