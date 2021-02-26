@@ -2,11 +2,13 @@ import logging
 from urllib.parse import unquote
 
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 
 from azbankgateways.bankfactories import BankFactory
 from azbankgateways.exceptions import BankGatewayUnclear, BankGatewayStateInvalid
 
 
+@csrf_exempt
 def callback_view(request):
     bank_type = request.GET.get('bank_type', None)
     identifier = request.GET.get('identifier', None)
@@ -23,6 +25,7 @@ def callback_view(request):
     return bank.redirect_client_callback()
 
 
+@csrf_exempt
 def go_to_bank_gateway(request):
     context = {
         'params': {}
