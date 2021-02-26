@@ -27,6 +27,14 @@
  
 [[_TOC_]]
 
+<h1 dir="rtl">آموزشی</h1>
+
+1. [یوتیوب](https://youtu.be/VnwY7DJlPKs) 
+1. [آپارات](https://www.aparat.com/v/DxL5J)
+1. [آکادمی ژاک](https://academy.zhaak.com/course/236/python-tips)
+
+
+
 <h1 dir="rtl">نصب</h1>
 
 <p dir="rtl"> نصب از طریق پکیج منیجر </p>
