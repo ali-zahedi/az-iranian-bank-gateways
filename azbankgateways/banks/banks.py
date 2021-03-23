@@ -56,7 +56,7 @@ class BaseBank:
             raise AmountDoesNotSupport()
 
     def check_amount(self):
-        return self.get_gateway_amount() > self.get_minimum_amount()
+        return self.get_gateway_amount() >= self.get_minimum_amount()
 
     @classmethod
     def get_minimum_amount(cls):

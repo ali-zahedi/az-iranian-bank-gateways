@@ -30,7 +30,7 @@ class Zarinpal(BaseBank):
     """
     @classmethod
     def get_minimum_amount(cls):
-        return 10000
+        return 1000
 
     def _get_gateway_payment_url_parameter(self):
         return self._payment_url.format(self.get_reference_number())
