@@ -1,27 +1,29 @@
 import logging
 from urllib.parse import unquote
 
+from django.http import Http404
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from azbankgateways.bankfactories import BankFactory
-from azbankgateways.exceptions import BankGatewayUnclear, BankGatewayStateInvalid
+from azbankgateways.exceptions import AZBankGatewaysException
 
 
 @csrf_exempt
 def callback_view(request):
     bank_type = request.GET.get('bank_type', None)
     identifier = request.GET.get('identifier', None)
+
     if not bank_type:
         logging.critical("Bank type is required. but it doesnt send.")
-        raise BankGatewayUnclear("Bank type is required")
+        raise Http404
 
     factory = BankFactory()
     bank = factory.create(bank_type, identifier=identifier)
     try:
         bank.verify_from_gateway(request)
-    except BankGatewayStateInvalid:
-        pass
+    except AZBankGatewaysException:
+        logging.exception("Verify from gateway failed.", stack_info=True)
     return bank.redirect_client_callback()
 
 
