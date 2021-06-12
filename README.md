@@ -24,6 +24,7 @@
  
  1. [درگاه پرداخت باهمتا](https://webpay.bahamta.com?rc=Sv7oH)
  
+ 1. [درگاه پرداخت آسان پرداخت](https://asanpardakht.ir/)
  
 [[_TOC_]]
 
