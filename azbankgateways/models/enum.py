@@ -10,6 +10,7 @@ class BankType(settings.TEXT_CHOICES):
     IDPAY = 'IDPAY', _('IDPay')
     ZIBAL = 'ZIBAL', _('Zibal')
     BAHAMTA = 'BAHAMTA', _('Bahamta')
+    MELLAT = 'MELLAT', _('Mellat')
 
 
 class CurrencyEnum(settings.TEXT_CHOICES):

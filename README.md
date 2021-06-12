@@ -80,6 +80,11 @@ AZ_IRANIAN_BANK_GATEWAYS = {
         'BAHAMTA': {
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
         },
+        'MELLAT': {
+            'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
+            'USERNAME': '<YOUR USERNAME>',
+            'PASSWORD': '<YOUR PASSWORD>',
+        },
     },
     'DEFAULT': 'BMI',
     'CURRENCY': 'IRR', # اختیاری
