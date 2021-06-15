@@ -24,6 +24,7 @@
  
  1. [درگاه پرداخت باهمتا](https://webpay.bahamta.com?rc=Sv7oH)
  
+ 1. [درگاه به پرداخت](http://www.behpardakht.com/)
  
 [[_TOC_]]
 
@@ -79,6 +80,11 @@ AZ_IRANIAN_BANK_GATEWAYS = {
         },
         'BAHAMTA': {
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+        },
+        'MELLAT': {
+            'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
+            'USERNAME': '<YOUR USERNAME>',
+            'PASSWORD': '<YOUR PASSWORD>',
         },
     },
     'DEFAULT': 'BMI',
