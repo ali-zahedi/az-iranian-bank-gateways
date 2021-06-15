@@ -1,4 +1,5 @@
 import logging
+from json import loads, dumps
 from time import strftime, gmtime
 from zeep import Transport, Client
 
@@ -81,12 +82,16 @@ class Mellat(BaseBank):
             if status == '0':
                 self._set_reference_number(token)
         except ValueError:
+            status_text = 'Unknown error'
             if response == '12':
-                logging.critical('Insufficient inventory')
+                status_text = 'Insufficient inventory'
             if response == '21':
-                logging.critical('Invalid service')
+                status_text = 'Invalid service'
             if response == '421':
-                logging.critical('Invalid IP address')
+                status_text = 'Invalid IP address'
+
+            self._set_transaction_status_text(status_text)
+            logging.critical(status_text)
             raise BankGatewayRejectPayment(self.get_transaction_status_text())
 
     """
@@ -95,12 +100,13 @@ class Mellat(BaseBank):
 
     def prepare_verify_from_gateway(self):
         super(Mellat, self).prepare_verify_from_gateway()
-        if self.get_request().POST.get('ResCode', None) == '0':
-            token = self.get_request().POST.get('RefId', None)
-            sale_reference_id = self.get_request().POST.get('SaleReferenceId', None)
-            self._set_sale_reference_id(sale_reference_id)
+        post = self.get_request().POST
+        if post.get('ResCode', None) == '0':
+            token = post.get('RefId', None)
             self._set_reference_number(token)
             self._set_bank_record()
+            self._bank.extra_information = dumps(dict(zip(post.keys(), post.values())))
+            self._bank.save()
 
     def verify_from_gateway(self, request):
         super(Mellat, self).verify_from_gateway(request)
@@ -149,8 +155,6 @@ class Mellat(BaseBank):
     def _get_current_date():
         return strftime("%Y%m%d", gmtime())
 
-    def _set_sale_reference_id(self, sale_reference_id):
-        self._sale_reference_id = sale_reference_id
-
     def _get_sale_reference_id(self):
-        return self._sale_reference_id
+        extra_information = loads(getattr(self._bank, 'extra_information', '{}'))
+        return extra_information.get('saleReferenceId', '')
