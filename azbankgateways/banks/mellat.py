@@ -1,7 +1,7 @@
 import logging
 from time import strftime, gmtime
 from zeep import Transport, Client
-
+import json
 from azbankgateways.banks import BaseBank
 from azbankgateways.exceptions import SettingDoesNotExist
 from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
@@ -82,10 +82,13 @@ class Mellat(BaseBank):
                 self._set_reference_number(token)
         except ValueError:
             if response == '12':
+                self._set_transaction_status_text("Insufficient inventory")
                 logging.critical('Insufficient inventory')
             if response == '21':
+                self._set_transaction_status_text("Invalid service")
                 logging.critical('Invalid service')
             if response == '421':
+                self._set_transaction_status_text("Invalid IP address")
                 logging.critical('Invalid IP address')
             raise BankGatewayRejectPayment(self.get_transaction_status_text())
 
@@ -151,6 +154,11 @@ class Mellat(BaseBank):
 
     def _set_sale_reference_id(self, sale_reference_id):
         self._sale_reference_id = sale_reference_id
+        extra_information = json.loads( getattr(self._bank, 'extra_information', '{}'))
+        extra_information["saleReferenceId"] = sale_reference_id
+        self._bank. extra_information = json.dumps(extra_information)
+        self._bank.save()
 
     def _get_sale_reference_id(self):
-        return self._sale_reference_id
+        extra_information = json.loads( getattr(self._bank, 'extra_information', '{}'))
+        return extra_information.get('saleReferenceId', '')
