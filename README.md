@@ -1,8 +1,10 @@
 <!--![GitHub All Releases](https://img.shields.io/github/downloads/ali-zahedi/az-iranian-bank-gateways/total)-->
 <!--![GitHub issues](https://img.shields.io/github/issues/ali-zahedi/az-iranian-bank-gateways)-->
+
 ![GitHub](https://img.shields.io/github/license/ali-zahedi/az-iranian-bank-gateways)
 ![GitHub](https://img.shields.io/pypi/pyversions/az-iranian-bank-gateways.svg?maxAge=2592000)
 ![GitHub](https://img.shields.io/pypi/v/az-iranian-bank-gateways.svg?maxAge=2592000)
+
 # AZ Iranian Bank Gateway Framework config
 
 <p dir="rtl">
@@ -29,18 +31,15 @@
 
 <h1 dir="rtl">آموزشی</h1>
 
-1. [یوتیوب](https://youtu.be/VnwY7DJlPKs) 
+1. [یوتیوب](https://youtu.be/VnwY7DJlPKs)
 1. [آپارات](https://www.aparat.com/v/DxL5J)
 1. [آکادمی ژاک](https://academy.zhaak.com/course/236/python-tips)
-
-
 
 <h1 dir="rtl">نصب</h1>
 
 <p dir="rtl"> نصب از طریق پکیج منیجر </p>
 
-``pip install az-iranian-bank-gateways``
-
+`pip install az-iranian-bank-gateways`
 
 <h1 dir="rtl">تنظیمات</h1>
  
@@ -48,64 +47,68 @@
 
 <p dir="rtl"> در فایل `settings.py` تنظیمات زیر را انجام میدهیم. </p>
 
- 
- ``` python
+```python
 INSTALLED_APPS = [
-    # ....
-    'azbankgateways',
-    # ...
+   # ....
+   'azbankgateways',
+   # ...
 ]
 AZ_IRANIAN_BANK_GATEWAYS = {
-    'GATEWAYS': {
-        'BMI': {
-            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+   'GATEWAYS': {
+       'BMI': {
+           'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+           'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
+           'SECRET_KEY': '<YOUR SECRET CODE>',
+       },
+       'SEP': {
+           'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+           'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
+       },
+       'ZARINPAL': {
+           'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+       },
+       'IDPAY': {
+           'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+           'METHOD': 'POST',  # GET or POST
+           'X_SANDBOX': 0,  # 0 disable, 1 active
+       },
+       'ZIBAL': {
+           'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+       },
+       'BAHAMTA': {
+           'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+       },
+        'MELLAT': {
             'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
-            'SECRET_KEY': '<YOUR SECRET CODE>',
+            'USERNAME': '<YOUR USERNAME>',
+            'PASSWORD': '<YOUR PASSWORD>',
         },
-        'SEP': {
-            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
-            'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
-        },
-        'ZARINPAL': {
-            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
-        },
-        'IDPAY': {
-            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
-            'METHOD': 'POST',  # GET or POST
-            'X_SANDBOX': 0,  # 0 disable, 1 active
-        },
-        'ZIBAL': {
-            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
-        },
-        'BAHAMTA': {
-            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
-        },
-    },
-    'DEFAULT': 'BMI',
-    'CURRENCY': 'IRR', # اختیاری
-    'TRACKING_CODE_QUERY_PARAM': 'tc', # اختیاری
-    'TRACKING_CODE_LENGTH': 16, # اختیاری
-    'SETTING_VALUE_READER_CLASS': 'azbankgateways.readers.DefaultReader', # اختیاری
-    'BANK_PRIORITIES': [
-        'BMI',
-        'SEP',
-        # and so on ...
-    ], # اختیاری
+   },
+   'DEFAULT': 'BMI',
+   'CURRENCY': 'IRR', # اختیاری
+   'TRACKING_CODE_QUERY_PARAM': 'tc', # اختیاری
+   'TRACKING_CODE_LENGTH': 16, # اختیاری
+   'SETTING_VALUE_READER_CLASS': 'azbankgateways.readers.DefaultReader', # اختیاری
+   'BANK_PRIORITIES': [
+       'BMI',
+       'SEP',
+       # and so on ...
+   ], # اختیاری
 }
- ```
+```
 
-1. `GATEWAYS` :  تنظیمات مربوط به هر بانک به صورت دیکشنری های جدا در این قسمت وجود دارد. تنظیماتی مانند کلاس اجرا کننده، کلیدهای امنیتی که توسط بانک در اختیار شما قرار می گیرد.
+1. `GATEWAYS` : تنظیمات مربوط به هر بانک به صورت دیکشنری های جدا در این قسمت وجود دارد. تنظیماتی مانند کلاس اجرا کننده، کلیدهای امنیتی که توسط بانک در اختیار شما قرار می گیرد.
 
-1. `DEFAULT`: در زمانی که به سازنده فکتوری پارامتری ارسال نشود از این تنظیم به عنوان بانک پیش فرض استفاده خواهد شد و ارتباطات با این بانک برقرار می شود. 
+1. `DEFAULT`: در زمانی که به سازنده فکتوری پارامتری ارسال نشود از این تنظیم به عنوان بانک پیش فرض استفاده خواهد شد و ارتباطات با این بانک برقرار می شود.
 
-1. `CURRENCY - (IRR, IRT)`: واحد پولی که نرم افزار با آن کار می کند. این واحد پولی فارغ از واحد پولی درگاه خواهد بود.  در صورتی که واحد پولی نرم افزار با واحد پولی درگاه بانک متفاوت باشد تبدیل ریال به تومان یا بالعکس انجام خواهد شد.  
+1. `CURRENCY - (IRR, IRT)`: واحد پولی که نرم افزار با آن کار می کند. این واحد پولی فارغ از واحد پولی درگاه خواهد بود. در صورتی که واحد پولی نرم افزار با واحد پولی درگاه بانک متفاوت باشد تبدیل ریال به تومان یا بالعکس انجام خواهد شد.
 
-1. `TRACKING_CODE_QUERY_PARAM `: پارامتری که در هنگام بازگشت از درگاه به کال بک یو آر ال تعیین شده تنظیم و ارسال می گردد. به عنوان مثال زمانی که از کاربر از درگاه بانک باز می گردد چه پرداخت موفق داشته باشد و چه نا موفق کاربر به لینکی که در هنگام استفاده از درگاه تنظیم شده است٬ ارجاع داده می شود و در انتهای آن این رشته + کد پیگیری بازگردانده می شود تا بتوان داده ها را از این طریق بازیابی کرد.  
- 
-1. `TRACKING_CODE_LENGTH`: طول کد پیگیری تولید شده توسط سیستم است. دقت شود که در برخی درگاه ها مانند درگاه بانک ملی ایران، طول ۲۰ کاراکتر خطای `شماره سفارش ارسال نشده است` را می دهد. 
+1. `TRACKING_CODE_QUERY_PARAM `: پارامتری که در هنگام بازگشت از درگاه به کال بک یو آر ال تعیین شده تنظیم و ارسال می گردد. به عنوان مثال زمانی که از کاربر از درگاه بانک باز می گردد چه پرداخت موفق داشته باشد و چه نا موفق کاربر به لینکی که در هنگام استفاده از درگاه تنظیم شده است٬ ارجاع داده می شود و در انتهای آن این رشته + کد پیگیری بازگردانده می شود تا بتوان داده ها را از این طریق بازیابی کرد.
+
+1. `TRACKING_CODE_LENGTH`: طول کد پیگیری تولید شده توسط سیستم است. دقت شود که در برخی درگاه ها مانند درگاه بانک ملی ایران، طول ۲۰ کاراکتر خطای `شماره سفارش ارسال نشده است` را می دهد.
 
 1. `SETTING_VALUE_READER_CLASS`: با مقدار دهی به این تنظیم شما می توانید حالت یک متغیر خوان اضافه کنید که قابلیت های دیگری مثل پروایدر و پشتیبانی از یک بانک با چند اکانت و ... را به آن اضافه کنید.
- 
+
 1. `BANK_PRIORITIES`: این آرایه اختیاری است. زمانی که وضعیت اتصال به درگاه به صورت خودکار تعیین شده باشد، ابتدا به بانک پیش فرض متصل می شود و سپس بر این اساس شروع به اتصال خواهد کرد، تا به اولین درگاه فعال برسد. در حالت پیش فرض این آرایه خالی است که بعد از اتصال به درگاه مورد نظر در صورت خطا بقیه درگاه ها امتحان نخواهند شد.
 
 ### urls.py
@@ -127,11 +130,13 @@ urlpatterns = [
     path('bankgateways/', az_bank_gateways_urls()),
 ]
 ```
+
 <p dir="rtl">
 با اضافه کردن آدرس بالا به لیست یو آر ال ها، پرداخت ها پس از درگاه به این مسیر هدایت و اعتبار سنجی می شوند و سپس مجدد به سمت کال بکی که به ازای هر درخواست تنظیم می شود، مسیر یابی خواهد شد.
 </p>
 
 ### Migrate
+
 <p dir="rtl">
 بعد از انجام تنظیمات دستور زیر را اجرا می کنیم.
 </p>
@@ -142,16 +147,13 @@ python manage.py migrate
 
 <h4 dir="rtl">اگر از reverse proxy و https استفاده می کنید برای رفع موارد احتمالی حتما تنظیمات این [لینک](https://stackoverflow.com/questions/62047354/build-absolute-uri-with-https-behind-reverse-proxy/65934202#65934202) انجام دهید.</h4>
 
-
 <h1 dir="rtl">نحوه استفاده</h1>
 <h2 dir="rtl">ارسال به بانک</h2>
-
 
 <p dir="rtl">
  برای استفاده و اتصال به درگاه بانک کافی است یک `BankFactory` ایجاد کنیم و پارامترهای اجباری را تنظیم کنیم. سپس کاربر را می توانیم به درگاه بانک هدایت  کنیم.
 </p>
 
-  
 ```python
 from django.urls import reverse
 from azbankgateways import bankfactories, models as bank_models, default_settings as settings
@@ -173,13 +175,14 @@ def go_to_gateway_view(request):
     bank.set_mobile_number(user_mobile_number)  # اختیاری
 
     # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
-    # پرداخت برقرار کنید. 
+    # پرداخت برقرار کنید.
     bank_record = bank.ready()
-    
+
     # هدایت کاربر به درگاه بانک
     return bank.redirect_gateway()
 
 ```
+
 <p dir="rtl"> 
 در صورتیکه تمایل دارید به صورت خودکار به اولین درگاه در دسترس متصل شوید. ابتدا از قسمت تنظیمات در بخش `BANK_PRIORITIES
 ` اولویت های بانک های مد نظر را وارید کنید. سپس به جای استفاده از متد `factory.create` از متد ‍`factory.auto_create` در این بخش استفاده کنید.
@@ -197,17 +200,16 @@ def go_to_gateway_view(request):
 1. `WAITING`: در انتظار برای انتقال کاربر به درگاه بانک
 
 1. `REDIRECT_TO_BANK`: کاربر به درگاه بانک منتقل شده است ولی هنوز از درگاه باز نگشته است.
- 
-1. `RETURN_FROM_BANK`: کاربر از درگاه برگشته ولی عملیات صحت سنجی٬ یا تکمیل نشده است یا با خطا درهنگام تایید از سوی بانک مواجه شده است. در این شرایط می توان با فراخوانی مجدد در بازه زمانی کمتر از ۱۵ دقیقه که کاربر بازگشته است٬ عملیات تایید را مجدد درخواست کرد. شرح تایید مجدد در پایین تر آورده شده است. 
- 
-1. `CANCEL_BY_USER`: پرداخت توسط کاربر کنسل شده است. 
 
-1. `EXPIRE_GATEWAY_TOKEN`: ارتباط با درگاه بانک برقرار شده ولی کاربر به درگاه هدایت نشده است. 
+1. `RETURN_FROM_BANK`: کاربر از درگاه برگشته ولی عملیات صحت سنجی٬ یا تکمیل نشده است یا با خطا درهنگام تایید از سوی بانک مواجه شده است. در این شرایط می توان با فراخوانی مجدد در بازه زمانی کمتر از ۱۵ دقیقه که کاربر بازگشته است٬ عملیات تایید را مجدد درخواست کرد. شرح تایید مجدد در پایین تر آورده شده است.
 
-1. `EXPIRE_VERIFY_PAYMENT`: در بازه زمانی ۱۵ دقیقه پس از بازگشت٬ موفق به تایید اطلاعات پرداخت نشده ایم. 
+1. `CANCEL_BY_USER`: پرداخت توسط کاربر کنسل شده است.
+
+1. `EXPIRE_GATEWAY_TOKEN`: ارتباط با درگاه بانک برقرار شده ولی کاربر به درگاه هدایت نشده است.
+
+1. `EXPIRE_VERIFY_PAYMENT`: در بازه زمانی ۱۵ دقیقه پس از بازگشت٬ موفق به تایید اطلاعات پرداخت نشده ایم.
 
 1. `COMPLETE`: وضعیت پرداخت موفق است.
-
 
 ```python
 import logging
@@ -240,7 +242,6 @@ def callback_gateway_view(request):
     return HttpResponse("پرداخت با شکست مواجه شده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت.")
 ```
 
-
 <h2 dir="rtl">درخواست تایید مجدد از بانک</h2>
 
 ```python
@@ -255,40 +256,38 @@ bank_models.Bank.objects.update_expire_records()
 # مشخص کردن رکوردهایی که باید تعیین وضعیت شوند
 for item in bank_models.Bank.objects.filter_return_from_bank():
 	bank = factory.create(bank_type=item.bank_type, identifier=item.bank_choose_identifier)
-	bank.verify(item.tracking_code)		
+	bank.verify(item.tracking_code)
 	bank_record = bank_models.Bank.objects.get(tracking_code=item.tracking_code)
 	if bank_record.is_success:
 		logging.debug("This record is verify now.", extra={'pk': bank_record.pk})
 
 ```
 
-
 # TODO
 
-- [X] Documentation
+- [x] Documentation
 
-- [X] Support multiple provider 
+- [x] Support multiple provider
 
-- [X] Auto rotation
+- [x] Auto rotation
 
-- [X] Priority auto rotation
+- [x] Priority auto rotation
 
-- [X] Bank connection fail handling for auto rotation
+- [x] Bank connection fail handling for auto rotation
 
-- [X] Bank model structure
+- [x] Bank model structure
 
-- [X] BMI gateway support
+- [x] BMI gateway support
 
-- [X] Zarinpal gateway support
+- [x] Zarinpal gateway support
 
-- [X] IDPay gateway support
+- [x] IDPay gateway support
 
-- [X] Zibal gateway support
+- [x] Zibal gateway support
 
-- [X] Bahamta gateway support
+- [x] Bahamta gateway support
 
-- [X] Saman gateway support
-
+- [x] Saman gateway support
 
 ## توسعه
 
@@ -303,8 +302,5 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
 
-
 [لینک]: https://stackoverflow.com/questions/62047354/build-absolute-uri-with-https-behind-reverse-proxy/65934202#65934202را
-
-
 [لینک]: https://stackoverflow.com/questions/62047354/build-absolute-uri-with-https-behind-reverse-proxy/65934202#65934202

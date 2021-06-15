@@ -22,6 +22,7 @@ BANK_CLASS = getattr(
         'IDPAY': 'azbankgateways.banks.IDPay',
         'ZIBAL': 'azbankgateways.banks.Zibal',
         'BAHAMTA': 'azbankgateways.banks.Bahamta',
+        'MELLAT': 'azbankgateways.banks.Mellat',
     }
 )
 _AZ_IRANIAN_BANK_GATEWAYS = getattr(settings, 'AZ_IRANIAN_BANK_GATEWAYS', {})
