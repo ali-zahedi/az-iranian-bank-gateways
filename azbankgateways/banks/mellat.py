@@ -16,7 +16,7 @@ class Mellat(BaseBank):
 
     def __init__(self, **kwargs):
         super(Mellat, self).__init__(**kwargs)
-        self.set_gateway_currency(CurrencyEnum.IRT)
+        self.set_gateway_currency(CurrencyEnum.IRR)
         self._payment_url = 'https://bpm.shaparak.ir/pgwchannel/startpay.mellat'
 
     def get_bank_type(self):
