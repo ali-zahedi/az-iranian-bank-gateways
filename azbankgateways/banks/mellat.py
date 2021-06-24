@@ -101,12 +101,13 @@ class Mellat(BaseBank):
     def prepare_verify_from_gateway(self):
         super(Mellat, self).prepare_verify_from_gateway()
         post = self.get_request().POST
-        if post.get('ResCode', None) == '0':
-            token = post.get('RefId', None)
-            self._set_reference_number(token)
-            self._set_bank_record()
-            self._bank.extra_information = dumps(dict(zip(post.keys(), post.values())))
-            self._bank.save()
+        token = post.get('RefId', None)
+        if not token:
+            return
+        self._set_reference_number(token)
+        self._set_bank_record()
+        self._bank.extra_information = dumps(dict(zip(post.keys(), post.values())))
+        self._bank.save()
 
     def verify_from_gateway(self, request):
         super(Mellat, self).verify_from_gateway(request)
@@ -157,4 +158,4 @@ class Mellat(BaseBank):
 
     def _get_sale_reference_id(self):
         extra_information = loads(getattr(self._bank, 'extra_information', '{}'))
-        return extra_information.get('saleReferenceId', '')
+        return extra_information.get('SaleReferenceId', '1')
