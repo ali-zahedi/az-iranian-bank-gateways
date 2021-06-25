@@ -35,3 +35,4 @@ TRACKING_CODE_QUERY_PARAM = _AZ_IRANIAN_BANK_GATEWAYS.get('TRACKING_CODE_QUERY_P
 TRACKING_CODE_LENGTH = _AZ_IRANIAN_BANK_GATEWAYS.get('TRACKING_CODE_LENGTH', 16)
 CALLBACK_NAMESPACE = f'{AZIranianBankGatewaysConfig.name}:callback'
 GO_TO_BANK_GATEWAY_NAMESPACE = f'{AZIranianBankGatewaysConfig.name}:go-to-bank-gateway'
+AZIranianBankGatewaysConfig.default_auto_field = 'django.db.models.BigAutoField'
