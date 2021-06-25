@@ -7,3 +7,4 @@ class AZIranianBankGatewaysConfig(AppConfig):
     name = 'azbankgateways'
     verbose_name = _('Iranian bank gateway')
     verbose_name_plural = _('Iranian bank gateways')
+    default_auto_field = 'django.db.models.BigAutoField'
