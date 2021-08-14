@@ -70,6 +70,7 @@ class BMI(BaseBank):
     """
     : gateway
     """
+
     def _get_gateway_payment_method_parameter(self):
         return "GET"
 
