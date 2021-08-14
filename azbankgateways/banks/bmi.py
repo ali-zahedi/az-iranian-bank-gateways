@@ -34,7 +34,7 @@ class BMI(BaseBank):
             setattr(self, f'_{item.lower()}', self.default_setting_kwargs[item])
 
     def get_pay_data(self):
-        time_now = datetime.datetime.now().strftime('%m/%d/%Y %H:%M:%S %P')
+        time_now = datetime.datetime.now().strftime('%m/%d/%Y %H:%M:%S %p')
         data = {
             'TerminalId': self._terminal_code,
             'MerchantId': self._merchant_code,
