@@ -87,6 +87,7 @@ AZ_IRANIAN_BANK_GATEWAYS = {
             'PASSWORD': '<YOUR PASSWORD>',
         },
     },
+    'IS_SAMPLE_FORM_ENABLE': True, # اختیاری و پیش فرض غیر فعال است
     'DEFAULT': 'BMI',
     'CURRENCY': 'IRR', # اختیاری
     'TRACKING_CODE_QUERY_PARAM': 'tc', # اختیاری
@@ -114,6 +115,10 @@ AZ_IRANIAN_BANK_GATEWAYS = {
  
 1. `BANK_PRIORITIES`: این آرایه اختیاری است. زمانی که وضعیت اتصال به درگاه به صورت خودکار تعیین شده باشد، ابتدا به بانک پیش فرض متصل می شود و سپس بر این اساس شروع به اتصال خواهد کرد، تا به اولین درگاه فعال برسد. در حالت پیش فرض این آرایه خالی است که بعد از اتصال به درگاه مورد نظر در صورت خطا بقیه درگاه ها امتحان نخواهند شد.
 
+1. `IS_SAMPLE_FORM_ENABLE`: یو آر ال های مربوط به تست درگاه بانک را فعال و یا غیر فعال می کند. در صورت فعال بودن می توانید از طریق آدرس زیر درگاه پرداخت را امتحان کنید.
+
+   * [Sample payment](http://127.0.0.1:8000/bankgateways/sample-payment/)
+   
 ### urls.py
 
 <p dir="rtl">
@@ -159,9 +164,10 @@ python manage.py migrate
 
   
 ```python
+import logging
 from django.urls import reverse
 from azbankgateways import bankfactories, models as bank_models, default_settings as settings
-
+from azbankgateways.exceptions import AZBankGatewaysException
 
 
 def go_to_gateway_view(request):
@@ -171,19 +177,24 @@ def go_to_gateway_view(request):
     user_mobile_number = '+989112221234'  # اختیاری
 
     factory = bankfactories.BankFactory()
-    bank = factory.create() # or factory.create(bank_models.BankType.BMI) or set identifier
-    bank.set_request(request)
-    bank.set_amount(amount)
-    # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند
-    bank.set_client_callback_url(reverse('callback-gateway'))
-    bank.set_mobile_number(user_mobile_number)  # اختیاری
-
-    # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
-    # پرداخت برقرار کنید. 
-    bank_record = bank.ready()
+    try:
+        bank = factory.auto_create() # or factory.create(bank_models.BankType.BMI) or set identifier
+        bank.set_request(request)
+        bank.set_amount(amount)
+        # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند
+        bank.set_client_callback_url(reverse('callback-gateway'))
+        bank.set_mobile_number(user_mobile_number)  # اختیاری
     
-    # هدایت کاربر به درگاه بانک
-    return bank.redirect_gateway()
+        # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
+        # پرداخت برقرار کنید. 
+        bank_record = bank.ready()
+        
+        # هدایت کاربر به درگاه بانک
+        return bank.redirect_gateway()
+    except AZBankGatewaysException as e:
+        logging.critical(e)
+        # TODO: redirect to failed page.
+        raise e
 
 ```
 <p dir="rtl"> 

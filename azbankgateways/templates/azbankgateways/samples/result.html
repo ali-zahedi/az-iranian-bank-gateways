@@ -1,0 +1,21 @@
+{% extends "azbankgateways/samples/base_site.html" %}
+
+{% load static %}
+{% block title %}نتیجه پرداخت{% endblock %}
+{% block content %}
+    <div class="mt-5">
+        <div class="card text-center">
+            <div class="card-header">
+               {{ bank_record.bank_type }} - نتیجه پرداخت
+            </div>
+            <div class="card-body">
+                <h5 class="card-title {% if bank_record.is_success %}bg-success{% else %}bg-danger{% endif %}">{% if bank_record.is_success %}پرداخت موفق{% else %}پرداخت نا موفق{% endif %}</h5>
+                <p class="card-text">{{ bank_record.tracking_code }} - {{ bank_record.reference_number }} - {{ bank_record.response_result }} - {{ bank_record.extra_information }}</p>
+                <a href="{% url 'azbankgateways:sample-payment' %}" class="btn btn-primary">Go somewhere</a>
+            </div>
+            <div class="card-footer text-muted">
+                {{ bank_record.created_at }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

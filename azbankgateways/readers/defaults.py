@@ -27,6 +27,14 @@ class DefaultReader(Reader):
         return settings.CURRENCY
 
     def get_bank_priorities(self, identifier: str) -> list:
-        priorities = [self.default(identifier)]
-        priorities = list(set(priorities + settings.BANK_PRIORITIES))
+        # TODO: optimize need it.
+        default_bank = self.default(identifier)
+        if default_bank in settings.BANK_PRIORITIES:
+            if default_bank != settings.BANK_PRIORITIES[0]:
+                settings.BANK_PRIORITIES.remove(self.default(identifier))
+                priorities = [default_bank] + settings.BANK_PRIORITIES
+            else:
+                priorities = settings.BANK_PRIORITIES
+        else:
+            priorities = [default_bank] + settings.BANK_PRIORITIES
         return priorities

@@ -1,0 +1,19 @@
+{% extends "azbankgateways/samples/base_site.html" %}
+
+{% load static %}
+{% block title %}پرداخت{% endblock %}
+{% block content %}
+    <div class="mt-5">
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label>{{ field.label_tag }}</label>
+                    <input type="{{ field.type }}" class="form-control" id="{{ field.name }}" name="{{ field.name }}"
+                           placeholder="{{ field.label_name }}" value="{{ field.initial }}">
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+{% endblock %}
