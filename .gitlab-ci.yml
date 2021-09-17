@@ -7,7 +7,7 @@ variables:
   AUTHOR: 'Ali Zahedigol'
 
 .node: &node
-  image: node:lates
+  image: node:latest
   tags:
     - node
 
