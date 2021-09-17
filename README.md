@@ -117,7 +117,8 @@ AZ_IRANIAN_BANK_GATEWAYS = {
 
 1. `IS_SAMPLE_FORM_ENABLE`: یو آر ال های مربوط به تست درگاه بانک را فعال و یا غیر فعال می کند. در صورت فعال بودن می توانید از طریق آدرس زیر درگاه پرداخت را امتحان کنید.
 
-
+   * [Sample payment](http://127.0.0.1:8000/bankgateways/sample-payment/)
+   
 ### urls.py
 
 <p dir="rtl">
