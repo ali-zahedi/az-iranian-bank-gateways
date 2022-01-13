@@ -83,12 +83,12 @@ class IDPay(BaseBank):
 
     def prepare_verify_from_gateway(self):
         super(IDPay, self).prepare_verify_from_gateway()
-        if self._method == 'POST':
-            token = self.get_request().POST.get('id', None)
-        else:
-            token = self.get_request().GET.get('id', None)
-        self._set_reference_number(token)
-        self._set_bank_record()
+        for method in ['GET', 'POST', 'data']:
+            token = getattr(self.get_request(), method).get('id', None)
+            if token:
+                self._set_reference_number(token)
+                self._set_bank_record()
+                break
 
     def verify_from_gateway(self, request):
         super(IDPay, self).verify_from_gateway(request)
