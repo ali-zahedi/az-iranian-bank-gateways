@@ -105,7 +105,7 @@ class Zarinpal(BaseBank):
     def verify(self, transaction_code):
         super(Zarinpal, self).verify(transaction_code)
         data = self.get_verify_data()
-        client = self._get_client(timeout=20)
+        client = self._get_client(timeout=10)
         result = client.service.PaymentVerification(**data)
         if result.Status in [100, 101]:
             self._set_payment_status(PaymentStatus.COMPLETE)

@@ -111,7 +111,7 @@ class IDPay(BaseBank):
     def verify(self, transaction_code):
         super(IDPay, self).verify(transaction_code)
         data = self.get_verify_data()
-        response_json = self._send_data(self._verify_api_url, data, timeout=20)
+        response_json = self._send_data(self._verify_api_url, data, timeout=10)
         if response_json.get('verify', {}).get('date', None):
             self._set_payment_status(PaymentStatus.COMPLETE)
             extra_information = json.dumps(response_json)
