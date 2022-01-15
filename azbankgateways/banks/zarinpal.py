@@ -36,10 +36,9 @@ class Zarinpal(BaseBank):
         return self._payment_url.format(self.get_reference_number())
 
     def _get_gateway_payment_parameter(self):
-        params = {
+        return {
 
         }
-        return params
 
     def _get_gateway_payment_method_parameter(self):
         return "GET"
@@ -51,7 +50,7 @@ class Zarinpal(BaseBank):
     def get_pay_data(self):
         description = 'خرید با شماره پیگیری - {}'.format(self.get_tracking_code())
 
-        data = {
+        return {
             'Description': description,
             'MerchantID': self._merchant_code,
             'Amount': self.get_gateway_amount(),
@@ -59,7 +58,6 @@ class Zarinpal(BaseBank):
             'Mobile': self.get_mobile_number(),
             'CallbackURL': self._get_gateway_callback_url(),
         }
-        return data
 
     def prepare_pay(self):
         super(Zarinpal, self).prepare_pay()
@@ -95,12 +93,11 @@ class Zarinpal(BaseBank):
 
     def get_verify_data(self):
         super(Zarinpal, self).get_verify_data()
-        data = {
+        return {
             'MerchantID': self._merchant_code,
             'Authority': self.get_reference_number(),
             'Amount': self.get_gateway_amount()
         }
-        return data
 
     def prepare_verify(self, tracking_code):
         super(Zarinpal, self).prepare_verify(tracking_code)
@@ -108,16 +105,18 @@ class Zarinpal(BaseBank):
     def verify(self, transaction_code):
         super(Zarinpal, self).verify(transaction_code)
         data = self.get_verify_data()
-        client = self._get_client()
+        client = self._get_client(timeout=20)
         result = client.service.PaymentVerification(**data)
-        if result.Status == 100 or result.Status == 101:
+        if result.Status in [100, 101]:
             self._set_payment_status(PaymentStatus.COMPLETE)
         else:
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
             logging.debug("Zarinpal gateway unapprove payment")
 
     @staticmethod
-    def _get_client():
-        transport = Transport(timeout=5, operation_timeout=5)
-        client = Client('https://www.zarinpal.com/pg/services/WebGate/wsdl', transport=transport)
-        return client
+    def _get_client(timeout=5):
+        transport = Transport(timeout=timeout, operation_timeout=timeout)
+        return Client(
+            'https://www.zarinpal.com/pg/services/WebGate/wsdl',
+            transport=transport,
+        )
