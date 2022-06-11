@@ -1,6 +1,5 @@
 stages:
-  - fetch-version
-  - production
+  - version
   - release
 
 variables:
@@ -17,10 +16,10 @@ variables:
     - python
 
 
-fetch-version:
+version:
   # Requires Node >= 10.13 version
   <<: *node
-  stage: fetch-version
+  stage: version
   only:
     refs:
     - master
@@ -28,15 +27,16 @@ fetch-version:
   script:
     - npm install @semantic-release/gitlab @semantic-release/exec @semantic-release/changelog
     - npx semantic-release --generate-notes false --dry-run
+    - npx semantic-release
   artifacts:
     paths:
     - VERSION.txt
 
-production:
+release:
   <<: *python
-  stage: production
+  stage: release
   environment:
-    name: production
+    name: release
   script:
     - echo "Version is $(cat VERSION.txt)"
     - sed -i "s/version='1.0.0',/version='$(cat VERSION.txt)',/g" setup.py
@@ -47,21 +47,5 @@ production:
     - master
     - develop
   dependencies:
-    - fetch-version
+    - version
 
-release:
-  <<: *node
-  stage: release
-  only:
-    refs:
-    - master
-    - develop
-  script:
-    - touch CHANGELOG.md
-    - npm install @semantic-release/gitlab @semantic-release/changelog @semantic-release/exec
-    - npx semantic-release
-  artifacts:
-    paths:
-    - CHANGELOG.md
-  dependencies:
-    - production

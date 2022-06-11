@@ -279,34 +279,6 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 
 ```
 
-
-# TODO
-
-- [X] Documentation
-
-- [X] Support multiple provider 
-
-- [X] Auto rotation
-
-- [X] Priority auto rotation
-
-- [X] Bank connection fail handling for auto rotation
-
-- [X] Bank model structure
-
-- [X] BMI gateway support
-
-- [X] Zarinpal gateway support
-
-- [X] IDPay gateway support
-
-- [X] Zibal gateway support
-
-- [X] Bahamta gateway support
-
-- [X] Saman gateway support
-
-
 ## توسعه
 
 <p dir="rtl">
@@ -315,6 +287,14 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 <p dir="rtl">
  شاد باشید و خندون
 </p>
+
+
+### با تشکر از 
+* [erfanmosaddeghi ](https://github.com/erfanmosaddeghi) برای اصلاح حداقل مبلغ زرین پال 
+* [sina-am](https://github.com/sina-am) اضافه کردن درگاه بانک ملت
+* [joejoe-am](https://github.com/joejoe-am) برای رفع مشکل اولویت بندی در اتصال خودکار
+* [mash5026](https://github.com/mash5026) برای رفع مشکل unmarshalling ERROR: For input string
+* [hypy13](https://github.com/hypy13) برای آپدیت به ورژن های بالاتر از جنگو ۳.۲
 
 ## License
 
