@@ -279,34 +279,6 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 
 ```
 
-
-# TODO
-
-- [X] Documentation
-
-- [X] Support multiple provider 
-
-- [X] Auto rotation
-
-- [X] Priority auto rotation
-
-- [X] Bank connection fail handling for auto rotation
-
-- [X] Bank model structure
-
-- [X] BMI gateway support
-
-- [X] Zarinpal gateway support
-
-- [X] IDPay gateway support
-
-- [X] Zibal gateway support
-
-- [X] Bahamta gateway support
-
-- [X] Saman gateway support
-
-
 ## توسعه
 
 <p dir="rtl">
