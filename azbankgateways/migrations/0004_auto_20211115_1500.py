@@ -15,9 +15,4 @@ class Migration(migrations.Migration):
             name='bank_type',
             field=models.CharField(choices=[('BMI', 'BMI'), ('SEP', 'SEP'), ('ZARINPAL', 'Zarinpal'), ('IDPAY', 'IDPay'), ('ZIBAL', 'Zibal'), ('BAHAMTA', 'Bahamta'), ('MELLAT', 'Mellat')], max_length=50, verbose_name='Bank'),
         ),
-        migrations.AlterField(
-            model_name='bank',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
-        ),
     ]
