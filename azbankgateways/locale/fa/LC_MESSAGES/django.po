@@ -1,0 +1,135 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-11 23:04+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: apps.py:8
+msgid "Iranian bank gateway"
+msgstr ""
+
+#: apps.py:9
+msgid "Iranian bank gateways"
+msgstr ""
+
+#: models/banks.py:50
+msgid "Status"
+msgstr "وضعیت"
+
+#: models/banks.py:55
+msgid "Bank"
+msgstr "بانک"
+
+#: models/banks.py:62
+msgid "Tracking code"
+msgstr "کد پیگیری"
+
+#: models/banks.py:68
+msgid "Amount"
+msgstr "مبلغ"
+
+#: models/banks.py:76
+msgid "Reference number"
+msgstr "رفرنس"
+
+#: models/banks.py:81
+msgid "Bank result"
+msgstr "نتیجه بانک"
+
+#: models/banks.py:86
+msgid "Callback url"
+msgstr "آدرس کال بک"
+
+#: models/banks.py:91
+msgid "Extra information"
+msgstr ""
+
+#: models/banks.py:97
+msgid "Bank choose identifier"
+msgstr ""
+
+#: models/banks.py:112
+msgid "Bank gateway"
+msgstr ""
+
+#: models/banks.py:113
+msgid "Bank gateways"
+msgstr ""
+
+#: models/enum.py:7
+msgid "BMI"
+msgstr "بانک ملی ایران"
+
+#: models/enum.py:8
+msgid "SEP"
+msgstr ""
+
+#: models/enum.py:9
+msgid "Zarinpal"
+msgstr "زرین پال"
+
+#: models/enum.py:10
+msgid "IDPay"
+msgstr "آی دی پی"
+
+#: models/enum.py:11
+msgid "Zibal"
+msgstr "زیبال"
+
+#: models/enum.py:12
+msgid "Bahamta"
+msgstr "باهمتا"
+
+#: models/enum.py:13
+msgid "Mellat"
+msgstr "بانک ملت"
+
+#: models/enum.py:17
+msgid "Rial"
+msgstr "ریال"
+
+#: models/enum.py:18
+msgid "Toman"
+msgstr "تومان"
+
+#: models/enum.py:30
+msgid "Waiting"
+msgstr "در انتظار"
+
+#: models/enum.py:31
+msgid "Redirect to bank"
+msgstr "هدایت شده به بانک"
+
+#: models/enum.py:32
+msgid "Return from bank"
+msgstr "بازگشته از بانک"
+
+#: models/enum.py:33
+msgid "Cancel by user"
+msgstr "لغو توسط کاربر"
+
+#: models/enum.py:34
+msgid "Expire gateway token"
+msgstr "توکن منقضی شده"
+
+#: models/enum.py:35
+msgid "Expire verify payment"
+msgstr ""
+
+#: models/enum.py:36
+msgid "Complete"
+msgstr "تکمیل شده"
