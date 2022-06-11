@@ -34,9 +34,9 @@ version:
 
 release:
   <<: *python
-  stage: production
+  stage: release
   environment:
-    name: production
+    name: release
   script:
     - echo "Version is $(cat VERSION.txt)"
     - sed -i "s/version='1.0.0',/version='$(cat VERSION.txt)',/g" setup.py
