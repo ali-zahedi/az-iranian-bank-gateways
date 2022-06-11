@@ -316,6 +316,14 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
  شاد باشید و خندون
 </p>
 
+
+### با تشکر از 
+* [erfanmosaddeghi ](https://github.com/erfanmosaddeghi) برای اصلاح حداقل مبلغ زرین پال 
+* [sina-am](https://github.com/sina-am) اضافه کردن درگاه بانک ملت
+* [joejoe-am](https://github.com/joejoe-am) برای رفع مشکل اولویت بندی در اتصال خودکار
+* [mash5026](https://github.com/mash5026) برای رفع مشکل unmarshalling ERROR: For input string
+* [hypy13](https://github.com/hypy13) برای آپدیت به ورژن های بالاتر از جنگو ۳.۲
+
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
