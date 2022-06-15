@@ -10,17 +10,19 @@ from azbankgateways.models import CurrencyEnum, BankType, PaymentStatus
 
 class Zarinpal(BaseBank):
     _merchant_code = None
+    _sandbox = None
 
     def __init__(self, **kwargs):
         super(Zarinpal, self).__init__(**kwargs)
         self.set_gateway_currency(CurrencyEnum.IRT)
         self._payment_url = 'https://www.zarinpal.com/pg/StartPay/{}/ZarinGate'
+        self._sandbox_url = 'https://sandbox.zarinpal.com/pg/StartPay/{}/ZarinGate'
 
     def get_bank_type(self):
         return BankType.ZARINPAL
 
     def set_default_settings(self):
-        for item in ['MERCHANT_CODE']:
+        for item in ['MERCHANT_CODE', 'SANDBOX']:
             if item not in self.default_setting_kwargs:
                 raise SettingDoesNotExist()
             setattr(self, f'_{item.lower()}', self.default_setting_kwargs[item])
@@ -33,6 +35,8 @@ class Zarinpal(BaseBank):
         return 1000
 
     def _get_gateway_payment_url_parameter(self):
+        if self._sandbox:
+            return self._sandbox_url.format(self.get_reference_number())
         return self._payment_url.format(self.get_reference_number())
 
     def _get_gateway_payment_parameter(self):
@@ -65,7 +69,7 @@ class Zarinpal(BaseBank):
     def pay(self):
         super(Zarinpal, self).pay()
         data = self.get_pay_data()
-        client = self._get_client()
+        client = self.get_client()
         result = client.service.PaymentRequest(**data)
         if result.Status == 100:
             token = result.Authority
@@ -105,7 +109,7 @@ class Zarinpal(BaseBank):
     def verify(self, transaction_code):
         super(Zarinpal, self).verify(transaction_code)
         data = self.get_verify_data()
-        client = self._get_client(timeout=10)
+        client = self.get_client(timeout=10)
         result = client.service.PaymentVerification(**data)
         if result.Status in [100, 101]:
             self._set_payment_status(PaymentStatus.COMPLETE)
@@ -113,9 +117,14 @@ class Zarinpal(BaseBank):
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
             logging.debug("Zarinpal gateway unapprove payment")
 
-    @staticmethod
-    def _get_client(timeout=5):
+    def get_client(self, timeout=5):
         transport = Transport(timeout=timeout, operation_timeout=timeout)
+        if self._sandbox:
+            return Client(
+                'https://sandbox.zarinpal.com/pg/services/WebGate/wsdl',
+                transport=transport,
+            )
+
         return Client(
             'https://www.zarinpal.com/pg/services/WebGate/wsdl',
             transport=transport,
