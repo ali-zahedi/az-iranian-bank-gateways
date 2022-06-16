@@ -69,6 +69,7 @@ AZ_IRANIAN_BANK_GATEWAYS = {
         },
         'ZARINPAL': {
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+            'SANDBOX': 0,  # 0 disable, 1 active
         },
         'IDPAY': {
             'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
@@ -295,6 +296,7 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 * [joejoe-am](https://github.com/joejoe-am) برای رفع مشکل اولویت بندی در اتصال خودکار
 * [mash5026](https://github.com/mash5026) برای رفع مشکل unmarshalling ERROR: For input string
 * [hypy13](https://github.com/hypy13) برای آپدیت به ورژن های بالاتر از جنگو ۳.۲
+* [jam4li](https://github.com/jam4li) برای اضافه کردن سندباکس زرین پال
 
 ## License
 
