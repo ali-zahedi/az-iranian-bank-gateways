@@ -69,7 +69,7 @@ class Zarinpal(BaseBank):
     def pay(self):
         super(Zarinpal, self).pay()
         data = self.get_pay_data()
-        client = self.get_client()
+        client = self._get_client()
         result = client.service.PaymentRequest(**data)
         if result.Status == 100:
             token = result.Authority
@@ -109,7 +109,7 @@ class Zarinpal(BaseBank):
     def verify(self, transaction_code):
         super(Zarinpal, self).verify(transaction_code)
         data = self.get_verify_data()
-        client = self.get_client(timeout=10)
+        client = self._get_client(timeout=10)
         result = client.service.PaymentVerification(**data)
         if result.Status in [100, 101]:
             self._set_payment_status(PaymentStatus.COMPLETE)
@@ -117,7 +117,7 @@ class Zarinpal(BaseBank):
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
             logging.debug("Zarinpal gateway unapprove payment")
 
-    def get_client(self, timeout=5):
+    def _get_client(self, timeout=5):
         transport = Transport(timeout=timeout, operation_timeout=timeout)
         if self._sandbox:
             return Client(
