@@ -135,12 +135,34 @@ class Mellat(BaseBank):
         super(Mellat, self).verify(transaction_code)
         data = self.get_verify_data()
         client = self._get_client()
-        result = client.service.bpVerifyRequest(**data)
-        if result == '0':
+
+        verify_result = client.service.bpVerifyRequest(**data)
+        if verify_result == "0":
+            self._settle_transaction()
+        else:
+            verify_result = client.service.bpInquiryRequest(**data)
+            if verify_result == "0":
+                self._settle_transaction()
+            else:
+                logging.debug(
+                    "Not able to verify the transaction, Making reversal request"
+                )
+                reversal_result = client.service.bpReversalRequest(**data)
+
+                if reversal_result != "0":
+                    logging.debug("Reversal request was not successfull")
+
+                self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
+                logging.debug("Mellat gateway unapproved the payment")
+
+    def _settle_transaction(self):
+        data = self.get_verify_data()
+        client = self._get_client()
+        settle_result = client.service.bpSettleRequest(**data)
+        if settle_result == "0":
             self._set_payment_status(PaymentStatus.COMPLETE)
         else:
-            self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
-            logging.debug("Mellat gateway unapproved payment")
+            logging.debug("Mellat gateway did not settle the payment")
 
     @staticmethod
     def _get_client():
