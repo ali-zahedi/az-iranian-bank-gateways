@@ -290,13 +290,15 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 </p>
 
 
-### با تشکر از 
+# با تشکر از 
 * [erfanmosaddeghi ](https://github.com/erfanmosaddeghi) برای اصلاح حداقل مبلغ زرین پال 
 * [sina-am](https://github.com/sina-am) اضافه کردن درگاه بانک ملت
 * [joejoe-am](https://github.com/joejoe-am) برای رفع مشکل اولویت بندی در اتصال خودکار
 * [mash5026](https://github.com/mash5026) برای رفع مشکل unmarshalling ERROR: For input string
 * [hypy13](https://github.com/hypy13) برای آپدیت به ورژن های بالاتر از جنگو ۳.۲
 * [jam4li](https://github.com/jam4li) برای اضافه کردن سندباکس زرین پال
+* [ravexina](https://github.com/ravexina) رفع مشکل تسویه حساب بانک ملت
+
 
 ## License
 
