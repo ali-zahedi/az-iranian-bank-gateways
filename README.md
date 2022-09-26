@@ -26,6 +26,8 @@
  
  1. [درگاه به پرداخت](http://www.behpardakht.com/)
  
+ 1. [درگاه پی ورژن ۱](https://www.pay.ir/)
+ 
 [[_TOC_]]
 
 <h1 dir="rtl">آموزشی</h1>
