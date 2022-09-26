@@ -87,6 +87,10 @@ AZ_IRANIAN_BANK_GATEWAYS = {
             'USERNAME': '<YOUR USERNAME>',
             'PASSWORD': '<YOUR PASSWORD>',
         },
+        'PAYV1': {
+            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+            'X_SANDBOX': 0,  # 0 disable, 1 active
+        },
     },
     'IS_SAMPLE_FORM_ENABLE': True, # اختیاری و پیش فرض غیر فعال است
     'DEFAULT': 'BMI',
@@ -279,6 +283,28 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 		logging.debug("This record is verify now.", extra={'pk': bank_record.pk})
 
 ```
+
+## TODO
+
+- [X] Add BMI support
+- [X] Add SEP support
+- [X] Add Zarinpal support
+- [X] Add IDPay support
+- [X] Add Zibal support
+- [X] Add Bahamta support
+- [X] Add BehPardakht support
+- [X] Add Pay.ir V1 support
+- [ ] Add Pay.ir V2 support 
+- [ ] Add nextpay-ir support (need MERCHANT_CODE & etc.)
+- [ ] Add Paystar support (need MERCHANT_CODE & etc.)
+- [ ] Add Sepah Bank support (need MERCHANT_CODE & etc.)
+- [ ] Managing verification Process when Gateway Not Available
+- [ ] Add celery beat for when Gateway Not Available
+- [ ] Add DRF support
+
+
+
+
 
 ## توسعه
 
