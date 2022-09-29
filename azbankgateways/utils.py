@@ -1,6 +1,8 @@
 import json
 from urllib import parse
 
+from azbankgateways.types import DictQuerystring
+
 
 def get_json(resp):
     """
@@ -23,7 +25,7 @@ def append_querystring(url: str, params: dict) -> str:
     return parse.urlunparse(url_parts)
 
 
-def split_to_dict_querystring(url: str) -> (str, dict):
+def split_to_dict_querystring(url: str) -> DictQuerystring:
     url_parts = list(parse.urlparse(url))
     query = dict(parse.parse_qsl(url_parts[4]))
 

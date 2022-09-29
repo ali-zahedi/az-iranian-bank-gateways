@@ -2,15 +2,16 @@ import abc
 import logging
 import uuid
 from urllib import parse
-import six
 
+import six
 from django.db.models import Q
 from django.shortcuts import redirect
-from django.utils import timezone
 from django.urls import reverse
+from django.utils import timezone
 
 from .. import default_settings as settings
-from ..exceptions import CurrencyDoesNotSupport, AmountDoesNotSupport, BankGatewayTokenExpired, BankGatewayStateInvalid
+from ..exceptions import (AmountDoesNotSupport, BankGatewayStateInvalid,
+                          BankGatewayTokenExpired, CurrencyDoesNotSupport)
 from ..models import Bank, CurrencyEnum, PaymentStatus
 from ..utils import append_querystring
 
