@@ -1,9 +1,12 @@
 <!--![GitHub All Releases](https://img.shields.io/github/downloads/ali-zahedi/az-iranian-bank-gateways/total)-->
 <!--![GitHub issues](https://img.shields.io/github/issues/ali-zahedi/az-iranian-bank-gateways)-->
-![GitHub](https://img.shields.io/github/license/ali-zahedi/az-iranian-bank-gateways)
-![GitHub](https://img.shields.io/pypi/pyversions/az-iranian-bank-gateways.svg?maxAge=2592000)
-![GitHub](https://img.shields.io/pypi/v/az-iranian-bank-gateways.svg?maxAge=2592000)
 # AZ Iranian Bank Gateway Framework config
+
+![GitHub](https://img.shields.io/github/license/ali-zahedi/az-iranian-bank-gateways)
+![GitHub](https://img.shields.io/pypi/pyversions/az-iranian-bank-gateways.svg)
+![GitHub](https://img.shields.io/pypi/v/az-iranian-bank-gateways.svg)
+![GitHub](https://img.shields.io/pypi/dm/az-iranian-bank-gateways.svg?style=flat-square)
+[![Join the chat at https://gitter.im/az-iranian-bank-gateways/community](https://badges.gitter.im/az-iranian-bank-gateways/community.svg)](https://gitter.im/az-iranian-bank-gateways/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 <p dir="rtl">
  کدهای آزاد و متن باز به زبان پایتون (python) که برای ارتباط با درگاه های بانکهای ایرانی در جنگو (Django) توسعه داده شده است.
