@@ -26,6 +26,8 @@
  
  1. [درگاه به پرداخت](http://www.behpardakht.com/)
  
+ 1. [درگاه پی ورژن ۱](https://www.pay.ir/)
+ 
 [[_TOC_]]
 
 <h1 dir="rtl">آموزشی</h1>
@@ -86,6 +88,10 @@ AZ_IRANIAN_BANK_GATEWAYS = {
             'TERMINAL_CODE': '<YOUR TERMINAL CODE>',
             'USERNAME': '<YOUR USERNAME>',
             'PASSWORD': '<YOUR PASSWORD>',
+        },
+        'PAYV1': {
+            'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
+            'X_SANDBOX': 0,  # 0 disable, 1 active
         },
     },
     'IS_SAMPLE_FORM_ENABLE': True, # اختیاری و پیش فرض غیر فعال است
@@ -280,6 +286,28 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 
 ```
 
+## TODO
+
+- [X] Add BMI support
+- [X] Add SEP support
+- [X] Add Zarinpal support
+- [X] Add IDPay support
+- [X] Add Zibal support
+- [X] Add Bahamta support
+- [X] Add BehPardakht support
+- [X] Add Pay.ir V1 support
+- [ ] Add Pay.ir V2 support 
+- [ ] Add nextpay-ir support (need MERCHANT_CODE & etc.)
+- [ ] Add Paystar support (need MERCHANT_CODE & etc.)
+- [ ] Add Sepah Bank support (need MERCHANT_CODE & etc.)
+- [ ] Managing verification Process when Gateway Not Available
+- [ ] Add celery beat for when Gateway Not Available
+- [ ] Add DRF support
+
+
+
+
+
 ## توسعه
 
 <p dir="rtl">
@@ -298,7 +326,7 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 * [hypy13](https://github.com/hypy13) برای آپدیت به ورژن های بالاتر از جنگو ۳.۲
 * [jam4li](https://github.com/jam4li) برای اضافه کردن سندباکس زرین پال
 * [ravexina](https://github.com/ravexina) رفع مشکل تسویه حساب بانک ملت
-
+* [nimaes80](https://github.com/nimaes80) اضافه کردن درگاه pay.ir ورژن یک
 
 ## License
 

@@ -11,7 +11,7 @@ class BankType(settings.TEXT_CHOICES):
     ZIBAL = 'ZIBAL', _('Zibal')
     BAHAMTA = 'BAHAMTA', _('Bahamta')
     MELLAT = 'MELLAT', _('Mellat')
-
+    PAYV1 = 'PAYV1', _("PayV1")
 
 class CurrencyEnum(settings.TEXT_CHOICES):
     IRR = 'IRR', _('Rial')
@@ -34,3 +34,4 @@ class PaymentStatus(settings.TEXT_CHOICES):
     EXPIRE_GATEWAY_TOKEN = _('Expire gateway token')
     EXPIRE_VERIFY_PAYMENT = _('Expire verify payment')
     COMPLETE = _('Complete')
+    ERROR = _('Unknown error acquired')
