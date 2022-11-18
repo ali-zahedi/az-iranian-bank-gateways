@@ -6,13 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('azbankgateways', '0003_bank_bank_choose_identifier'),
+        ("azbankgateways", "0003_bank_bank_choose_identifier"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='bank',
-            name='bank_type',
-            field=models.CharField(choices=[('BMI', 'BMI'), ('SEP', 'SEP'), ('ZARINPAL', 'Zarinpal'), ('IDPAY', 'IDPay'), ('ZIBAL', 'Zibal'), ('BAHAMTA', 'Bahamta'), ('MELLAT', 'Mellat')], max_length=50, verbose_name='Bank'),
+            model_name="bank",
+            name="bank_type",
+            field=models.CharField(
+                choices=[
+                    ("BMI", "BMI"),
+                    ("SEP", "SEP"),
+                    ("ZARINPAL", "Zarinpal"),
+                    ("IDPAY", "IDPay"),
+                    ("ZIBAL", "Zibal"),
+                    ("BAHAMTA", "Bahamta"),
+                    ("MELLAT", "Mellat"),
+                ],
+                max_length=50,
+                verbose_name="Bank",
+            ),
         ),
     ]

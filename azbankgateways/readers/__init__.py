@@ -1,2 +1,2 @@
-from .bases import Reader
-from .defaults import DefaultReader
+from .bases import Reader  # noqa
+from .defaults import DefaultReader  # noqa
