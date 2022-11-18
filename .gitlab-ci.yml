@@ -39,9 +39,9 @@ release:
     name: release
   script:
     - echo "Version is $(cat VERSION.txt)"
-    - sed -i "s/version='1.0.0',/version='$(cat VERSION.txt)',/g" setup.py
-    - pip install twine
-    - python setup.py sdist bdist_wheel
+    - sed -i "s/__version__ = \"1.0.0\"/__version__ = \"$(cat VERSION.txt)\"/g" azbankgateways/__init__.py
+    - pip install build twine
+    - python -m build
     - TWINE_PASSWORD=${TWINE_TOKEN} TWINE_USERNAME=${TWINE_USERNAME} python -m twine upload dist/*
   only:
     - master
