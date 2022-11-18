@@ -4,9 +4,9 @@ import logging
 import requests
 
 from azbankgateways.banks import BaseBank
-from azbankgateways.exceptions import SettingDoesNotExist, BankGatewayConnectionError
+from azbankgateways.exceptions import BankGatewayConnectionError, SettingDoesNotExist
 from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
-from azbankgateways.models import CurrencyEnum, BankType, PaymentStatus
+from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus
 from azbankgateways.utils import get_json
 
 
@@ -16,18 +16,18 @@ class Zibal(BaseBank):
     def __init__(self, **kwargs):
         super(Zibal, self).__init__(**kwargs)
         self.set_gateway_currency(CurrencyEnum.IRR)
-        self._token_api_url = 'https://gateway.zibal.ir/v1/request'
-        self._payment_url = 'https://gateway.zibal.ir/start/{}'
-        self._verify_api_url = 'https://gateway.zibal.ir/v1/verify'
+        self._token_api_url = "https://gateway.zibal.ir/v1/request"
+        self._payment_url = "https://gateway.zibal.ir/start/{}"
+        self._verify_api_url = "https://gateway.zibal.ir/v1/verify"
 
     def get_bank_type(self):
         return BankType.ZIBAL
 
     def set_default_settings(self):
-        for item in ['MERCHANT_CODE']:
+        for item in ["MERCHANT_CODE"]:
             if item not in self.default_setting_kwargs:
                 raise SettingDoesNotExist()
-            setattr(self, f'_{item.lower()}', self.default_setting_kwargs[item])
+            setattr(self, f"_{item.lower()}", self.default_setting_kwargs[item])
 
     """
     gateway
@@ -49,11 +49,11 @@ class Zibal(BaseBank):
 
     def get_pay_data(self):
         data = {
-            'merchant': self._merchant_code,
-            'amount': self.get_gateway_amount(),
-            'callbackUrl': self._get_gateway_callback_url(),
-            'orderId': self.get_tracking_code(),
-            'mobile': self.get_mobile_number(),
+            "merchant": self._merchant_code,
+            "amount": self.get_gateway_amount(),
+            "callbackUrl": self._get_gateway_callback_url(),
+            "orderId": self.get_tracking_code(),
+            "mobile": self.get_mobile_number(),
         }
         return data
 
@@ -64,8 +64,8 @@ class Zibal(BaseBank):
         super(Zibal, self).pay()
         data = self.get_pay_data()
         response_json = self._send_data(self._token_api_url, data)
-        if response_json['result'] == 100:
-            token = response_json['trackId']
+        if response_json["result"] == 100:
+            token = response_json["trackId"]
             self._set_reference_number(token)
         else:
             logging.critical("Zibal gateway reject payment")
@@ -77,7 +77,7 @@ class Zibal(BaseBank):
 
     def prepare_verify_from_gateway(self):
         super(Zibal, self).prepare_verify_from_gateway()
-        token = self.get_request().GET.get('trackId', None)
+        token = self.get_request().GET.get("trackId", None)
         self._set_reference_number(token)
         self._set_bank_record()
 
@@ -91,8 +91,8 @@ class Zibal(BaseBank):
     def get_verify_data(self):
         super(Zibal, self).get_verify_data()
         data = {
-            'trackId': self.get_reference_number(),
-            'merchant': self._merchant_code,
+            "trackId": self.get_reference_number(),
+            "merchant": self._merchant_code,
         }
         return data
 
@@ -103,7 +103,7 @@ class Zibal(BaseBank):
         super(Zibal, self).verify(transaction_code)
         data = self.get_verify_data()
         response_json = self._send_data(self._verify_api_url, data)
-        if response_json['result'] == 100 and response_json['status'] == 1:
+        if response_json["result"] == 100 and response_json["status"] == 1:
             self._set_payment_status(PaymentStatus.COMPLETE)
             extra_information = json.dumps(response_json)
             self._bank.extra_information = extra_information
@@ -123,5 +123,5 @@ class Zibal(BaseBank):
             raise BankGatewayConnectionError()
 
         response_json = get_json(response)
-        self._set_transaction_status_text(response_json['message'])
+        self._set_transaction_status_text(response_json["message"])
         return response_json

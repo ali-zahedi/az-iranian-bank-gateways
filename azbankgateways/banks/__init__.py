@@ -1,8 +1,8 @@
-from .banks import BaseBank
-from .bmi import BMI
-from .sep import SEP
-from .zarinpal import Zarinpal
-from .idpay import IDPay
-from .zibal import Zibal
-from .bahamta import Bahamta
-from .mellat import Mellat
+from .bahamta import Bahamta  # noqa
+from .banks import BaseBank  # noqa
+from .bmi import BMI  # noqa
+from .idpay import IDPay  # noqa
+from .mellat import Mellat  # noqa
+from .sep import SEP  # noqa
+from .zarinpal import Zarinpal  # noqa
+from .zibal import Zibal  # noqa

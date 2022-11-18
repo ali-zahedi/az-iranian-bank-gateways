@@ -1,10 +1,10 @@
-from azbankgateways.models import BankType
 from azbankgateways import default_settings as settings
+from azbankgateways.models import BankType
+
 from .bases import Reader
 
 
 class DefaultReader(Reader):
-
     def read(self, bank_type: BankType, identifier: str) -> dict:
         """
 

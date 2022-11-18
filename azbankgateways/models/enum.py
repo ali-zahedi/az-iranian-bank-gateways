@@ -4,18 +4,19 @@ import azbankgateways.default_settings as settings
 
 
 class BankType(settings.TEXT_CHOICES):
-    BMI = 'BMI', _('BMI')
-    SEP = 'SEP', _('SEP')
-    ZARINPAL = 'ZARINPAL', _('Zarinpal')
-    IDPAY = 'IDPAY', _('IDPay')
-    ZIBAL = 'ZIBAL', _('Zibal')
-    BAHAMTA = 'BAHAMTA', _('Bahamta')
-    MELLAT = 'MELLAT', _('Mellat')
-    PAYV1 = 'PAYV1', _("PayV1")
+    BMI = "BMI", _("BMI")
+    SEP = "SEP", _("SEP")
+    ZARINPAL = "ZARINPAL", _("Zarinpal")
+    IDPAY = "IDPAY", _("IDPay")
+    ZIBAL = "ZIBAL", _("Zibal")
+    BAHAMTA = "BAHAMTA", _("Bahamta")
+    MELLAT = "MELLAT", _("Mellat")
+    PAYV1 = "PAYV1", _("PayV1")
+
 
 class CurrencyEnum(settings.TEXT_CHOICES):
-    IRR = 'IRR', _('Rial')
-    IRT = 'IRT', _('Toman')
+    IRR = "IRR", _("Rial")
+    IRT = "IRT", _("Toman")
 
     @classmethod
     def rial_to_toman(cls, amount):
@@ -27,11 +28,11 @@ class CurrencyEnum(settings.TEXT_CHOICES):
 
 
 class PaymentStatus(settings.TEXT_CHOICES):
-    WAITING = _('Waiting')
-    REDIRECT_TO_BANK = _('Redirect to bank')
-    RETURN_FROM_BANK = _('Return from bank')
-    CANCEL_BY_USER = _('Cancel by user')
-    EXPIRE_GATEWAY_TOKEN = _('Expire gateway token')
-    EXPIRE_VERIFY_PAYMENT = _('Expire verify payment')
-    COMPLETE = _('Complete')
-    ERROR = _('Unknown error acquired')
+    WAITING = _("Waiting")
+    REDIRECT_TO_BANK = _("Redirect to bank")
+    RETURN_FROM_BANK = _("Return from bank")
+    CANCEL_BY_USER = _("Cancel by user")
+    EXPIRE_GATEWAY_TOKEN = _("Expire gateway token")
+    EXPIRE_VERIFY_PAYMENT = _("Expire verify payment")
+    COMPLETE = _("Complete")
+    ERROR = _("Unknown error acquired")

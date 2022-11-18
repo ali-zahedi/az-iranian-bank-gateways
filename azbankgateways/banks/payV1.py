@@ -1,14 +1,15 @@
 import json
 import logging
-from urllib import response
 
 import requests
+
 from azbankgateways.banks import BaseBank
 from azbankgateways.default_settings import TRACKING_CODE_QUERY_PARAM
-from azbankgateways.exceptions import (BankGatewayConnectionError,
-                                       SettingDoesNotExist)
-from azbankgateways.exceptions.exceptions import (BankGatewayRejectPayment,
-                                                  BankGatewayStateInvalid)
+from azbankgateways.exceptions import BankGatewayConnectionError, SettingDoesNotExist
+from azbankgateways.exceptions.exceptions import (
+    BankGatewayRejectPayment,
+    BankGatewayStateInvalid,
+)
 from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus
 
 
@@ -19,18 +20,18 @@ class PayV1(BaseBank):
     def __init__(self, **kwargs):
         super(PayV1, self).__init__(**kwargs)
         self.set_gateway_currency(CurrencyEnum.IRR)
-        self._token_api_url = 'https://pay.ir/pg/send'
-        self._payment_url = 'https://pay.ir/pg/{}'
-        self._verify_api_url = 'https://pay.ir/pg/verify'
+        self._token_api_url = "https://pay.ir/pg/send"
+        self._payment_url = "https://pay.ir/pg/{}"
+        self._verify_api_url = "https://pay.ir/pg/verify"
 
     def get_bank_type(self):
         return BankType.PAYV1
 
     def set_default_settings(self):
-        for item in ['MERCHANT_CODE', 'X_SANDBOX']:
+        for item in ["MERCHANT_CODE", "X_SANDBOX"]:
             if item not in self.default_setting_kwargs:
                 raise SettingDoesNotExist()
-            setattr(self, f'_{item.lower()}', self.default_setting_kwargs[item])
+            setattr(self, f"_{item.lower()}", self.default_setting_kwargs[item])
 
         self._merchant_code = self._merchant_code if not self._x_sandbox else "test"
 
@@ -53,11 +54,11 @@ class PayV1(BaseBank):
 
     def get_pay_data(self):
         data = {
-            'api': self._merchant_code,
-            'amount': self.get_gateway_amount(),
-            'redirect': self._get_gateway_callback_url(),
-            'mobile': self.get_mobile_number(),
-            'factorNumber': self.get_tracking_code(),
+            "api": self._merchant_code,
+            "amount": self.get_gateway_amount(),
+            "redirect": self._get_gateway_callback_url(),
+            "mobile": self.get_mobile_number(),
+            "factorNumber": self.get_tracking_code(),
         }
         return data
 
@@ -73,9 +74,12 @@ class PayV1(BaseBank):
             token = response_json["token"]
             self._set_reference_number(token)
         else:
-            logging.critical("PayV1 gateway reject payment with error code {0} and status code {1}".format(response_json["errorCode"] , response.status_code))
+            logging.critical(
+                "PayV1 gateway reject payment with error code {0} and status code {1}".format(
+                    response_json["errorCode"], response.status_code
+                )
+            )
             raise BankGatewayRejectPayment(self.get_transaction_status_text())
-
 
     """
     verify gateway
@@ -83,7 +87,7 @@ class PayV1(BaseBank):
 
     def prepare_verify_from_gateway(self):
         super(PayV1, self).prepare_verify_from_gateway()
-        for method in ['GET', 'POST', 'data']:
+        for method in ["GET", "POST", "data"]:
             token = getattr(self.get_request(), method).get(TRACKING_CODE_QUERY_PARAM, None)
             if token:
                 self._set_reference_number(token)
@@ -91,7 +95,6 @@ class PayV1(BaseBank):
                 break
         else:
             raise BankGatewayStateInvalid
-
 
     def verify_from_gateway(self, request):
         super(PayV1, self).verify_from_gateway(request)
@@ -103,8 +106,8 @@ class PayV1(BaseBank):
     def get_verify_data(self):
         super(PayV1, self).get_verify_data()
         data = {
-            'api': self._merchant_code(),
-            'token': self.get_reference_number(),
+            "api": self._merchant_code(),
+            "token": self.get_reference_number(),
         }
         return data
 
@@ -134,11 +137,10 @@ class PayV1(BaseBank):
         extra_information = json.dumps(response_json)
         self._bank.extra_information = extra_information
         self._bank.save()
-        
 
     def _send_data(self, url, data, timeout=5) -> requests.post:
         try:
-            logging.debug("Sending POST request to {} with data {}".format(url, data) )
+            logging.debug("Sending POST request to {} with data {}".format(url, data))
             response = requests.post(url, json=data, timeout=timeout)
         except requests.Timeout:
             logging.exception("PayV1 time out gateway {}".format(data))

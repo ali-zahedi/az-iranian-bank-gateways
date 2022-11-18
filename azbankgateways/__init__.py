@@ -1,1 +1,1 @@
-default_app_config = 'azbankgateways.apps.AZIranianBankGatewaysConfig'
+default_app_config = "azbankgateways.apps.AZIranianBankGatewaysConfig"

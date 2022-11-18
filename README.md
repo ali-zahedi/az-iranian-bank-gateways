@@ -315,6 +315,22 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 <p dir="rtl">
  اگر از این بسته استفاده می کنید و خوشتون اومده با دادن ستاره به ما دلگرمی بدید.البته که اگر زمان بگذارید و گسترش بدید خیلی استقبال می کنیم و خوشحال میشیم. البته که در هیچ کدوم از این موارد اصراری نیست. 
 </p>
+
+<p dir="rtl">
+برای نصب وابستگی ها از طریق زیر اقدام کنید و بعد از انجام تغییرات مرج ریکوئست ارسال کنید. 
+</p>
+
+```shell
+pip install -e ".[dev]"
+pre-commit install
+```
+<p dir="rtl">
+بیشتر بخوانیم:
+</p>
+
+* [flake8](https://flake8.pycqa.org/en/latest/) 
+* [black](https://black.readthedocs.io/en/stable/)
+
 <p dir="rtl">
  شاد باشید و خندون
 </p>

@@ -2,13 +2,12 @@ import abc
 
 import six
 
-from azbankgateways.models import BankType
 from azbankgateways import default_settings as settings
+from azbankgateways.models import BankType
 
 
 @six.add_metaclass(abc.ABCMeta)
 class Reader:
-
     @abc.abstractmethod
     def read(self, bank_type: BankType, identifier: str) -> dict:
         """

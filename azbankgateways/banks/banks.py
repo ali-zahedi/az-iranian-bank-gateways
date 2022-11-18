@@ -10,8 +10,12 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .. import default_settings as settings
-from ..exceptions import (AmountDoesNotSupport, BankGatewayStateInvalid,
-                          BankGatewayTokenExpired, CurrencyDoesNotSupport)
+from ..exceptions import (
+    AmountDoesNotSupport,
+    BankGatewayStateInvalid,
+    BankGatewayTokenExpired,
+    CurrencyDoesNotSupport,
+)
 from ..models import Bank, CurrencyEnum, PaymentStatus
 from ..utils import append_querystring
 
@@ -20,15 +24,16 @@ from ..utils import append_querystring
 @six.add_metaclass(abc.ABCMeta)
 class BaseBank:
     """Base bank for sending to gateway."""
+
     _gateway_currency: str = CurrencyEnum.IRR
     _currency: str = CurrencyEnum.IRR
     _amount: int = 0
     _gateway_amount: int = 0
     _mobile_number: str = None
     _tracking_code: int = None
-    _reference_number: str = ''
-    _transaction_status_text: str = ''
-    _client_callback_url: str = ''
+    _reference_number: str = ""
+    _transaction_status_text: str = ""
+    _client_callback_url: str = ""
     _bank: Bank = None
     _request = None
 
@@ -81,7 +86,7 @@ class BaseBank:
     def prepare_pay(self):
         logging.debug("Prepare pay method")
         self.prepare_amount()
-        tracking_code = int(str(uuid.uuid4().int)[-1 * settings.TRACKING_CODE_LENGTH:])
+        tracking_code = int(str(uuid.uuid4().int)[-1 * settings.TRACKING_CODE_LENGTH :])
         self._set_tracking_code(tracking_code)
 
     @abc.abstractmethod
@@ -138,13 +143,14 @@ class BaseBank:
 
     def get_client_callback_url(self):
         """این متد پس از وریفای شدن استفاده خواهد شد. لینک برگشت را بر میگرداند.حال چه وریفای موفقیت آمیز باشد چه با
-        لغو کاربر مواجه شده باشد """
-        url = append_querystring(self._bank.callback_url,
-                                 {settings.TRACKING_CODE_QUERY_PARAM: self.get_tracking_code()})
-        return url
+        لغو کاربر مواجه شده باشد"""
+        return append_querystring(
+            self._bank.callback_url,
+            {settings.TRACKING_CODE_QUERY_PARAM: self.get_tracking_code()},
+        )
 
     def redirect_client_callback(self):
-        """"این متد کاربر را به مسیری که نرم افزار میخواهد هدایت خواهد کرد و پس از وریفای شدن استفاده می شود."""
+        """ "این متد کاربر را به مسیری که نرم افزار میخواهد هدایت خواهد کرد و پس از وریفای شدن استفاده می شود."""
         logging.debug("Redirect to client")
         return redirect(self.get_client_callback_url())
 
@@ -157,34 +163,31 @@ class BaseBank:
 
     def set_client_callback_url(self, callback_url):
         """ذخیره کال بک از طریق نرم افزار برای بازگردانی کاربر پس از بازگشت درگاه بانک به پکیج و سپس از پکیج به نرم
-        افزار. """
+        افزار."""
         if not self._bank:
             self._client_callback_url = callback_url
         else:
             logging.critical(
                 "You are change the call back url in invalid situation.",
                 extra={
-                    'bank_id': self._bank.pk,
-                    'status': self._bank.status,
-                }
+                    "bank_id": self._bank.pk,
+                    "status": self._bank.status,
+                },
             )
             raise BankGatewayStateInvalid(
-                'Bank state not equal to waiting. Probably finish or redirect to bank gateway. status is {}'.format(
-                    self._bank.status
-                )
+                "Bank state not equal to waiting. Probably finish "
+                f"or redirect to bank gateway. status is {self._bank.status}"
             )
 
     def _set_reference_number(self, reference_number):
-        """reference number get from bank """
+        """reference number get from bank"""
         self._reference_number = reference_number
 
     def _set_bank_record(self):
         try:
             self._bank = Bank.objects.get(
-                Q(
-                    Q(reference_number=self.get_reference_number()) | Q(tracking_code=self.get_tracking_code())
-                ),
-                Q(bank_type=self.get_bank_type())
+                Q(Q(reference_number=self.get_reference_number()) | Q(tracking_code=self.get_tracking_code())),
+                Q(bank_type=self.get_bank_type()),
             )
             logging.debug("Set reference find bank object.")
         except Bank.DoesNotExist:
@@ -213,16 +216,17 @@ class BaseBank:
 
     def _set_payment_status(self, payment_status):
         if payment_status == PaymentStatus.RETURN_FROM_BANK and self._bank.status != PaymentStatus.REDIRECT_TO_BANK:
-            logging.debug("Payment status is not status suitable.", extra={'status': self._bank.status})
+            logging.debug(
+                "Payment status is not status suitable.",
+                extra={"status": self._bank.status},
+            )
             raise BankGatewayStateInvalid(
                 "You change the status bank record before/after this record change status from redirect to bank. "
-                "current status is {}".format(
-                    self._bank.status
-                )
+                "current status is {}".format(self._bank.status)
             )
         self._bank.status = payment_status
         self._bank.save()
-        logging.debug("Change bank payment status", extra={'status': payment_status})
+        logging.debug("Change bank payment status", extra={"status": payment_status})
 
     def set_gateway_currency(self, currency: CurrencyEnum):
         """واحد پولی درگاه بانک"""
@@ -234,7 +238,7 @@ class BaseBank:
         return self._gateway_currency
 
     def set_currency(self, currency: CurrencyEnum):
-        """"واحد پولی نرم افزار"""
+        """ "واحد پولی نرم افزار"""
         if currency not in [CurrencyEnum.IRR, CurrencyEnum.IRT]:
             raise CurrencyDoesNotSupport()
         self._currency = currency
@@ -271,7 +275,7 @@ class BaseBank:
             self.set_amount(amount)
         else:
             self.set_amount(10000)
-        self.set_client_callback_url('/')
+        self.set_client_callback_url("/")
 
     def check_gateway(self, amount=None):
         """با این متد از صحت و سلامت گیت وی برای اتصال اطمینان حاصل می کنیم."""
@@ -320,10 +324,12 @@ class BaseBank:
         url = self._get_gateway_payment_url_parameter()
         params = self._get_gateway_payment_parameter()
         method = self._get_gateway_payment_method_parameter()
-        params.update({
-            'url': url,
-            'method': method,
-        })
+        params.update(
+            {
+                "url": url,
+                "method": method,
+            }
+        )
         redirect_url = append_querystring(redirect_url, params)
         if self.get_request():
             redirect_url = self.get_request().build_absolute_uri(redirect_url)
@@ -336,8 +342,8 @@ class BaseBank:
             if not (url_parts[0] and url_parts[1]):
                 url = self.get_request().build_absolute_uri(url)
             query = dict(parse.parse_qsl(self.get_request().GET.urlencode()))
-            query.update({'bank_type': self.get_bank_type()})
-            query.update({'identifier': self.identifier})
+            query.update({"bank_type": self.get_bank_type()})
+            query.update({"identifier": self.identifier})
             url = append_querystring(url, query)
 
         return url
