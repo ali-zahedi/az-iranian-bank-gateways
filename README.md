@@ -305,7 +305,6 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 - [ ] Add Sepah Bank support (need MERCHANT_CODE & etc.)
 - [ ] Managing verification Process when Gateway Not Available
 - [ ] Add celery beat for when Gateway Not Available
-- [ ] Add DRF support
 
 
 
@@ -330,6 +329,7 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 * [jam4li](https://github.com/jam4li) برای اضافه کردن سندباکس زرین پال
 * [ravexina](https://github.com/ravexina) رفع مشکل تسویه حساب بانک ملت
 * [nimaes80](https://github.com/nimaes80) اضافه کردن درگاه pay.ir ورژن یک
+* [khademmilad](https://github.com/khademmilad) پشتیبانی از پایتون ۳.۱۰ و ۳.۱۱
 
 ## License
 
