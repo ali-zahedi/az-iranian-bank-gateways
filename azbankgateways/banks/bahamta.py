@@ -3,11 +3,12 @@ import logging
 
 import requests
 
-from azbankgateways.banks import BaseBank
 from azbankgateways.exceptions import BankGatewayConnectionError, SettingDoesNotExist
 from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
 from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus
 from azbankgateways.utils import append_querystring, get_json, split_to_dict_querystring
+
+from .banks import BaseBank
 
 
 class Bahamta(BaseBank):
