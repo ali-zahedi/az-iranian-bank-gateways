@@ -346,6 +346,7 @@ pre-commit install
 * [ravexina](https://github.com/ravexina) رفع مشکل تسویه حساب بانک ملت
 * [nimaes80](https://github.com/nimaes80) اضافه کردن درگاه pay.ir ورژن یک
 * [khademmilad](https://github.com/khademmilad) پشتیبانی از پایتون ۳.۱۰ و ۳.۱۱
+* [Saman-Zand-H](https://github.com/Saman-Zand-H) رفع مشکل اتصال pay.ir در برخی موارد
 
 ## License
 
