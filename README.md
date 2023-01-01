@@ -188,7 +188,7 @@ def go_to_gateway_view(request):
 
     factory = bankfactories.BankFactory()
     try:
-        bank = factory.auto_create() # or factory.create(bank_models.BankType.BMI) or set identifier
+        bank = factory.auto_create(request) # or factory.create(request, bank_models.BankType.BMI) or set identifier
         bank.set_request(request)
         bank.set_amount(amount)
         # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند
@@ -281,7 +281,9 @@ bank_models.Bank.objects.update_expire_records()
 
 # مشخص کردن رکوردهایی که باید تعیین وضعیت شوند
 for item in bank_models.Bank.objects.filter_return_from_bank():
-	bank = factory.create(bank_type=item.bank_type, identifier=item.bank_choose_identifier)
+	bank = factory.create(request=request, 
+			      bank_type=item.bank_type, 
+			      identifier=item.bank_choose_identifier)
 	bank.verify(item.tracking_code)		
 	bank_record = bank_models.Bank.objects.get(tracking_code=item.tracking_code)
 	if bank_record.is_success:

@@ -24,8 +24,7 @@ def sample_payment_view(request):
             mobile_number = form.cleaned_data["mobile_number"]
             factory = bankfactories.BankFactory()
             try:
-                bank = factory.auto_create()
-                bank.set_request(request)
+                bank = factory.auto_create(request=request)
                 bank.set_amount(amount)
                 # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند
                 bank.set_client_callback_url(reverse(f"{AZIranianBankGatewaysConfig.name}:sample-result"))

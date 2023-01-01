@@ -1,5 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
+from django.core.handlers.wsgi import WSGIRequest
+
 import importlib
 import logging
 
@@ -31,8 +33,10 @@ class BankFactory:
 
         return bank_class, self._secret_value_reader.read(bank_type=bank_type, identifier=identifier)
 
-    def create(self, bank_type: BankType = None, identifier: str = "1") -> BaseBank:
+    def create(self, request: WSGIRequest, bank_type: BankType = None, identifier: str = "1") -> BaseBank:
         """Build bank class"""
+        assert hasattr(request, "build_absolute_uri")
+        
         if not bank_type:
             bank_type = self._secret_value_reader.default(identifier)
         logging.debug("Request create bank", extra={"bank_type": bank_type})
@@ -40,16 +44,17 @@ class BankFactory:
         bank_klass, bank_settings = self._import_bank(bank_type, identifier)
         bank = bank_klass(**bank_settings, identifier=identifier)
         bank.set_currency(self._secret_value_reader.currency(identifier))
+        bank.set_request(request)
 
         logging.debug("Create bank")
         return bank
 
-    def auto_create(self, identifier: str = "1", amount=None) -> BaseBank:
+    def auto_create(self, request: WSGIRequest, identifier: str = "1", amount=None) -> BaseBank:
         logging.debug("Request create bank automatically")
         bank_list = self._secret_value_reader.get_bank_priorities(identifier)
         for bank_type in bank_list:
             try:
-                bank = self.create(bank_type, identifier)
+                bank = self.create(request, bank_type, identifier)
                 bank.check_gateway(amount)
                 return bank
             except Exception as e:
