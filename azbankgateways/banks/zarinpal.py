@@ -13,9 +13,8 @@ class Zarinpal(BaseBank):
     _sandbox = None
 
     def __init__(self, **kwargs):
+        kwargs.setdefault("SANDBOX", 0)
         super(Zarinpal, self).__init__(**kwargs)
-        if "SANDBOX" not in self.default_setting_kwargs:
-            self.default_setting_kwargs["SANDBOX"] = 0
         self.set_gateway_currency(CurrencyEnum.IRT)
         self._payment_url = "https://www.zarinpal.com/pg/StartPay/{}/ZarinGate"
         self._sandbox_url = "https://sandbox.zarinpal.com/pg/StartPay/{}/ZarinGate"
