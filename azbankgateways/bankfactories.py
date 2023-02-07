@@ -47,6 +47,7 @@ class BankFactory:
     def auto_create(self, identifier: str = "1", amount=None) -> BaseBank:
         logging.debug("Request create bank automatically")
         bank_list = self._secret_value_reader.get_bank_priorities(identifier)
+        errors = []
         for bank_type in bank_list:
             try:
                 bank = self.create(bank_type, identifier)
@@ -55,5 +56,8 @@ class BankFactory:
             except Exception as e:
                 logging.debug(str(e))
                 logging.debug("Try to connect another bank...")
+                errors.append(e)
                 continue
-        raise BankGatewayAutoConnectionFailed()
+        logging.debug("All banks failed to connect")
+        errors_msg = "\n".join([str(e) for e in errors])
+        raise BankGatewayAutoConnectionFailed(errors_msg)

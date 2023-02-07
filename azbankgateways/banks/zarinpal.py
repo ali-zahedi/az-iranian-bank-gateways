@@ -14,6 +14,8 @@ class Zarinpal(BaseBank):
 
     def __init__(self, **kwargs):
         super(Zarinpal, self).__init__(**kwargs)
+        if "SANDBOX" not in self.default_setting_kwargs:
+            self.default_setting_kwargs["SANDBOX"] = 0
         self.set_gateway_currency(CurrencyEnum.IRT)
         self._payment_url = "https://www.zarinpal.com/pg/StartPay/{}/ZarinGate"
         self._sandbox_url = "https://sandbox.zarinpal.com/pg/StartPay/{}/ZarinGate"
@@ -24,7 +26,7 @@ class Zarinpal(BaseBank):
     def set_default_settings(self):
         for item in ["MERCHANT_CODE", "SANDBOX"]:
             if item not in self.default_setting_kwargs:
-                raise SettingDoesNotExist()
+                raise SettingDoesNotExist(f"{item} does not exist in default_setting_kwargs")
             setattr(self, f"_{item.lower()}", self.default_setting_kwargs[item])
 
     """
