@@ -215,6 +215,52 @@ def go_to_gateway_view(request):
 
 `set_mobile_number` متدی است که پارامتر شماره موبایل کاربری که قصد خرید دارد را به آن پاس میدهیم. این شماره موبایل جهت پرداخت و پیگیری آسان تر به درگاه ارسال می شود
 
+هم‌چنین می‌توانید عملیات auto create کردن factory را از طریق interface انجام دهید:
+
+```python
+from azbankgateways.bankfactories_interface import BankFactory
+from azbankgateways.exceptions import AZBankGatewaysException
+
+
+def go_to_gateway_view(request):
+    try :
+        factory = BankFactory()
+        bank = factory.auto_create(
+            request=request,
+            amount=amount,
+            callback_url=callback_url,
+            mobile_number=mobile_number,
+        )
+        return bank.redirect_gateway()
+    except AZBankGatewaysException as e :
+        raise e
+
+```
+
+عملیات create کردن factory از طریق interface :
+
+```python
+from azbankgateways.bankfactories_interface import BankFactory
+from azbankgateways.exceptions import AZBankGatewaysException
+
+
+def go_to_gateway_view(request):
+    try :
+        factory = BankFactory()
+        bank = factory.create(
+            request=request,
+            amount=amount,
+            callback_url=callback_url,
+            mobile_number=mobile_number,
+	    bank_type=bank_type,
+        )
+        return bank.redirect_gateway()
+    except AZBankGatewaysException as e :
+        raise e
+
+```
+
+
 <h2 dir="rtl">بازگشت از بانک</h2>
 
 <p dir="rtl"> 
