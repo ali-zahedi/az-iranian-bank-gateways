@@ -108,6 +108,8 @@ AZ_IRANIAN_BANK_GATEWAYS = {
         'SEP',
         # and so on ...
     ], # اختیاری
+    'CALLBACK_NAMESPACE': 'azbankgateways:callback', # اختیاری 
+    'GO_TO_BANK_GATEWAY_NAMESPACE': 'azbankgateways:go-to-bank-gateway', # اختیاری
 }
  ```
 
@@ -128,7 +130,15 @@ AZ_IRANIAN_BANK_GATEWAYS = {
 1. `IS_SAMPLE_FORM_ENABLE`: یو آر ال های مربوط به تست درگاه بانک را فعال و یا غیر فعال می کند. در صورت فعال بودن می توانید از طریق آدرس زیر درگاه پرداخت را امتحان کنید.
 
    * [Sample payment](http://127.0.0.1:8000/bankgateways/sample-payment/)
-   
+
+1. `CALLBACK_NAMESPACE`: اگر میخواهید تابع کال بک داخلی را اوررایت کنید یا پروژه دارای اپ های مختلفی است و قسمت پرداخت در اپ جداگانه ای قرار دارد میتوانید محل قرار گیری یو آر ال های پیشفرض را تغییر دهید  برای مثال:
+   ```
+   'CALLBACK_NAMESPACE': 'api:payment:callback',
+    ```
+1. `GO_TO_BANK_GATEWAY_NAMESPACE`: اگر میخواهید تابع رفتن به دروازه بانک داخلی را اوررایت کنید یا پروژه دارای اپ های مختلفی است وقسمت پرداخت در اپ جداگانه ای قرار دارد میتوانید محل قرار گیری یو آر ال های پیشفرض را تغییر دهید برای مثال:
+    ```
+     'GO_TO_BANK_GATEWAY_NAMESPACE': 'api:payment:go-to-bank-gateway',
+    ```
 ### urls.py
 
 <p dir="rtl">
