@@ -110,6 +110,7 @@ AZ_IRANIAN_BANK_GATEWAYS = {
     ], # اختیاری
     'CALLBACK_NAMESPACE': 'azbankgateways:callback', # اختیاری 
     'GO_TO_BANK_GATEWAY_NAMESPACE': 'azbankgateways:go-to-bank-gateway', # اختیاری
+    'IS_SAFE_GET_GATEWAY_PAYMENT': False, #اختیاری، بهتر است True بزارید.
 }
  ```
 
@@ -139,6 +140,12 @@ AZ_IRANIAN_BANK_GATEWAYS = {
     ```
      'GO_TO_BANK_GATEWAY_NAMESPACE': 'api:payment:go-to-bank-gateway',
     ```
+1. `'IS_SAFE_GET_GATEWAY_PAYMENT'`:<br>
+   ```
+   'IS_SAFE_GET_GATEWAY_PAYMENT': True,
+   ```
+   <p dir="rtl"> توصیه میشه True باشه.</p>
+   <p dir="rtl"> درصورتی که مقدار برابر با True قرار بگیرد تابع redirect_gateway از دسترس خارج میشودو باید از تابع get_gateway استفاده شود.</p>
 ### urls.py
 
 <p dir="rtl">
@@ -177,7 +184,7 @@ python manage.py migrate
 <h1 dir="rtl">نحوه استفاده</h1>
 <h2 dir="rtl">ارسال به بانک</h2>
 
-
+<h3 dir="rtl">برای وقتی که تنظیمات IS_SAFE_GET_GATEWAY_PAYMENT': False'</h3>
 <p dir="rtl">
  برای استفاده و اتصال به درگاه بانک کافی است یک `BankFactory` ایجاد کنیم و پارامترهای اجباری را تنظیم کنیم. سپس کاربر را می توانیم به درگاه بانک هدایت  کنیم.
 </p>
@@ -217,6 +224,49 @@ def go_to_gateway_view(request):
         raise e
 
 ```
+
+<h3 dir="rtl">برای وقتی که تنظیمات IS_SAFE_GET_GATEWAY_PAYMENT': True'</h3>
+<p dir="rtl">
+ در این قسمت مثل مثال قبل عمل میکنیم تنها تفاوت این است که از تابع get_gateway بجای redirect_gateway استفاده میکنیم دلیل این کار افزایش امنیت و تغییر صفحهredirect میباشد. 
+</p>
+
+  
+```python
+import logging
+from django.urls import reverse
+from django.shortcuts import render
+from azbankgateways import bankfactories, models as bank_models, default_settings as settings
+from azbankgateways.exceptions import AZBankGatewaysException
+
+
+def go_to_gateway_view(request):
+    # خواندن مبلغ از هر جایی که مد نظر است
+    amount = 1000
+    # تنظیم شماره موبایل کاربر از هر جایی که مد نظر است
+    user_mobile_number = '+989112221234'  # اختیاری
+
+    factory = bankfactories.BankFactory()
+    try:
+        bank = factory.auto_create() # or factory.create(bank_models.BankType.BMI) or set identifier
+        bank.set_request(request)
+        bank.set_amount(amount)
+        # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند
+        bank.set_client_callback_url(reverse('callback-gateway'))
+        bank.set_mobile_number(user_mobile_number)  # اختیاری
+    
+        # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
+        # پرداخت برقرار کنید. 
+        bank_record = bank.ready()
+        
+        # هدایت کاربر به درگاه بانک
+        context = bank.get_gateway()
+        return render(request, 'redirect_to_bank.html', context=context)
+    except AZBankGatewaysException as e:
+        logging.critical(e)
+        return render(request, 'redirect_to_bank.html')
+
+```
+
 <p dir="rtl"> 
 در صورتیکه تمایل دارید به صورت خودکار به اولین درگاه در دسترس متصل شوید. ابتدا از قسمت تنظیمات در بخش `BANK_PRIORITIES
 ` اولویت های بانک های مد نظر را وارید کنید. سپس به جای استفاده از متد `factory.create` از متد ‍`factory.auto_create` در این بخش استفاده کنید.
@@ -224,6 +274,50 @@ def go_to_gateway_view(request):
  </p>
 
 `set_mobile_number` متدی است که پارامتر شماره موبایل کاربری که قصد خرید دارد را به آن پاس میدهیم. این شماره موبایل جهت پرداخت و پیگیری آسان تر به درگاه ارسال می شود
+
+<h2 dir="rtl">ساخت صفحه redirect_to_bank.html </h2>
+<p dir="rtl"> 
+این صفحه درصورتی کارمیکند که IS_SAFE_GET_GATEWAY_PAYMENT': True' و view مربوطه تنظیم شود.<br> برای این کار در پوشه templates پروژه فایل redirect_to_bank.html را ایجاد کرده و محتوای زیر را در آن قرار میدیم (میتونید با سلیقه خودتون سفاریشی کنید) 
+ </p>
+
+```html
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>انتقال به درگاه پرداخت</title>
+</head>
+<body>
+
+   {% if url %}
+     <h5>در حال اتصال به درگاه پرداخت ...</h5>
+   {% else %}
+     <h5>خطا در ارتباط با درگاه</h5>
+   {% endif %}
+   
+   {% if url %}
+      <form id='id_form' action="{{ url }}" method="{{ method }}">
+          {% csrf_token %}
+          {% for key, value in params.items %}
+              <input type="hidden" name="{{ key }}" value="{{ value }}">
+          {% endfor %}
+      </form>
+      
+      <script type="text/javascript">
+          window.onload = function () {
+      
+              function submitForm() {
+                  document.forms['id_form'].submit();
+              }
+      
+              submitForm();
+          }
+      </script>
+   {% endif %}
+</body>
+</html>
+```
+
 
 <h2 dir="rtl">بازگشت از بانک</h2>
 
