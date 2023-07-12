@@ -451,7 +451,9 @@ pre-commit install
 * [nimaes80](https://github.com/nimaes80) اضافه کردن درگاه pay.ir ورژن یک
 * [khademmilad](https://github.com/khademmilad) پشتیبانی از پایتون ۳.۱۰ و ۳.۱۱
 * [Saman-Zand-H](https://github.com/Saman-Zand-H) رفع مشکل اتصال pay.ir در برخی موارد
-
+* [MrMRM1](https://github.com/MrMRM1)  [بابت رفع مشکل امنیتی](https://github.com/ali-zahedi/az-iranian-bank-gateways/pull/65#issuecomment-1624927632)
+* [MrMRM1](https://github.com/MrMRM1) اضافه شدن قابلیت اوررایت یا تغییر ادرس یو آر ال های پیشفرض
+  
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
