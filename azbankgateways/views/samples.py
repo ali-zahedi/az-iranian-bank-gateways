@@ -28,7 +28,7 @@ def sample_payment_view(request):
                 bank.set_request(request)
                 bank.set_amount(amount)
                 # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند
-                bank.set_client_callback_url(reverse(f"{AZIranianBankGatewaysConfig.name}:sample-result"))
+                bank.set_client_callback_url(reverse(settings.SAMPLE_RESULT_NAMESPACE))
                 bank.set_mobile_number(mobile_number)  # اختیاری
 
                 # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که
@@ -38,6 +38,8 @@ def sample_payment_view(request):
                 bank_record = bank.ready()  # noqa
 
                 # هدایت کاربر به درگاه بانک
+                if settings.IS_SAMPLE_FORM_ENABLE:
+                    return render(request, 'azbankgateways/redirect_to_bank.html', context=bank.get_gateway())
                 return bank.redirect_gateway()
             except AZBankGatewaysException as e:
                 logging.critical(e)
