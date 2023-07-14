@@ -108,9 +108,8 @@ AZ_IRANIAN_BANK_GATEWAYS = {
         'SEP',
         # and so on ...
     ], # اختیاری
-    'CALLBACK_NAMESPACE': 'azbankgateways:callback', # اختیاری 
-    'GO_TO_BANK_GATEWAY_NAMESPACE': 'azbankgateways:go-to-bank-gateway', # اختیاری
     'IS_SAFE_GET_GATEWAY_PAYMENT': False, #اختیاری، بهتر است True بزارید.
+    'CUSTOM_APP': None, # اختیاری 
 }
  ```
 
@@ -140,12 +139,23 @@ AZ_IRANIAN_BANK_GATEWAYS = {
     ```
      'GO_TO_BANK_GATEWAY_NAMESPACE': 'api:payment:go-to-bank-gateway',
     ```
+1. `SAMPLE_RESULT_NAMESPACE`: اگر میخواهید صفحه نمونه داخلی را اوررایت کنید یا پروژه دارای اپ های مختلفی است وقسمت پرداخت در اپ جداگانه ای قرار دارد میتوانید محل قرار گیری یو آر ال های پیشفرض را تغییر دهید برای مثال:
+    ```
+     'SAMPLE_RESULT_NAMESPACE': 'api:payment:sample-result',
+    ```
 1. `'IS_SAFE_GET_GATEWAY_PAYMENT'`:<br>
    ```
    'IS_SAFE_GET_GATEWAY_PAYMENT': True,
    ```
    <p dir="rtl"> توصیه میشه True باشه.</p>
    <p dir="rtl"> درصورتی که مقدار برابر با True قرار بگیرد تابع redirect_gateway از دسترس خارج میشودو باید از تابع get_gateway استفاده شود.</p>
+1. `CUSTOM_APP` : <br>
+   ```
+   CUSTOM_APP : 'api:payment',
+   ```
+   <p dir="rtl">
+   اگر نیاز ندارید توابع داخلی را اوررایت کنیدو فقط به این نیاز دارید که مسیر یو ار ال های داخلی را در اپ جداگانه ای قرارگیرد میتوانید از این گزینه برای ادرسی دهی محل قرار گیری اپ استفاده کنید 
+   </p>
 ### urls.py
 
 <p dir="rtl">
