@@ -28,7 +28,7 @@ def sample_payment_view(request):
                 bank.set_request(request)
                 bank.set_amount(amount)
                 # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند
-                bank.set_client_callback_url(reverse(f"{AZIranianBankGatewaysConfig.name}:sample-result"))
+                bank.set_client_callback_url(reverse(settings.SAMPLE_RESULT_NAMESPACE))
                 bank.set_mobile_number(mobile_number)  # اختیاری
 
                 # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که
