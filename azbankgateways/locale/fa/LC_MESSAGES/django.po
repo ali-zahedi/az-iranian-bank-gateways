@@ -20,11 +20,11 @@ msgstr ""
 
 #: apps.py:8
 msgid "Iranian bank gateway"
-msgstr ""
+msgstr "ماژول درگاه پرداخت"
 
 #: apps.py:9
 msgid "Iranian bank gateways"
-msgstr ""
+msgstr "ماژول درگاه های پرداخت"
 
 #: models/banks.py:50
 msgid "Status"
@@ -56,19 +56,19 @@ msgstr "آدرس کال بک"
 
 #: models/banks.py:91
 msgid "Extra information"
-msgstr ""
+msgstr "توضیحات"
 
 #: models/banks.py:97
 msgid "Bank choose identifier"
-msgstr ""
+msgstr "مشخصه درگاه"
 
 #: models/banks.py:112
 msgid "Bank gateway"
-msgstr ""
+msgstr "پرداخت"
 
 #: models/banks.py:113
 msgid "Bank gateways"
-msgstr ""
+msgstr "پرداخت ها"
 
 #: models/enum.py:7
 msgid "BMI"
@@ -76,7 +76,7 @@ msgstr "بانک ملی ایران"
 
 #: models/enum.py:8
 msgid "SEP"
-msgstr ""
+msgstr "بانک سامان"
 
 #: models/enum.py:9
 msgid "Zarinpal"
@@ -128,7 +128,7 @@ msgstr "توکن منقضی شده"
 
 #: models/enum.py:35
 msgid "Expire verify payment"
-msgstr ""
+msgstr "مهلت پرداخت به اتمام رسیده"
 
 #: models/enum.py:36
 msgid "Complete"
