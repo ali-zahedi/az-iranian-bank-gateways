@@ -28,11 +28,11 @@ class CurrencyEnum(settings.TEXT_CHOICES):
 
 
 class PaymentStatus(settings.TEXT_CHOICES):
-    WAITING = _("Waiting")
-    REDIRECT_TO_BANK = _("Redirect to bank")
-    RETURN_FROM_BANK = _("Return from bank")
-    CANCEL_BY_USER = _("Cancel by user")
-    EXPIRE_GATEWAY_TOKEN = _("Expire gateway token")
-    EXPIRE_VERIFY_PAYMENT = _("Expire verify payment")
-    COMPLETE = _("Complete")
-    ERROR = _("Unknown error acquired")
+    WAITING = 'WAITING', _("Waiting")
+    REDIRECT_TO_BANK = 'REDIRECT_TO_BANK', _("Redirect to bank")
+    RETURN_FROM_BANK = 'RETURN_FROM_BANK', _("Return from bank")
+    CANCEL_BY_USER = 'CANCEL_BY_USER', _("Cancel by user")
+    EXPIRE_GATEWAY_TOKEN = 'EXPIRE_GATEWAY_TOKEN', _("Expire gateway token")
+    EXPIRE_VERIFY_PAYMENT = 'EXPIRE_VERIFY_PAYMENT', _("Expire verify payment")
+    COMPLETE = 'COMPLETE', _("Complete")
+    ERROR = 'ERROR', _("Unknown error acquired")
