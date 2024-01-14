@@ -413,6 +413,8 @@ for item in bank_models.Bank.objects.filter_return_from_bank():
 - [X] Add Bahamta support
 - [X] Add BehPardakht support
 - [X] Add Pay.ir V1 support
+- [ ] Add Jibit support
+- [ ] Add Vandar support
 - [ ] Add Pay.ir V2 support 
 - [ ] Add nextpay-ir support (need MERCHANT_CODE & etc.)
 - [ ] Add Paystar support (need MERCHANT_CODE & etc.)
