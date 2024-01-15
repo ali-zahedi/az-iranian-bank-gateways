@@ -6,3 +6,4 @@ from .mellat import Mellat  # noqa
 from .sep import SEP  # noqa
 from .zarinpal import Zarinpal  # noqa
 from .zibal import Zibal  # noqa
+from .jibit import Jibit  # noqa
