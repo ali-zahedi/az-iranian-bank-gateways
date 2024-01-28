@@ -39,7 +39,7 @@ def sample_payment_view(request):
 
                 # هدایت کاربر به درگاه بانک
                 if settings.IS_SAMPLE_FORM_ENABLE:
-                    return render(request, 'azbankgateways/redirect_to_bank.html', context=bank.get_gateway())
+                    return render(request, "azbankgateways/redirect_to_bank.html", context=bank.get_gateway())
                 return bank.redirect_gateway()
             except AZBankGatewaysException as e:
                 logging.critical(e)
