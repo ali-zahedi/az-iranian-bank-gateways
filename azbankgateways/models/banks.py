@@ -1,6 +1,7 @@
 import datetime
 
-from django.db import models
+#from django.db import models
+from djongo import models
 from django.utils.translation import gettext_lazy as _
 
 from .enum import BankType, PaymentStatus
@@ -42,6 +43,7 @@ class BankManager(models.Manager):
 
 
 class Bank(models.Model):
+    _id = models.ObjectIdField(auto_created=True)
     status = models.CharField(
         max_length=50,
         null=False,
