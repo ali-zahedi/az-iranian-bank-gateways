@@ -3,7 +3,7 @@
 import django
 from django.conf import settings
 
-from azbankgateways.apps import AZIranianBankGatewaysConfig
+from azbank.apps import AZIranianBankGatewaysConfig
 
 if django.__version__ >= "3.0":
     from django.db import models
@@ -17,14 +17,14 @@ BANK_CLASS = getattr(
     settings,
     "CLASS",
     {
-        "BMI": "azbankgateways.banks.BMI",
-        "SEP": "azbankgateways.banks.SEP",
-        "ZARINPAL": "azbankgateways.banks.Zarinpal",
-        "IDPAY": "azbankgateways.banks.IDPay",
-        "ZIBAL": "azbankgateways.banks.Zibal",
-        "BAHAMTA": "azbankgateways.banks.Bahamta",
-        "MELLAT": "azbankgateways.banks.Mellat",
-	"PAYV1": "azbankgateways.banks.PayV1",
+        "BMI": "azbank.banks.BMI",
+        "SEP": "azbank.banks.SEP",
+        "ZARINPAL": "azbank.banks.Zarinpal",
+        "IDPAY": "azbank.banks.IDPay",
+        "ZIBAL": "azbank.banks.Zibal",
+        "BAHAMTA": "azbank.banks.Bahamta",
+        "MELLAT": "azbank.banks.Mellat",
+	"PAYV1": "azbank.banks.PayV1",
     },
 )
 _AZ_IRANIAN_BANK_GATEWAYS = getattr(settings, "AZ_IRANIAN_BANK_GATEWAYS", {})
@@ -32,7 +32,7 @@ BANK_PRIORITIES = _AZ_IRANIAN_BANK_GATEWAYS.get("BANK_PRIORITIES", [])
 BANK_GATEWAYS = _AZ_IRANIAN_BANK_GATEWAYS.get("GATEWAYS", {})
 BANK_DEFAULT = _AZ_IRANIAN_BANK_GATEWAYS.get("DEFAULT", "BMI")
 SETTING_VALUE_READER_CLASS = _AZ_IRANIAN_BANK_GATEWAYS.get(
-    "SETTING_VALUE_READER_CLASS", "azbankgateways.readers.DefaultReader"
+    "SETTING_VALUE_READER_CLASS", "azbank.readers.DefaultReader"
 )
 CURRENCY = _AZ_IRANIAN_BANK_GATEWAYS.get("CURRENCY", "IRR")
 TRACKING_CODE_QUERY_PARAM = _AZ_IRANIAN_BANK_GATEWAYS.get("TRACKING_CODE_QUERY_PARAM", "tc")

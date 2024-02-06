@@ -58,7 +58,7 @@
  ``` python
 INSTALLED_APPS = [
     # ....
-    'azbankgateways',
+    'azbank',
     # ...
 ]
 AZ_IRANIAN_BANK_GATEWAYS = {
@@ -102,7 +102,7 @@ AZ_IRANIAN_BANK_GATEWAYS = {
     'CURRENCY': 'IRR', # اختیاری
     'TRACKING_CODE_QUERY_PARAM': 'tc', # اختیاری
     'TRACKING_CODE_LENGTH': 16, # اختیاری
-    'SETTING_VALUE_READER_CLASS': 'azbankgateways.readers.DefaultReader', # اختیاری
+    'SETTING_VALUE_READER_CLASS': 'azbank.readers.DefaultReader', # اختیاری
     'BANK_PRIORITIES': [
         'BMI',
         'SEP',
@@ -166,7 +166,7 @@ AZ_IRANIAN_BANK_GATEWAYS = {
 from django.contrib import admin
 from django.urls import path
 
-from azbankgateways.urls import az_bank_gateways_urls
+from azbank.urls import az_bank_gateways_urls
 
 admin.autodiscover()
 
@@ -203,8 +203,8 @@ python manage.py migrate
 ```python
 import logging
 from django.urls import reverse
-from azbankgateways import bankfactories, models as bank_models, default_settings as settings
-from azbankgateways.exceptions import AZBankGatewaysException
+from azbank import bankfactories, models as bank_models, default_settings as settings
+from azbank.exceptions import azbankException
 
 
 def go_to_gateway_view(request):
@@ -228,7 +228,7 @@ def go_to_gateway_view(request):
         
         # هدایت کاربر به درگاه بانک
         return bank.redirect_gateway()
-    except AZBankGatewaysException as e:
+    except azbankException as e:
         logging.critical(e)
         # TODO: redirect to failed page.
         raise e
@@ -245,8 +245,8 @@ def go_to_gateway_view(request):
 import logging
 from django.urls import reverse
 from django.shortcuts import render
-from azbankgateways import bankfactories, models as bank_models, default_settings as settings
-from azbankgateways.exceptions import AZBankGatewaysException
+from azbank import bankfactories, models as bank_models, default_settings as settings
+from azbank.exceptions import azbankException
 
 
 def go_to_gateway_view(request):
@@ -271,7 +271,7 @@ def go_to_gateway_view(request):
         # هدایت کاربر به درگاه بانک
         context = bank.get_gateway()
         return render(request, 'redirect_to_bank.html', context=context)
-    except AZBankGatewaysException as e:
+    except azbankException as e:
         logging.critical(e)
         return render(request, 'redirect_to_bank.html')
 
@@ -356,7 +356,7 @@ import logging
 from django.http import HttpResponse, Http404
 from django.urls import reverse
 
-from azbankgateways import bankfactories, models as bank_models, default_settings as settings
+from azbank import bankfactories, models as bank_models, default_settings as settings
 
 
 def callback_gateway_view(request):
@@ -386,7 +386,7 @@ def callback_gateway_view(request):
 
 ```python
 import logging
-from azbankgateways import bankfactories, models as bank_models, default_settings as settings
+from azbank import bankfactories, models as bank_models, default_settings as settings
 
 factory = bankfactories.BankFactory()
 

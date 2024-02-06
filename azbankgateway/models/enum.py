@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
-import azbankgateways.default_settings as settings
+import azbank.default_settings as settings
 
 
 class BankType(settings.TEXT_CHOICES):

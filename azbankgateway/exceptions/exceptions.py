@@ -1,42 +1,42 @@
-class AZBankGatewaysException(Exception):
+class azbankException(Exception):
     """AZ bank gateways exception"""
 
 
-class SettingDoesNotExist(AZBankGatewaysException):
+class SettingDoesNotExist(azbankException):
     """The requested setting does not exist"""
 
 
-class CurrencyDoesNotSupport(AZBankGatewaysException):
+class CurrencyDoesNotSupport(azbankException):
     """The requested currency does not support"""
 
 
-class AmountDoesNotSupport(AZBankGatewaysException):
+class AmountDoesNotSupport(azbankException):
     """The requested amount does not support"""
 
 
-class BankGatewayConnectionError(AZBankGatewaysException):
+class BankGatewayConnectionError(azbankException):
     """The requested gateway connection error"""
 
 
-class BankGatewayRejectPayment(AZBankGatewaysException):
+class BankGatewayRejectPayment(azbankException):
     """The requested bank reject payment"""
 
 
-class BankGatewayTokenExpired(AZBankGatewaysException):
+class BankGatewayTokenExpired(azbankException):
     """The requested bank token expire"""
 
 
-class BankGatewayUnclear(AZBankGatewaysException):
+class BankGatewayUnclear(azbankException):
     """The requested bank unclear"""
 
 
-class BankGatewayStateInvalid(AZBankGatewaysException):
+class BankGatewayStateInvalid(azbankException):
     """The requested bank unclear"""
 
 
-class BankGatewayAutoConnectionFailed(AZBankGatewaysException):
+class BankGatewayAutoConnectionFailed(azbankException):
     """The auto connection cant find bank"""
 
 
-class SafeSettingsEnabled(AZBankGatewaysException):
+class SafeSettingsEnabled(azbankException):
     """This feature is disabled when the safe gateway is active"""

@@ -3,14 +3,14 @@ import logging
 
 import requests
 
-from azbankgateways.banks import BaseBank
-from azbankgateways.default_settings import TRACKING_CODE_QUERY_PARAM
-from azbankgateways.exceptions import BankGatewayConnectionError, SettingDoesNotExist
-from azbankgateways.exceptions.exceptions import (
+from azbank.banks import BaseBank
+from azbank.default_settings import TRACKING_CODE_QUERY_PARAM
+from azbank.exceptions import BankGatewayConnectionError, SettingDoesNotExist
+from azbank.exceptions.exceptions import (
     BankGatewayRejectPayment,
     BankGatewayStateInvalid,
 )
-from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus
+from azbank.models import BankType, CurrencyEnum, PaymentStatus
 
 
 class PayV1(BaseBank):

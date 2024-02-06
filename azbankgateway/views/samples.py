@@ -4,11 +4,11 @@ from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse
 
-from azbankgateways import bankfactories
-from azbankgateways import default_settings as settings
-from azbankgateways import models as bank_models
-from azbankgateways.apps import AZIranianBankGatewaysConfig
-from azbankgateways.exceptions import AZBankGatewaysException
+from azbank import bankfactories
+from azbank import default_settings as settings
+from azbank import models as bank_models
+from azbank.apps import AZIranianBankGatewaysConfig
+from azbank.exceptions import azbankException
 
 from ..forms import PaymentSampleForm
 
@@ -39,9 +39,9 @@ def sample_payment_view(request):
 
                 # هدایت کاربر به درگاه بانک
                 if settings.IS_SAMPLE_FORM_ENABLE:
-                    return render(request, 'azbankgateways/redirect_to_bank.html', context=bank.get_gateway())
+                    return render(request, 'azbank/redirect_to_bank.html', context=bank.get_gateway())
                 return bank.redirect_gateway()
-            except AZBankGatewaysException as e:
+            except azbankException as e:
                 logging.critical(e)
                 # TODO: redirect to failed result.
                 raise e
@@ -50,7 +50,7 @@ def sample_payment_view(request):
     else:
         form = PaymentSampleForm()
 
-    return render(request, "azbankgateways/samples/gateway.html", {"form": form})
+    return render(request, "azbank/samples/gateway.html", {"form": form})
 
 
 def sample_result_view(request):
@@ -65,4 +65,4 @@ def sample_result_view(request):
         logging.debug("این لینک معتبر نیست.")
         raise Http404
 
-    return render(request, "azbankgateways/samples/result.html", {"bank_record": bank_record})
+    return render(request, "azbank/samples/result.html", {"bank_record": bank_record})

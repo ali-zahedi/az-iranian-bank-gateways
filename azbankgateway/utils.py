@@ -1,7 +1,7 @@
 import json
 from urllib import parse
 
-from azbankgateways.types import DictQuerystring
+from azbank.types import DictQuerystring
 
 
 def get_json(resp):

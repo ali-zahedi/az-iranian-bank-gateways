@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class AZIranianBankGatewaysConfig(AppConfig):
-    name = "azbankgateways"
+    name = "azbank"
     verbose_name = _("Iranian bank gateway")
     verbose_name_plural = _("Iranian bank gateways")
     # compatible with django >= 3.2

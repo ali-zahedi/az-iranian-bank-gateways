@@ -3,11 +3,11 @@ import logging
 import requests
 from zeep import Client, Transport
 
-from azbankgateways.banks import BaseBank
-from azbankgateways.exceptions import BankGatewayConnectionError, SettingDoesNotExist
-from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
-from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus
-from azbankgateways.utils import get_json
+from azbank.banks import BaseBank
+from azbank.exceptions import BankGatewayConnectionError, SettingDoesNotExist
+from azbank.exceptions.exceptions import BankGatewayRejectPayment
+from azbank.models import BankType, CurrencyEnum, PaymentStatus
+from azbank.utils import get_json
 
 
 class SEP(BaseBank):

@@ -1,6 +1,6 @@
 from .exceptions import (  # noqa
     AmountDoesNotSupport,
-    AZBankGatewaysException,
+    azbankException,
     BankGatewayConnectionError,
     BankGatewayStateInvalid,
     BankGatewayTokenExpired,
