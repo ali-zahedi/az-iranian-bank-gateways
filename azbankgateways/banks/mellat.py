@@ -85,11 +85,95 @@ class Mellat(BaseBank):
                 self._set_reference_number(token)
         except ValueError:
             status_text = "Unknown error"
-            if response == "12":
+            if response == "11":
+                status_text = "Card number is invalid"
+            elif response == "12":
                 status_text = "Insufficient inventory"
-            if response == "21":
+            elif response == "13":
+                status_text = "Password is incorrect"
+            elif response == "14":
+                status_text = "Max try reached"
+            elif response == "15":
+                status_text = "Card is invalid"
+            elif response == "16":
+                status_text = "The number of withdrawals is more than allowed"
+            elif response == "17":
+                status_text = "The user has abandoned the transaction"
+            elif response == "18":
+                status_text = "The card has expired"
+            elif response == "19":
+                status_text = "The withdrawal amount is over the limit"
+            elif response == "21":
                 status_text = "Invalid service"
-            if response == "421":
+            elif response == "23":
+                status_text = "A security error has occurred"
+            elif response == "24":
+                status_text = "The recipient's user information is invalid"
+            elif response == "25":
+                status_text = "The amount is invalid"
+            elif response == "31":
+                status_text = "The response is invalid"
+            elif response == "32":
+                status_text = "The format of the entered information is not correct"
+            elif response == "33":
+                status_text = "The account is invalid"
+            elif response == "34":
+                status_text = "System error"
+            elif response == "35":
+                status_text = "Date is invalid"
+            elif response == "41":
+                status_text = "The request number is duplicate"
+            elif response == "42":
+                status_text = "Sale transaction not found"
+            elif response == "43":
+                status_text = "Verify has already been requested"
+            elif response == "44":
+                status_text = "Verify request not found"
+            elif response == "45":
+                status_text = "The transaction has been settled"
+            elif response == "46":
+                status_text = "The transaction has not been settled"
+            elif response == "47":
+                status_text = "Settle transaction not found"
+            elif response == "48":
+                status_text = "The transaction has been reversed"
+            elif response == "49":
+                status_text = "Refund transaction not found"
+            elif response == "51":
+                status_text = "The transaction is repeated"
+            elif response == "54":
+                status_text = "The reference transaction does not exist"
+            elif response == "55":
+                status_text = "The transaction is invalid"
+            elif response == "61":
+                status_text = "Error in deposit"
+            elif response == "111":
+                status_text = "Card issuer is invalid"
+            elif response == "112":
+                status_text = "Card issuing switch error"
+            elif response == "113":
+                status_text = "No response was received from the card issuer"
+            elif response == "114":
+                status_text = "The cardholder is not authorized to perform this transaction"
+            elif response == "113":
+                status_text = "No response was received from the card issuer"
+            elif response == "412":
+                status_text = "The invoice ID is incorrect"
+            elif response == "413":
+                status_text = "Payment ID is incorrect"
+            elif response == "414":
+                status_text = "The organization issuing the bill is invalid"
+            elif response == "415":
+                status_text = "The working session has ended"
+            elif response == "416":
+                status_text = "The working session has ended"
+            elif response == "417":
+                status_text = "Payer ID is invalid"
+            elif response == "418":
+                status_text = "Problems in defining customer information"
+            elif response == "419":
+                status_text = "The number of data entries has exceeded the limit"
+            elif response == "421":
                 status_text = "Invalid IP address"
 
             self._set_transaction_status_text(status_text)
