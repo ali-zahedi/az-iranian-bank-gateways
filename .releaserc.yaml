@@ -1,0 +1,30 @@
+---
+
+{
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    [
+      "@semantic-release/exec",
+      {
+        "verifyReleaseCmd": "echo ${nextRelease.version} > VERSION.txt",
+        "prepareCmd": "echo ${nextRelease.version} > VERSION.txt"
+      }
+    ],
+    "@semantic-release/github"
+  ],
+  "branches": [
+    "main",
+    {
+      "name": "develop",
+      "prerelease": "beta"
+    },
+    {
+      "name": "alpha",
+      "prerelease": "alpha"
+    },
+    {
+      "name": "rc",
+      "prerelease": "rc"
+    }
+  ]
+}
