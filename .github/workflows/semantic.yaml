@@ -1,0 +1,62 @@
+---
+name: Version
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  versioning_pipeline:
+    environment:
+      name: ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set_output.outputs.version }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Setup package.json
+        run: |
+          echo '{"name":"demo", "devDependencies":{"@semantic-release/github":"9.0.4","@semantic-release/exec":"6.0.3","semantic-release":"21.0.7"}}' > package.json
+
+      - name: Install semantic-release
+        run: |
+          npm install
+
+      - name: Run semantic-release
+        id: semantic
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx semantic-release
+          # Extract the version from the new git tag
+          NEW_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+
+      - name: Set version output
+        id: set_output
+        run: echo "::set-output name=version::$NEW_TAG"
+
+
+      - name: Update package version
+        run: sed -i "s/__version__ = \"1.0.0\"/__version__ = \"${{ steps.semantic.outputs.NEW_TAG }}\"/g" azbankgateways/__init__.py
+      - name: Build package
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install build
+        run: python -m pip install build
+      - name: Build dist
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
