@@ -39,14 +39,10 @@ jobs:
           # Extract the version from the new git tag
           NEW_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
           echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
-
-      - name: Set version output
-        id: set_output
-        run: echo "::set-output name=version::$NEW_TAG"
-
+          echo $NEW_TAG
 
       - name: Update package version
-        run: sed -i "s/__version__ = \"1.0.0\"/__version__ = \"${{ steps.semantic.outputs.NEW_TAG }}\"/g" azbankgateways/__init__.py
+        run: sed -i "s/__version__ = \"1.0.0\"/__version__ = \"${{ NEW_TAG }}\"/g" azbankgateways/__init__.py
       - name: Build package
         uses: actions/setup-python@v4
         with:
