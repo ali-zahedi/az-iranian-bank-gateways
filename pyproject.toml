@@ -3,5 +3,24 @@ requires = ['setuptools>=40.8.0']
 build-backend = 'setuptools.build_meta'
 
 [tool.black]
-target-version = ['py38']
-line-length = 119
+indent = 4
+line-length = 110
+skip-string-normalization=1
+max_attribute_length = 10
+profile = 'django'
+exclude = '''
+/(
+    migrations
+  | __pycache__
+  | \.git
+)/
+'''
+
+[tool.isort]
+profile = "black"
+combine_as_imports = true
+include_trailing_comma = true
+lines_after_imports = 2
+multi_line_output = 3
+skip = ["migrations", "__pycache__", ".git", "env", ".env", "venv", ".venv", ".direnv"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
