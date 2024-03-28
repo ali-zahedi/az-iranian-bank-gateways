@@ -41,7 +41,9 @@ jobs:
           echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
 
       - name: Update package version
-        run: sed -i "s/__version__ = \"1.0.0\"/__version__ = \"$NEW_TAG\"/g" azbankgateways/__init__.py
+        run: |
+          echo "$NEW_TAG"
+          sed -i "s/__version__ = \"1.0.0\"/__version__ = \"$NEW_TAG\"/g" azbankgateways/__init__.py
       - name: Build package
         uses: actions/setup-python@v4
         with:
