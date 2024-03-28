@@ -485,6 +485,7 @@ pre-commit install
 * [MrMRM1](https://github.com/MrMRM1)  [بابت رفع مشکل امنیتی](https://github.com/ali-zahedi/az-iranian-bank-gateways/pull/65#issuecomment-1624927632)
 * [MrMRM1](https://github.com/MrMRM1) اضافه شدن قابلیت اوررایت یا تغییر ادرس یو آر ال های پیشفرض
 * [shiani](https://github.com/shiani) error occurs when the main language of site is Persian and it has to use gettext_lazy translation.
+* [amirreza8002](https://github.com/amirreza8002) رفع مشکل ترجمه
 * [zamoosh](https://github.com/zamoosh) اضافه کردن وضعیت های  تراکنش در بانک ملت
 
 ## License
