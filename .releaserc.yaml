@@ -16,15 +16,7 @@
     "main",
     {
       "name": "develop",
-      "prerelease": "beta"
-    },
-    {
-      "name": "alpha",
       "prerelease": "alpha"
-    },
-    {
-      "name": "rc",
-      "prerelease": "rc"
     }
   ]
 }
