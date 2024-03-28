@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.set_output.outputs.version }}
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
