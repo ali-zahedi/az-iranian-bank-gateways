@@ -2,9 +2,6 @@
 requires = ['setuptools>=40.8.0']
 build-backend = 'setuptools.build_meta'
 
-[project]
-readme = "README.md"
-
 [tool.black]
 indent = 4
 line-length = 110
