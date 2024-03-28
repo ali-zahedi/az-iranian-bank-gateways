@@ -1,0 +1,6 @@
+extends: default
+
+rules:
+  line-length:
+    # TODO: fix it!
+    max: 500
