@@ -19,7 +19,7 @@ def callback_view(request):
         raise Http404
 
     factory = BankFactory()
-    bank = factory.create(bank_type, identifier=identifier)
+    bank = factory.create(request, bank_type, identifier=identifier)
     try:
         bank.verify_from_gateway(request)
     except AZBankGatewaysException:
