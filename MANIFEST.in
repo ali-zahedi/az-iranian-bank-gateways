@@ -2,3 +2,4 @@ include LICENSE.md
 include README.md
 recursive-include azbankgateways *
 recursive-include docs *
+prune node_modules
