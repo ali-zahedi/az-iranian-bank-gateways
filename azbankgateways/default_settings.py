@@ -1,18 +1,10 @@
 """Default settings for messaging."""
 
-import django
 from django.conf import settings
 
 from azbankgateways.apps import AZIranianBankGatewaysConfig
 
-if django.__version__ >= "3.0":
-    from django.db import models
 
-    TEXT_CHOICES = models.TextChoices
-else:
-    from .models.enum_django import TextChoices
-
-    TEXT_CHOICES = TextChoices
 BANK_CLASS = getattr(
     settings,
     "CLASS",
@@ -24,7 +16,7 @@ BANK_CLASS = getattr(
         "ZIBAL": "azbankgateways.banks.Zibal",
         "BAHAMTA": "azbankgateways.banks.Bahamta",
         "MELLAT": "azbankgateways.banks.Mellat",
-	"PAYV1": "azbankgateways.banks.PayV1",
+        "PAYV1": "azbankgateways.banks.PayV1",
     },
 )
 _AZ_IRANIAN_BANK_GATEWAYS = getattr(settings, "AZ_IRANIAN_BANK_GATEWAYS", {})
@@ -39,13 +31,15 @@ TRACKING_CODE_QUERY_PARAM = _AZ_IRANIAN_BANK_GATEWAYS.get("TRACKING_CODE_QUERY_P
 TRACKING_CODE_LENGTH = _AZ_IRANIAN_BANK_GATEWAYS.get("TRACKING_CODE_LENGTH", 16)
 IS_SAMPLE_FORM_ENABLE = _AZ_IRANIAN_BANK_GATEWAYS.get("IS_SAMPLE_FORM_ENABLE", False)
 IS_SAFE_GET_GATEWAY_PAYMENT = _AZ_IRANIAN_BANK_GATEWAYS.get("IS_SAFE_GET_GATEWAY_PAYMENT", False)
-CUSTOM_APP = _AZ_IRANIAN_BANK_GATEWAYS.get("CUSTOM_APP", None)
+CUSTOM_APP = _AZ_IRANIAN_BANK_GATEWAYS.get("CUSTOM_APP")
 if CUSTOM_APP:
     CALLBACK_NAMESPACE = f"{CUSTOM_APP}:{AZIranianBankGatewaysConfig.name}:callback"
     GO_TO_BANK_GATEWAY_NAMESPACE = f"{CUSTOM_APP}:{AZIranianBankGatewaysConfig.name}:go-to-bank-gateway"
     SAMPLE_RESULT_NAMESPACE = f"{CUSTOM_APP}:{AZIranianBankGatewaysConfig.name}:sample-result"
 else:
-    CALLBACK_NAMESPACE = _AZ_IRANIAN_BANK_GATEWAYS.get("CALLBACK_NAMESPACE", f"{AZIranianBankGatewaysConfig.name}:callback")
+    CALLBACK_NAMESPACE = _AZ_IRANIAN_BANK_GATEWAYS.get(
+        "CALLBACK_NAMESPACE", f"{AZIranianBankGatewaysConfig.name}:callback"
+    )
     GO_TO_BANK_GATEWAY_NAMESPACE = _AZ_IRANIAN_BANK_GATEWAYS.get(
         "GO_TO_BANK_GATEWAY_NAMESPACE", f"{AZIranianBankGatewaysConfig.name}:go-to-bank-gateway"
     )

@@ -20,7 +20,6 @@ repos:
     rev: 23.7.0
     hooks:
       - id: black
-        exclude: ^(.*/)?(migrations|load_geojson_data)/
         args: ['--config=pyproject.toml']
   - repo: https://github.com/adamchainz/blacken-docs
     rev: 1.13.0
