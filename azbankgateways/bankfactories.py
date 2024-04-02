@@ -44,13 +44,15 @@ class BankFactory:
         logging.debug("Create bank")
         return bank
 
-    def auto_create(self, identifier: str = "1", amount=None) -> BaseBank:
+    def auto_create(self, identifier: str = "1", amount=None,request=None) -> BaseBank:
         logging.debug("Request create bank automatically")
         bank_list = self._secret_value_reader.get_bank_priorities(identifier)
         errors = []
         for bank_type in bank_list:
             try:
                 bank = self.create(bank_type, identifier)
+                if request:
+                    bank.set_request(request)
                 bank.check_gateway(amount)
                 return bank
             except Exception as e:
