@@ -37,6 +37,7 @@ class BaseBank:
     _client_callback_url: str = ""
     _bank: Bank = None
     _request = None
+    _custom_data: dict = dict()
 
     def __init__(self, identifier: str, **kwargs):
         self.identifier = identifier
@@ -161,6 +162,13 @@ class BaseBank:
 
     def get_mobile_number(self):
         return self._mobile_number
+
+    def set_custom_data(self, data: dict):
+        """تنظیم قابلیت های سفارشی برای درگاه"""
+        self._custom_data = data
+
+    def get_custom_data(self):
+        return self._custom_data
 
     def set_client_callback_url(self, callback_url):
         """ذخیره کال بک از طریق نرم افزار برای بازگردانی کاربر پس از بازگشت درگاه بانک به پکیج و سپس از پکیج به نرم

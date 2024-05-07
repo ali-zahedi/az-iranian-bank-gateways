@@ -54,7 +54,7 @@ class Zarinpal(BaseBank):
     def get_pay_data(self):
         description = "خرید با شماره پیگیری - {}".format(self.get_tracking_code())
 
-        return {
+        data = {
             "Description": description,
             "MerchantID": self._merchant_code,
             "Amount": self.get_gateway_amount(),
@@ -62,6 +62,8 @@ class Zarinpal(BaseBank):
             "Mobile": self.get_mobile_number(),
             "CallbackURL": self._get_gateway_callback_url(),
         }
+        data.update(self.get_custom_data())
+        return data
 
     def prepare_pay(self):
         super(Zarinpal, self).prepare_pay()

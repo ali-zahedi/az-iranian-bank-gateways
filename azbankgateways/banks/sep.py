@@ -40,6 +40,7 @@ class SEP(BaseBank):
             "RedirectURL": self._get_gateway_callback_url(),
             "CellNumber": self.get_mobile_number(),
         }
+        data.update(self.get_custom_data())
         return data
 
     def prepare_pay(self):

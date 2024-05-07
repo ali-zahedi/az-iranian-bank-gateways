@@ -54,6 +54,7 @@ class BMI(BaseBank):
             "OrderId": self.get_tracking_code(),
             "AdditionalData": "oi:%s-ou:%s" % (self.get_tracking_code(), self.get_mobile_number()),
         }
+        data.update(self.get_custom_data())
         return data
 
     def prepare_pay(self):
