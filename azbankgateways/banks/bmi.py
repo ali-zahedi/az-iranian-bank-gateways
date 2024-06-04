@@ -105,7 +105,7 @@ class BMI(BaseBank):
         super(BMI, self).verify(transaction_code)
         data = self.get_verify_data()
         response_json = self._send_data(self._verify_api_url, data)
-        if response_json["ResCode"] == "0":
+        if str(response_json["ResCode"]) == "0":
             self._set_payment_status(PaymentStatus.COMPLETE)
             extra_information = (
                 f"RetrivalRefNo={response_json['RetrivalRefNo']},SystemTraceNo={response_json['SystemTraceNo']}"
