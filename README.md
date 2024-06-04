@@ -287,6 +287,17 @@ def go_to_gateway_view(request):
         return render(request, "redirect_to_bank.html")
 ```
 
+<h3 dir="rtl"> تنظیم SECURE_REFERRER_POLICY برای درگاه بانک ملی </h3>
+<p dir="rtl">
+برای استفاده از درگاه بانک ملی تنظیم SECURE_REFERRER_POLICY در setting جنگو به صورت زیر الزامیست
+</p>
+
+```python
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+```
+
+<h3 dir="rtl">   انتخاب خودکار درگاه    </h3>
+
 <p dir="rtl">
 در صورتیکه تمایل دارید به صورت خودکار به اولین درگاه در دسترس متصل شوید. ابتدا از قسمت تنظیمات در بخش `BANK_PRIORITIES
 ` اولویت های بانک های مد نظر را وارید کنید. سپس به جای استفاده از متد `factory.create` از متد ‍`factory.auto_create` در این بخش استفاده کنید.
@@ -488,6 +499,7 @@ pre-commit install
 * [amirreza8002](https://github.com/amirreza8002) رفع مشکل ترجمه
 * [ahmadrezanavaie](https://github.com/ahmadrezanavaie) رفع مشکل ترجمه
 * [zamoosh](https://github.com/zamoosh) اضافه کردن وضعیت های  تراکنش در بانک ملت
+* [birddevelper](https://github.com/birddevelper) الزامی کردن وجود referrer برای درگاه بانک ملی
 
 ## License
 
