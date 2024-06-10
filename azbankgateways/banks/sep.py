@@ -16,6 +16,9 @@ class SEP(BaseBank):
 
     def __init__(self, **kwargs):
         super(SEP, self).__init__(**kwargs)
+        if not self._is_strict_origin_policy_enabled():
+            raise SettingDoesNotExist("SECURE_REFERRER_POLICY is not set to 'strict-origin-when-cross-origin' in django setting, it's mandatory for Saman gateway") 
+
         self.set_gateway_currency(CurrencyEnum.IRR)
         self._token_api_url = "https://sep.shaparak.ir/MobilePG/MobilePayment"
         self._payment_url = "https://sep.shaparak.ir/OnlinePG/OnlinePG"
