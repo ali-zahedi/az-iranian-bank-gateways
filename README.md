@@ -287,9 +287,9 @@ def go_to_gateway_view(request):
         return render(request, "redirect_to_bank.html")
 ```
 
-<h3 dir="rtl"> تنظیم SECURE_REFERRER_POLICY برای درگاه بانک ملی </h3>
+<h3 dir="rtl"> تنظیم SECURE_REFERRER_POLICY برای درگاه بانک ملی و سامان </h3>
 <p dir="rtl">
-برای استفاده از درگاه بانک ملی تنظیم SECURE_REFERRER_POLICY در setting جنگو به صورت زیر الزامیست
+برای استفاده از درگاه بانک ملی و سامان تنظیم SECURE_REFERRER_POLICY در setting جنگو به صورت زیر الزامیست
 </p>
 
 ```python
