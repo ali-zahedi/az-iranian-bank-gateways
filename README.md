@@ -293,7 +293,7 @@ def go_to_gateway_view(request):
 </p>
 
 ```python
-SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 ```
 
 <h3 dir="rtl">   انتخاب خودکار درگاه    </h3>
@@ -500,7 +500,7 @@ pre-commit install
 * [ahmadrezanavaie](https://github.com/ahmadrezanavaie) رفع مشکل ترجمه
 * [zamoosh](https://github.com/zamoosh) اضافه کردن وضعیت های  تراکنش در بانک ملت
 * [birddevelper](https://github.com/birddevelper) الزامی کردن وجود referrer برای درگاه بانک ملی
-
+* [apidemy](https://github.com/apidemy) ریفکتور _is_strict_origin_policy_enabled و پیروی از DRY
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
