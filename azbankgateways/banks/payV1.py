@@ -10,7 +10,7 @@ from azbankgateways.exceptions.exceptions import (
     BankGatewayRejectPayment,
     BankGatewayStateInvalid,
 )
-from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus
+from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus, Bank
 
 
 class PayV1(BaseBank):
@@ -58,7 +58,8 @@ class PayV1(BaseBank):
             "amount": self.get_gateway_amount(),
             "redirect": self._get_gateway_callback_url(),
             "mobile": self.get_mobile_number(),
-            "factorNumber": self.get_tracking_code(),
+            # "factorNumber": self.get_tracking_code(),
+            "factorNumber": self._request.session.get('tracking_code'),
         }
         return data
 
@@ -87,14 +88,16 @@ class PayV1(BaseBank):
 
     def prepare_verify_from_gateway(self):
         super(PayV1, self).prepare_verify_from_gateway()
-        for method in ["GET", "POST", "data"]:
-            token = getattr(self.get_request(), method).get(TRACKING_CODE_QUERY_PARAM, None)
+        request = self.get_request()
+        for method in ["GET", "POST",]:
+            token = getattr(request, method, {}).get('token', None)
+
             if token:
                 self._set_reference_number(token)
                 self._set_bank_record()
                 break
-        else:
-            raise BankGatewayStateInvalid
+            else:
+                raise BankGatewayStateInvalid
 
     def verify_from_gateway(self, request):
         super(PayV1, self).verify_from_gateway(request)
@@ -106,7 +109,7 @@ class PayV1(BaseBank):
     def get_verify_data(self):
         super(PayV1, self).get_verify_data()
         data = {
-            "api": self._merchant_code(),
+            "api": self._merchant_code,
             "token": self.get_reference_number(),
         }
         return data
@@ -119,23 +122,35 @@ class PayV1(BaseBank):
 
         data = self.get_verify_data()
         response = self._send_data(self._verify_api_url, data, timeout=10)
-        response_json = response.json()
-        status = PaymentStatus.COMPLETE
-        if int(response_json["status"]) != 1:
-            if int(response_json["errorCode"]) == -5:
-                status = PaymentStatus.ERROR
-            elif int(response_json["errorCode"]) == -9:
-                status = PaymentStatus.EXPIRE_VERIFY_PAYMENT
-            elif int(response_json["errorCode"]) == -15:
-                status = PaymentStatus.CANCEL_BY_USER
-            elif int(response_json["errorCode"]) == -27:
-                status = PaymentStatus.RETURN_FROM_BANK
-            else:
-                status = PaymentStatus.ERROR
+        try:
+            response_json = response.json()
+            if int(response_json["status"]) == 1:
+                status = PaymentStatus.COMPLETE
+                extra_information = json.dumps(response_json)
+                self._bank.extra_information = extra_information
+        except:
+            status = PaymentStatus.ERROR
+            # error codes
+            if "</html>" in response.text:
+                for i in range(-28, 1):
+                    if f'<span class="server-error-code">{i}</span>' in response.text:
+                        print(f"Status Code: {i}")
+                        status_code = int(i)
+                        break
 
+                if status_code == -5:
+                    status = PaymentStatus.ERROR
+                elif status_code == -9:
+                    status = PaymentStatus.EXPIRE_VERIFY_PAYMENT
+                elif status_code == -15:
+                    status = PaymentStatus.CANCEL_BY_USER
+                elif status_code == -27:
+                    status = PaymentStatus.RETURN_FROM_BANK
+                else:
+                    status = PaymentStatus.ERROR
+
+        
         self._set_payment_status(status)
-        extra_information = json.dumps(response_json)
-        self._bank.extra_information = extra_information
         self._bank.save()
 
     def _send_data(self, url, data, timeout=5) -> requests.post:

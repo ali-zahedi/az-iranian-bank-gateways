@@ -78,6 +78,8 @@ class Zibal(BaseBank):
     def prepare_verify_from_gateway(self):
         super(Zibal, self).prepare_verify_from_gateway()
         token = self.get_request().GET.get("trackId", None)
+        print(f'items: {self.get_request().GET.items()}')
+        print(f'token: {token}')
         self._set_reference_number(token)
         self._set_bank_record()
 

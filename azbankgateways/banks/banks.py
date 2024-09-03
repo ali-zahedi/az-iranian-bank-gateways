@@ -121,6 +121,8 @@ class BaseBank:
 
     def ready(self) -> Bank:
         self.pay()
+        self._request.session['tracking_code'] = self.get_tracking_code()
+        self._request.session['callback_url'] = self._client_callback_url
         bank = Bank.objects.create(
             bank_choose_identifier=self.identifier,
             bank_type=self.get_bank_type(),
@@ -128,11 +130,15 @@ class BaseBank:
             reference_number=self.get_reference_number(),
             response_result=self.get_transaction_status_text(),
             tracking_code=self.get_tracking_code(),
+            callback_url=self._client_callback_url,
         )
         self._bank = bank
+        bank_object = Bank.objects.get(tracking_code=bank.tracking_code)
         self._set_payment_status(PaymentStatus.WAITING)
-        if self._client_callback_url:
+        if self._client_callback_url and str(bank_object.bank_type).upper() != 'PAYV1':
             self._bank.callback_url = self._client_callback_url
+        elif str(bank_object.bank_type).upper() == 'PAYV1':
+            bank_object.callback_url = self._client_callback_url
         return bank
 
     @abc.abstractmethod
@@ -145,13 +151,19 @@ class BaseBank:
         self.prepare_verify_from_gateway()
         self._set_payment_status(PaymentStatus.RETURN_FROM_BANK)
         self.verify(self.get_tracking_code())
+    
 
     def get_client_callback_url(self):
         """این متد پس از وریفای شدن استفاده خواهد شد. لینک برگشت را بر میگرداند.حال چه وریفای موفقیت آمیز باشد چه با
         لغو کاربر مواجه شده باشد"""
+        tracking_code = str(self._request.session.get('tracking_code'))
+        callback_url = self._request.session.get('callback_url')
+        del self._request.session['tracking_code']
+        del self._request.session['callback_url']
+
         return append_querystring(
-            self._bank.callback_url,
-            {settings.TRACKING_CODE_QUERY_PARAM: self.get_tracking_code()},
+            callback_url,
+            {settings.TRACKING_CODE_QUERY_PARAM: tracking_code},
         )
 
     def redirect_client_callback(self):
