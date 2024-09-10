@@ -499,8 +499,9 @@ pre-commit install
 * [amirreza8002](https://github.com/amirreza8002) رفع مشکل ترجمه
 * [ahmadrezanavaie](https://github.com/ahmadrezanavaie) رفع مشکل ترجمه
 * [zamoosh](https://github.com/zamoosh) اضافه کردن وضعیت های  تراکنش در بانک ملت
-* [birddevelper](https://github.com/birddevelper) الزامی کردن وجود referrer برای درگاه بانک ملی
+* [birddevelper](https://github.com/birddevelper) الزامی کردن وجود referrer برای درگاه های بانک ملی و سامان
 * [apidemy](https://github.com/apidemy) ریفکتور _is_strict_origin_policy_enabled و پیروی از DRY
+* [TinyPuff](https://github.com/TinyPuff) رفع مشکل Pay.ir
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
