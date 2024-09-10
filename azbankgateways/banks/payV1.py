@@ -2,7 +2,7 @@ import json
 import logging
 
 import requests
-from requests.exceptions import HTTPError, JSONDecodeError
+from requests import HTTPError, JSONDecodeError, Timeout
 
 from azbankgateways.banks import BaseBank
 from azbankgateways.exceptions import BankGatewayConnectionError, SettingDoesNotExist
@@ -130,7 +130,7 @@ class PayV1(BaseBank):
                 self._bank.extra_information = extra_information
             else:
                 status = PaymentStatus.ERROR
-        except (JSONDecodeError, HTTPError):
+        except (JSONDecodeError, HTTPError, Timeout):
             status = PaymentStatus.ERROR
 
         self._set_payment_status(status)
