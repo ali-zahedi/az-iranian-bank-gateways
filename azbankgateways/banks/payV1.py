@@ -2,9 +2,9 @@ import json
 import logging
 
 import requests
+from requests.exceptions import HTTPError, JSONDecodeError
 
 from azbankgateways.banks import BaseBank
-from azbankgateways.default_settings import TRACKING_CODE_QUERY_PARAM
 from azbankgateways.exceptions import BankGatewayConnectionError, SettingDoesNotExist
 from azbankgateways.exceptions.exceptions import (
     BankGatewayRejectPayment,
@@ -87,8 +87,13 @@ class PayV1(BaseBank):
 
     def prepare_verify_from_gateway(self):
         super(PayV1, self).prepare_verify_from_gateway()
-        for method in ["GET", "POST", "data"]:
-            token = getattr(self.get_request(), method).get(TRACKING_CODE_QUERY_PARAM, None)
+        request = self.get_request()
+        for method in [
+            "GET",
+            "POST",
+        ]:
+            token = getattr(request, method, {}).get("token")
+
             if token:
                 self._set_reference_number(token)
                 self._set_bank_record()
@@ -105,10 +110,7 @@ class PayV1(BaseBank):
 
     def get_verify_data(self):
         super(PayV1, self).get_verify_data()
-        data = {
-            "api": self._merchant_code(),
-            "token": self.get_reference_number(),
-        }
+        data = {"api": self._merchant_code, "token": self.get_reference_number(), "status": self._bank.status}
         return data
 
     def prepare_verify(self, tracking_code):
@@ -116,26 +118,22 @@ class PayV1(BaseBank):
 
     def verify(self, tracking_code):
         super(PayV1, self).verify(tracking_code)
-
         data = self.get_verify_data()
-        response = self._send_data(self._verify_api_url, data, timeout=10)
-        response_json = response.json()
-        status = PaymentStatus.COMPLETE
-        if int(response_json["status"]) != 1:
-            if int(response_json["errorCode"]) == -5:
-                status = PaymentStatus.ERROR
-            elif int(response_json["errorCode"]) == -9:
-                status = PaymentStatus.EXPIRE_VERIFY_PAYMENT
-            elif int(response_json["errorCode"]) == -15:
-                status = PaymentStatus.CANCEL_BY_USER
-            elif int(response_json["errorCode"]) == -27:
-                status = PaymentStatus.RETURN_FROM_BANK
+        try:
+            response = self._send_data(self._verify_api_url, data, timeout=10)
+            response.raise_for_status()
+            response_json = response.json()
+            status = str(response_json.get("status", 0))
+            if status == '1':
+                status = PaymentStatus.COMPLETE
+                extra_information = json.dumps(response_json)
+                self._bank.extra_information = extra_information
             else:
                 status = PaymentStatus.ERROR
+        except (JSONDecodeError, HTTPError):
+            status = PaymentStatus.ERROR
 
         self._set_payment_status(status)
-        extra_information = json.dumps(response_json)
-        self._bank.extra_information = extra_information
         self._bank.save()
 
     def _send_data(self, url, data, timeout=5) -> requests.post:
