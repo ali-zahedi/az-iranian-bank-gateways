@@ -31,6 +31,8 @@
 
  1. [درگاه پی ورژن ۱](https://www.pay.ir/)
 
+ 1. [درگاه آسان پرداخت ](https://asanpardakht.ir/)
+
 [[_TOC_]]
 
 <h1 dir="rtl">آموزشی</h1>
@@ -96,6 +98,11 @@
              "MERCHANT_CODE": "<YOUR MERCHANT CODE>",
              "X_SANDBOX": 0,  # 0 disable, 1 active
          },
+        "ASANPARDAKHT": {  # اضافه کردن آسان پرداخت
+            "MERCHANT_CONFIGURATION_ID": "<YOUR MERCHANT CONFIGURATION ID>",
+            "USERNAME": "<YOUR USERNAME>",
+            "PASSWORD": "<YOUR PASSWORD>",
+        },
      },
      "IS_SAMPLE_FORM_ENABLE": True,  # اختیاری و پیش فرض غیر فعال است
      "DEFAULT": "BMI",

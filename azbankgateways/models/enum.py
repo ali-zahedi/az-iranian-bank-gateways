@@ -11,6 +11,7 @@ class BankType(models.TextChoices):
     BAHAMTA = "BAHAMTA", _("Bahamta")
     MELLAT = "MELLAT", _("Mellat")
     PAYV1 = "PAYV1", _("PayV1")
+    ASANPARDAKHT = "ASANPARDAKHT", _("AsanPardakht")
 
 
 class CurrencyEnum(models.TextChoices):
