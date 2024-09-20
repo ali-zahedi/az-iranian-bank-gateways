@@ -31,7 +31,9 @@ class AsanPardakht(BaseBank):
         for item in required_settings:
             if item not in self.default_setting_kwargs:
                 raise SettingDoesNotExist(f"{item} is not set in settings.")
+            
             setattr(self, f"_{item.lower()}", self.default_setting_kwargs[item])
+            print('___________________________________<',self._username)
 
     def get_pay_data(self):
         data = {
@@ -41,7 +43,7 @@ class AsanPardakht(BaseBank):
             "amountInRials": self.get_gateway_amount(),
             "localDate": self._get_local_date(),
             "callbackURL": self._get_gateway_callback_url(),
-            "paymentId": self.get_tracking_code(),  # اضافه کردن شناسه پرداخت
+            "paymentId": self.get_tracking_code(), 
         }
         return data
 
@@ -56,8 +58,9 @@ class AsanPardakht(BaseBank):
             "usr": self._username,
             "pwd": self._password,
         }
-
+        
         token = self._send_request(self._token_api_url, data, headers, as_json=False)
+        print('||||||||||||||||||||||||||||||||||||||||',token)
         if token:
             self._set_reference_number(token)
         else:
@@ -191,5 +194,17 @@ class AsanPardakht(BaseBank):
             return response.text  
 
     def _get_local_date(self):
-        from datetime import datetime
-        return datetime.now().strftime("%Y%m%d%H%M%S")
+        url = 'https://ipgrest.asanpardakht.ir/v1/Time'
+        headers = {
+            'usr': self._username,  
+            'pwd': self._password 
+        }
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            server_time = response.text.strip() 
+            return server_time
+        else:
+            raise Exception(f"Failed to retrieve server time: {response.status_code}, {response.text}")
+
