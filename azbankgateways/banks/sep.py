@@ -16,6 +16,12 @@ class SEP(BaseBank):
 
     def __init__(self, **kwargs):
         super(SEP, self).__init__(**kwargs)
+        if not self._is_strict_origin_policy_enabled():
+            raise SettingDoesNotExist(
+                "SECURE_REFERRER_POLICY is not set to 'strict-origin-when-cross-origin' in django setting,"
+                " it's mandatory for Saman gateway"
+            )
+
         self.set_gateway_currency(CurrencyEnum.IRR)
         self._token_api_url = "https://sep.shaparak.ir/MobilePG/MobilePayment"
         self._payment_url = "https://sep.shaparak.ir/OnlinePG/OnlinePG"
@@ -81,15 +87,15 @@ class SEP(BaseBank):
     def prepare_verify_from_gateway(self):
         super(SEP, self).prepare_verify_from_gateway()
         request = self.get_request()
-        tracking_code = request.GET.get("ResNum", None)
-        token = request.GET.get("Token", None)
+        tracking_code = request.GET.get("ResNum")
+        token = request.GET.get("Token")
         self._set_tracking_code(tracking_code)
         self._set_bank_record()
-        ref_num = request.GET.get("RefNum", None)
+        ref_num = request.GET.get("RefNum")
         if request.GET.get("State", "NOK") == "OK" and ref_num:
             self._set_reference_number(ref_num)
             self._bank.reference_number = ref_num
-            extra_information = f"TRACENO={request.GET.get('TRACENO', None)}, RefNum={ref_num}, Token={token}"
+            extra_information = f"TRACENO={request.GET.get('TRACENO')}, RefNum={ref_num}, Token={token}"
             self._bank.extra_information = extra_information
             self._bank.save()
 

@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .. import default_settings as settings
+from django.conf import settings as django_settings
 from ..exceptions import (
     AmountDoesNotSupport,
     BankGatewayStateInvalid,
@@ -43,6 +44,9 @@ class BaseBank:
         self.identifier = identifier
         self.default_setting_kwargs = kwargs
         self.set_default_settings()
+    
+    def _is_strict_origin_policy_enabled(self):
+        return django_settings.SECURE_REFERRER_POLICY == 'strict-origin-when-cross-origin'
 
     @abc.abstractmethod
     def set_default_settings(self):

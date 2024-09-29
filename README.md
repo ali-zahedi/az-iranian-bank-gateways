@@ -287,13 +287,13 @@ def go_to_gateway_view(request):
         return render(request, "redirect_to_bank.html")
 ```
 
-<h3 dir="rtl"> تنظیم SECURE_REFERRER_POLICY برای درگاه بانک ملی </h3>
+<h3 dir="rtl"> تنظیم SECURE_REFERRER_POLICY برای درگاه بانک ملی و سامان </h3>
 <p dir="rtl">
-برای استفاده از درگاه بانک ملی تنظیم SECURE_REFERRER_POLICY در setting جنگو به صورت زیر الزامیست
+برای استفاده از درگاه بانک ملی و سامان تنظیم SECURE_REFERRER_POLICY در setting جنگو به صورت زیر الزامیست
 </p>
 
 ```python
-SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 ```
 
 <h3 dir="rtl">   انتخاب خودکار درگاه    </h3>
@@ -499,8 +499,9 @@ pre-commit install
 * [amirreza8002](https://github.com/amirreza8002) رفع مشکل ترجمه
 * [ahmadrezanavaie](https://github.com/ahmadrezanavaie) رفع مشکل ترجمه
 * [zamoosh](https://github.com/zamoosh) اضافه کردن وضعیت های  تراکنش در بانک ملت
-* [birddevelper](https://github.com/birddevelper) الزامی کردن وجود referrer برای درگاه بانک ملی
-
+* [birddevelper](https://github.com/birddevelper) الزامی کردن وجود referrer برای درگاه های بانک ملی و سامان
+* [apidemy](https://github.com/apidemy) ریفکتور _is_strict_origin_policy_enabled و پیروی از DRY
+* [TinyPuff](https://github.com/TinyPuff) رفع مشکل Pay.ir
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.

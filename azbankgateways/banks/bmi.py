@@ -20,9 +20,6 @@ class BMI(BaseBank):
     _terminal_code = None
     _secret_key = None
 
-    def _is_strict_origin_policy_enabled(self):
-        return settings.SECURE_REFERRER_POLICY == 'strict-origin-when-cross-origin'
-
     def __init__(self, **kwargs):
         super(BMI, self).__init__(**kwargs)
         if not self._is_strict_origin_policy_enabled():
