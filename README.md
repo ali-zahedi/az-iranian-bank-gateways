@@ -322,6 +322,12 @@ def go_to_gateway_view(request):
             callback_url=callback_url,
             mobile_number=mobile_number,
         )
+        
+        # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
+        # پرداخت برقرار کنید.
+        bank_record = bank.ready()
+
+        # هدایت کاربر به درگاه بانک
         return bank.redirect_gateway()
     except AZBankGatewaysException as e :
         raise e
@@ -343,8 +349,14 @@ def go_to_gateway_view(request):
             amount=amount,
             callback_url=callback_url,
             mobile_number=mobile_number,
-	    bank_type=bank_type,
+	        bank_type=bank_type,
         )
+        
+        # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
+        # پرداخت برقرار کنید.
+        bank_record = bank.ready()
+
+        # هدایت کاربر به درگاه بانک
         return bank.redirect_gateway()
     except AZBankGatewaysException as e :
         raise e
