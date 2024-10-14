@@ -5,7 +5,7 @@ build-backend = 'setuptools.build_meta'
 [tool.black]
 indent = 4
 line-length = 110
-skip-string-normalization=1
+skip-string-normalization = 1
 max_attribute_length = 10
 profile = 'django'
 exclude = '''
@@ -24,3 +24,8 @@ lines_after_imports = 2
 multi_line_output = 3
 skip = ["migrations", "__pycache__", ".git", "env", ".env", "venv", ".venv", ".direnv"]
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+
+
+[tool.pytest.ini_options]
+python_files = ["tests.py", "test_*.py", "*_tests.py", ]
+norecursedirs = [".git", ".pytest_cache", ".vscode", ".idea", "__pycache__", "dumps", "env", "venv", ]
