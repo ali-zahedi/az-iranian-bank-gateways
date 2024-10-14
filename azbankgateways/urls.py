@@ -13,8 +13,12 @@ app_name = AZIranianBankGatewaysConfig.name
 
 _urlpatterns = [
     path("callback/", callback_view, name="callback"),
-    path("go-to-bank-gateway/", go_to_bank_gateway, name="go-to-bank-gateway"),
 ]
+
+if not settings.IS_SAFE_GET_GATEWAY_PAYMENT:
+    _urlpatterns += [
+        path("go-to-bank-gateway/", go_to_bank_gateway, name="go-to-bank-gateway"),
+    ]
 
 if settings.IS_SAMPLE_FORM_ENABLE:
     _urlpatterns += [

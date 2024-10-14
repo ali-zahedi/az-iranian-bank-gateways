@@ -7,4 +7,5 @@ from .exceptions import (  # noqa
     BankGatewayUnclear,
     CurrencyDoesNotSupport,
     SettingDoesNotExist,
+    SafeSettingsEnabled,
 )

@@ -36,3 +36,7 @@ class BankGatewayStateInvalid(AZBankGatewaysException):
 
 class BankGatewayAutoConnectionFailed(AZBankGatewaysException):
     """The auto connection cant find bank"""
+
+
+class SafeSettingsEnabled(AZBankGatewaysException):
+    """This feature is disabled when the safe gateway is active"""

@@ -10,11 +10,13 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .. import default_settings as settings
+from django.conf import settings as django_settings
 from ..exceptions import (
     AmountDoesNotSupport,
     BankGatewayStateInvalid,
     BankGatewayTokenExpired,
     CurrencyDoesNotSupport,
+    SafeSettingsEnabled,
 )
 from ..models import Bank, CurrencyEnum, PaymentStatus
 from ..utils import append_querystring
@@ -41,6 +43,9 @@ class BaseBank:
         self.identifier = identifier
         self.default_setting_kwargs = kwargs
         self.set_default_settings()
+    
+    def _is_strict_origin_policy_enabled(self):
+        return django_settings.SECURE_REFERRER_POLICY == 'strict-origin-when-cross-origin'
 
     @abc.abstractmethod
     def set_default_settings(self):
@@ -309,15 +314,35 @@ class BaseBank:
         """
         pass
 
-    def redirect_gateway(self):
-        """کاربر را به درگاه بانک هدایت می کند"""
+    def _verify_payment_expiry(self):
+        """برسی میکند درگاه ساخته شده اعتبار دارد یا خیر"""
         if (timezone.now() - self._bank.created_at).seconds > 120:
             self._set_payment_status(PaymentStatus.EXPIRE_GATEWAY_TOKEN)
             logging.debug("Redirect to bank expire!")
             raise BankGatewayTokenExpired()
+
+    def redirect_gateway(self):
+        """کاربر را به درگاه بانک هدایت می کند"""
+        self._verify_payment_expiry()
+        if settings.IS_SAFE_GET_GATEWAY_PAYMENT:
+            raise SafeSettingsEnabled()
         logging.debug("Redirect to bank")
         self._set_payment_status(PaymentStatus.REDIRECT_TO_BANK)
         return redirect(self.get_gateway_payment_url())
+
+    def get_gateway(self):
+        """اطلاعات درگاه پرداخت را برمیگرداند"""
+        self._verify_payment_expiry()
+        logging.debug("Redirect to bank")
+        self._set_payment_status(PaymentStatus.REDIRECT_TO_BANK)
+        return self.safe_get_gateway_payment_url()
+
+    def safe_get_gateway_payment_url(self):
+        url = self._get_gateway_payment_url_parameter()
+        params = self._get_gateway_payment_parameter()
+        method = self._get_gateway_payment_method_parameter()
+        context = {"params": params, "url": url, "method": method}
+        return context
 
     def get_gateway_payment_url(self):
         redirect_url = reverse(settings.GO_TO_BANK_GATEWAY_NAMESPACE)
