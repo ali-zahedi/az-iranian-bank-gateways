@@ -4,7 +4,7 @@ import logging
 
 import requests
 from Crypto.Cipher import DES3
-
+from django.conf import settings
 from azbankgateways.banks import BaseBank
 from azbankgateways.exceptions import BankGatewayConnectionError, SettingDoesNotExist
 from azbankgateways.exceptions.exceptions import (
@@ -22,6 +22,9 @@ class BMI(BaseBank):
 
     def __init__(self, **kwargs):
         super(BMI, self).__init__(**kwargs)
+        if not self._is_strict_origin_policy_enabled():
+            raise SettingDoesNotExist("SECURE_REFERRER_POLICY is not set to 'strict-origin-when-cross-origin' in django setting, it's mandatory for BMI gateway") 
+
         self.set_gateway_currency(CurrencyEnum.IRR)
         self._token_api_url = "https://sadad.shaparak.ir/vpg/api/v0/Request/PaymentRequest"
         self._payment_url = "https://sadad.shaparak.ir/VPG/Purchase"
@@ -63,7 +66,7 @@ class BMI(BaseBank):
         super(BMI, self).pay()
         data = self.get_pay_data()
         response_json = self._send_data(self._token_api_url, data)
-        if response_json["ResCode"] == "0":
+        if str(response_json["ResCode"]) == "0":
             token = response_json["Token"]
             self._set_reference_number(token)
         else:
@@ -99,7 +102,7 @@ class BMI(BaseBank):
         super(BMI, self).verify(transaction_code)
         data = self.get_verify_data()
         response_json = self._send_data(self._verify_api_url, data)
-        if response_json["ResCode"] == "0":
+        if str(response_json["ResCode"]) == "0":
             self._set_payment_status(PaymentStatus.COMPLETE)
             extra_information = (
                 f"RetrivalRefNo={response_json['RetrivalRefNo']},SystemTraceNo={response_json['SystemTraceNo']}"
