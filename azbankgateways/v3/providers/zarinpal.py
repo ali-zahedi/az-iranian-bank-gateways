@@ -18,7 +18,7 @@ from azbankgateways.v3.interfaces import (
     OrderDetails,
     PaymentGatewayConfigInterface,
     ProviderInterface,
-    RequestInterface,
+    RedirectRequestInterface,
 )
 from azbankgateways.v3.redirect_request import RedirectRequest
 
@@ -93,7 +93,7 @@ class ZarinpalProvider(ProviderInterface):
     def minimum_amount(self) -> Decimal:
         return Decimal(1000)
 
-    def get_request_pay(self) -> RequestInterface:
+    def get_request_pay(self) -> RedirectRequestInterface:
         return RedirectRequest(
             http_method=HttpMethod.GET,
             url=f'{self.__config.start_payment_url}/{self.__pay()}',

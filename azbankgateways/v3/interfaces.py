@@ -41,7 +41,7 @@ class BankEntityInterface(ABC):
         raise NotImplementedError()
 
 
-class RequestInterface(ABC):
+class RedirectRequestInterface(ABC):
     """
     An interface for defining the structure of a redirect request, typically used to
      manage payment redirections or external API redirects.
@@ -167,6 +167,114 @@ class ProviderInterface(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_request_pay(self) -> RequestInterface:
+    def get_request_pay(self) -> RedirectRequestInterface:
         # TODO: add proper doc string
         raise NotImplementedError()
+
+
+class ResponseInterface(ABC):
+    @property
+    @abstractmethod
+    def status_code(self) -> int:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def json(self) -> Dict[str, Any]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def raise_for_status(self):
+        raise NotImplementedError()
+
+
+class RequestInterface(ABC):
+    """
+    An interface for making HTTP requests, providing methods for various HTTP methods
+    (e.g., GET, POST, PUT, DELETE, etc.) and support for SOAP requests.
+    It defines abstract methods that should be implemented by subclasses to handle
+    the specifics of HTTP request handling, error handling, and response handling.
+    """
+
+    class RequestException(IOError):
+        pass
+
+    class Timeout(RequestException):
+        pass
+
+    class ConnectionError(RequestException):
+        pass
+
+    class HTTPError(RequestException):
+        pass
+
+    @abstractmethod
+    def request(
+        self,
+        method: HttpMethod,
+        url: str,
+        data: Optional[Any] = None,
+        json: Optional[Dict[str, Any]] = None,
+        **kwargs
+    ) -> ResponseInterface:
+        """
+        Send an HTTP request using the specified method.
+
+        Args:
+            method (HttpMethod): The HTTP method to use (e.g., GET, POST, PUT).
+            url (str): The URL to send the request to.
+            data (Optional[Any]): The request payload (typically for POST, PUT, PATCH).
+            json (Optional[Dict[str, Any]]): The JSON payload to be sent in the request body.
+            **kwargs: Additional request parameters (e.g., headers, query params).
+
+        Returns:
+            ResponseInterface: The response received from the request.
+
+        Raises:
+            Timeout: If the request times out.
+            ConnectionError: If there is a connection-related error.
+            HTTPError: If an HTTP error occurs.
+        """
+        raise NotImplementedError()
+
+    def soap_request(
+        self, url: str, soap_action: str, xml: str, headers: Optional[Dict[str, str]] = None, **kwargs
+    ) -> ResponseInterface:
+        if headers is None:
+            headers = {}
+        headers.update({'Content-Type': 'text/xml; charset=utf-8', 'SOAPAction': soap_action})
+        return self.post(url, data=xml, headers=headers, **kwargs)
+
+    def post(
+        self, url: str, data: Optional[Any] = None, json: Optional[Dict[str, Any]] = None, **kwargs
+    ) -> ResponseInterface:
+        return self.request(HttpMethod.POST, url, data, json, **kwargs)
+
+    def put(
+        self, url: str, data: Optional[Any] = None, json: Optional[Dict[str, Any]] = None, **kwargs
+    ) -> ResponseInterface:
+        return self.request(HttpMethod.POST, url, data, json, **kwargs)
+
+    def get(
+        self, url: str, data: Optional[Any] = None, json: Optional[Dict[str, Any]] = None, **kwargs
+    ) -> ResponseInterface:
+        return self.request(HttpMethod.POST, url, data, json, **kwargs)
+
+    def delete(
+        self, url: str, data: Optional[Any] = None, json: Optional[Dict[str, Any]] = None, **kwargs
+    ) -> ResponseInterface:
+        return self.request(HttpMethod.POST, url, data, json, **kwargs)
+
+    def patch(
+        self, url: str, data: Optional[Any] = None, json: Optional[Dict[str, Any]] = None, **kwargs
+    ) -> ResponseInterface:
+        return self.request(HttpMethod.POST, url, data, json, **kwargs)
+
+    def head(
+        self, url: str, data: Optional[Any] = None, json: Optional[Dict[str, Any]] = None, **kwargs
+    ) -> ResponseInterface:
+        return self.request(HttpMethod.POST, url, data, json, **kwargs)
+
+    def options(
+        self, url: str, data: Optional[Any] = None, json: Optional[Dict[str, Any]] = None, **kwargs
+    ) -> ResponseInterface:
+        return self.request(HttpMethod.POST, url, data, json, **kwargs)
