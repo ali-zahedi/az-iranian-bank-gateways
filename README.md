@@ -322,7 +322,7 @@ def go_to_gateway_view(request):
             callback_url=callback_url,
             mobile_number=mobile_number,
         )
-        
+
         # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
         # پرداخت برقرار کنید.
         bank_record = bank.ready()
@@ -351,7 +351,7 @@ def go_to_gateway_view(request):
             mobile_number=mobile_number,
 	        bank_type=bank_type,
         )
-        
+
         # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
         # پرداخت برقرار کنید.
         bank_record = bank.ready()
@@ -554,9 +554,10 @@ pre-commit install
 * [amirreza8002](https://github.com/amirreza8002) رفع مشکل ترجمه
 * [ahmadrezanavaie](https://github.com/ahmadrezanavaie) رفع مشکل ترجمه
 * [zamoosh](https://github.com/zamoosh) اضافه کردن وضعیت های  تراکنش در بانک ملت
-* [birddevelper](https://github.com/birddevelper) الزامی کردن وجود referrer برای درگاه های بانک ملی و سامان
+* [birddevelper](https://github.com/birddevelper) الزامی کردن وجود referrer برای درگاه های بانک ملی و سامان و رفع مشکل توکن درگاه بانک ملی
 * [apidemy](https://github.com/apidemy) ریفکتور _is_strict_origin_policy_enabled و پیروی از DRY
 * [TinyPuff](https://github.com/TinyPuff) رفع مشکل Pay.ir
+* [mojtabaakbari221b](https://github.com/mojtabaakbari221b ) اضافه کردن اینترفیس برای bankfactory
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
