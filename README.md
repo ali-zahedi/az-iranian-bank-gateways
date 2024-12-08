@@ -558,6 +558,11 @@ pre-commit install
 * [apidemy](https://github.com/apidemy) ریفکتور _is_strict_origin_policy_enabled و پیروی از DRY
 * [TinyPuff](https://github.com/TinyPuff) رفع مشکل Pay.ir
 * [mojtabaakbari221b](https://github.com/mojtabaakbari221b ) اضافه کردن اینترفیس برای bankfactory
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=ali-zahedi/az-iranian-bank-gateways&type=Date)](https://star-history.com/#ali-zahedi/az-iranian-bank-gateways&Date)
+
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
