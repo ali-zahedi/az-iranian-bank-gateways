@@ -306,6 +306,61 @@ SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 `set_mobile_number` متدی است که پارامتر شماره موبایل کاربری که قصد خرید دارد را به آن پاس میدهیم. این شماره موبایل جهت پرداخت و پیگیری آسان تر به درگاه ارسال می شود
 
+هم‌چنین می‌توانید عملیات auto create کردن factory را از طریق interface انجام دهید:
+
+```python
+from azbankgateways.bankfactories_interface import BankFactory
+from azbankgateways.exceptions import AZBankGatewaysException
+
+
+def go_to_gateway_view(request):
+    try :
+        factory = BankFactory()
+        bank = factory.auto_create(
+            request=request,
+            amount=amount,
+            callback_url=callback_url,
+            mobile_number=mobile_number,
+        )
+
+        # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
+        # پرداخت برقرار کنید.
+        bank_record = bank.ready()
+
+        # هدایت کاربر به درگاه بانک
+        return bank.redirect_gateway()
+    except AZBankGatewaysException as e :
+        raise e
+
+```
+
+عملیات create کردن factory از طریق interface :
+
+```python
+from azbankgateways.bankfactories_interface import BankFactory
+from azbankgateways.exceptions import AZBankGatewaysException
+
+
+def go_to_gateway_view(request):
+    try :
+        factory = BankFactory()
+        bank = factory.create(
+            request=request,
+            amount=amount,
+            callback_url=callback_url,
+            mobile_number=mobile_number,
+	        bank_type=bank_type,
+        )
+
+        # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
+        # پرداخت برقرار کنید.
+        bank_record = bank.ready()
+
+        # هدایت کاربر به درگاه بانک
+        return bank.redirect_gateway()
+    except AZBankGatewaysException as e :
+        raise e
+
 <h2 dir="rtl">ساخت صفحه redirect_to_bank.html </h2>
 <p dir="rtl">
 این صفحه درصورتی کارمیکند که IS_SAFE_GET_GATEWAY_PAYMENT': True' و view مربوطه تنظیم شود.<br> برای این کار در پوشه templates پروژه فایل redirect_to_bank.html را ایجاد کرده و محتوای زیر را در آن قرار میدیم (میتونید با سلیقه خودتون سفاریشی کنید)
@@ -499,9 +554,15 @@ pre-commit install
 * [amirreza8002](https://github.com/amirreza8002) رفع مشکل ترجمه
 * [ahmadrezanavaie](https://github.com/ahmadrezanavaie) رفع مشکل ترجمه
 * [zamoosh](https://github.com/zamoosh) اضافه کردن وضعیت های  تراکنش در بانک ملت
-* [birddevelper](https://github.com/birddevelper) الزامی کردن وجود referrer برای درگاه های بانک ملی و سامان
+* [birddevelper](https://github.com/birddevelper) الزامی کردن وجود referrer برای درگاه های بانک ملی و سامان و رفع مشکل توکن درگاه بانک ملی
 * [apidemy](https://github.com/apidemy) ریفکتور _is_strict_origin_policy_enabled و پیروی از DRY
 * [TinyPuff](https://github.com/TinyPuff) رفع مشکل Pay.ir
+* [mojtabaakbari221b](https://github.com/mojtabaakbari221b ) اضافه کردن اینترفیس برای bankfactory
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=ali-zahedi/az-iranian-bank-gateways&type=Date)](https://star-history.com/#ali-zahedi/az-iranian-bank-gateways&Date)
+
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
