@@ -6,6 +6,7 @@ class BankType(models.TextChoices):
     BMI = "BMI", _("BMI")
     SEP = "SEP", _("SEP")
     ZARINPAL = "ZARINPAL", _("Zarinpal")
+    ZARINPALV4 = "ZARINPALV4", _("ZarinpalV4")
     IDPAY = "IDPAY", _("IDPay")
     ZIBAL = "ZIBAL", _("Zibal")
     BAHAMTA = "BAHAMTA", _("Bahamta")
