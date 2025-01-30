@@ -76,6 +76,10 @@
              "MERCHANT_CODE": "<YOUR MERCHANT CODE>",
              "SANDBOX": 0,  # 0 disable, 1 active
          },
+         "ZARINPALV4": {
+             "MERCHANT_CODE": "<YOUR MERCHANT CODE>",
+             "SANDBOX": 0,  # 0 disable, 1 active
+         },
          "IDPAY": {
              "MERCHANT_CODE": "<YOUR MERCHANT CODE>",
              "METHOD": "POST",  # GET or POST
