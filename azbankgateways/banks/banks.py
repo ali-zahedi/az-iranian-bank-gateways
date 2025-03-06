@@ -43,7 +43,7 @@ class BaseBank:
         self.identifier = identifier
         self.default_setting_kwargs = kwargs
         self.set_default_settings()
-    
+
     def _is_strict_origin_policy_enabled(self):
         return django_settings.SECURE_REFERRER_POLICY == 'strict-origin-when-cross-origin'
 
@@ -250,6 +250,10 @@ class BaseBank:
 
     def get_currency(self):
         return self._currency
+
+    @staticmethod
+    def get_timeout():
+        return settings.BANK_TIMEOUT
 
     def get_gateway_amount(self):
         return self._gateway_amount

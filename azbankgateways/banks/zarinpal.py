@@ -109,7 +109,7 @@ class Zarinpal(BaseBank):
     def verify(self, transaction_code):
         super(Zarinpal, self).verify(transaction_code)
         data = self.get_verify_data()
-        client = self._get_client(timeout=10)
+        client = self._get_client()
         result = client.service.PaymentVerification(**data)
         if result.Status in [100, 101]:
             self._set_payment_status(PaymentStatus.COMPLETE)
@@ -117,8 +117,8 @@ class Zarinpal(BaseBank):
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
             logging.debug("Zarinpal gateway unapprove payment")
 
-    def _get_client(self, timeout=5):
-        transport = Transport(timeout=timeout, operation_timeout=timeout)
+    def _get_client(self):
+        transport = Transport(timeout=self.get_timeout(), operation_timeout=self.get_timeout())
         if self._sandbox:
             return Client(
                 "https://sandbox.zarinpal.com/pg/services/WebGate/wsdl",

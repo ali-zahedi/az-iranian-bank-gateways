@@ -111,7 +111,7 @@ class IDPay(BaseBank):
     def verify(self, transaction_code):
         super(IDPay, self).verify(transaction_code)
         data = self.get_verify_data()
-        response_json = self._send_data(self._verify_api_url, data, timeout=10)
+        response_json = self._send_data(self._verify_api_url, data)
         if response_json.get("verify", {}).get("date", None):
             self._set_payment_status(PaymentStatus.COMPLETE)
             extra_information = json.dumps(response_json)
@@ -121,13 +121,13 @@ class IDPay(BaseBank):
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
             logging.debug("IDPay gateway unapprove payment")
 
-    def _send_data(self, api, data, timeout=5):
+    def _send_data(self, api, data):
         headers = {
             "X-API-KEY": self._merchant_code,
             "X-SANDBOX": self._x_sandbox,
         }
         try:
-            response = requests.post(api, headers=headers, json=data, timeout=timeout)
+            response = requests.post(api, headers=headers, json=data, timeout=self.get_timeout())
         except requests.Timeout:
             logging.exception("IDPay time out gateway {}".format(data))
             raise BankGatewayConnectionError()
