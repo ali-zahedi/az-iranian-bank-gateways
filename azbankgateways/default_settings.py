@@ -12,7 +12,6 @@ BANK_CLASS = getattr(
         "BMI": "azbankgateways.banks.BMI",
         "SEP": "azbankgateways.banks.SEP",
         "ZARINPAL": "azbankgateways.banks.Zarinpal",
-        "ZARINPALV4": "azbankgateways.banks.ZarinpalV4",
         "IDPAY": "azbankgateways.banks.IDPay",
         "ZIBAL": "azbankgateways.banks.Zibal",
         "BAHAMTA": "azbankgateways.banks.Bahamta",
