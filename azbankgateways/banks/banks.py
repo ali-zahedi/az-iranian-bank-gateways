@@ -4,13 +4,13 @@ import uuid
 from urllib import parse
 
 import six
+from django.conf import settings as django_settings
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
 
 from .. import default_settings as settings
-from django.conf import settings as django_settings
 from ..exceptions import (
     AmountDoesNotSupport,
     BankGatewayStateInvalid,
@@ -38,13 +38,13 @@ class BaseBank:
     _client_callback_url: str = ""
     _bank: Bank = None
     _request = None
-    _custom_data: dict = dict()
 
     def __init__(self, identifier: str, **kwargs):
         self.identifier = identifier
         self.default_setting_kwargs = kwargs
+        self._custom_data: dict = {}
         self.set_default_settings()
-    
+
     def _is_strict_origin_policy_enabled(self):
         return django_settings.SECURE_REFERRER_POLICY == 'strict-origin-when-cross-origin'
 
@@ -199,7 +199,10 @@ class BaseBank:
     def _set_bank_record(self):
         try:
             self._bank = Bank.objects.get(
-                Q(Q(reference_number=self.get_reference_number()) | Q(tracking_code=self.get_tracking_code())),
+                Q(
+                    Q(reference_number=self.get_reference_number())
+                    | Q(tracking_code=self.get_tracking_code())
+                ),
                 Q(bank_type=self.get_bank_type()),
             )
             logging.debug("Set reference find bank object.")
@@ -228,7 +231,10 @@ class BaseBank:
         return self._transaction_status_text
 
     def _set_payment_status(self, payment_status):
-        if payment_status == PaymentStatus.RETURN_FROM_BANK and self._bank.status != PaymentStatus.REDIRECT_TO_BANK:
+        if (
+            payment_status == PaymentStatus.RETURN_FROM_BANK
+            and self._bank.status != PaymentStatus.REDIRECT_TO_BANK
+        ):
             logging.debug(
                 "Payment status is not status suitable.",
                 extra={"status": self._bank.status},
