@@ -1,9 +1,10 @@
 """Default settings for messaging."""
 
+from __future__ import annotations
+
 from django.conf import settings
 
 from azbankgateways.apps import AZIranianBankGatewaysConfig
-
 
 BANK_CLASS = getattr(
     settings,
@@ -41,7 +42,8 @@ else:
         "CALLBACK_NAMESPACE", f"{AZIranianBankGatewaysConfig.name}:callback"
     )
     GO_TO_BANK_GATEWAY_NAMESPACE = _AZ_IRANIAN_BANK_GATEWAYS.get(
-        "GO_TO_BANK_GATEWAY_NAMESPACE", f"{AZIranianBankGatewaysConfig.name}:go-to-bank-gateway"
+        "GO_TO_BANK_GATEWAY_NAMESPACE",
+        f"{AZIranianBankGatewaysConfig.name}:go-to-bank-gateway",
     )
     SAMPLE_RESULT_NAMESPACE = _AZ_IRANIAN_BANK_GATEWAYS.get(
         "SAMPLE_RESULT_NAMESPACE", f"{AZIranianBankGatewaysConfig.name}:sample-result"

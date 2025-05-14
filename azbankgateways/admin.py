@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from django.contrib import admin
 
 from .models import Bank
 
 
+@admin.register(Bank)
 class BankAdmin(admin.ModelAdmin):
     fields = [
         "pk",
@@ -51,7 +54,7 @@ class BankAdmin(admin.ModelAdmin):
         "update_at",
     ]
     exclude = []
-    dynamic_raw_id_fields = []
+    dynamic_raw_id_fields: list[str] = []
     readonly_fields = [
         "pk",
         "status",
@@ -65,6 +68,3 @@ class BankAdmin(admin.ModelAdmin):
         "created_at",
         "update_at",
     ]
-
-
-admin.site.register(Bank, BankAdmin)

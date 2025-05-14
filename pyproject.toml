@@ -1,31 +1,190 @@
 [build-system]
-requires = ['setuptools>=40.8.0']
-build-backend = 'setuptools.build_meta'
+build-backend = "hatchling.build"
+requires = ["hatchling"]
 
-[tool.black]
-indent = 4
-line-length = 110
-skip-string-normalization = 1
-max_attribute_length = 10
-profile = 'django'
-exclude = '''
-/(
-    migrations
-  | __pycache__
-  | \.git
-)/
-'''
+[dependency-groups]
+lint = ["pre-commit>=4.2.0"]
+test = [
+  "pytest-cov>=6.1.1",
+  "pytest-mock>=3.14.0",
+  "pytest-xdist>=3.6.1",
+]
+type = [
+  "django-stubs>=4.2.0",
+  "mypy[faster-cache]>=1.15.0",
+  "types-requests>=2.32.0.20250328",
+  "types-six>=1.17.0.20250403",
+]
 
-[tool.isort]
-profile = "black"
-combine_as_imports = true
-include_trailing_comma = true
-lines_after_imports = 2
-multi_line_output = 3
-skip = ["migrations", "__pycache__", ".git", "env", ".env", "venv", ".venv", ".direnv"]
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+[project]
+authors = [
+  {email = "alizahedigol@gmail.com", name = "Ali Zahedigol"},
+]
+classifiers = [
+  "Environment :: Web Environment",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python",
+  "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+  "Topic :: Internet :: WWW/HTTP",
+]
+dependencies = [
+  "Django >= 3.0",
+  "pycryptodome >= 3.9.7",
+  "responses>=0.25.7",
+  "six",
+  "zeep",
+]
+description = "Az Iranian Bank Gateways"
+license = {text = "MIT License"}
+name = "az-iranian-bank-gateway"
+readme = "README.md"
+requires-python = ">=3.9"
+version = "3.0.0"
 
+[project.optional-dependencies]
+dev = [
+  "factory-boy",
+  "pytest",
+]
+django = []
+fastapi = []
+
+[project.urls]
+Repository = "https://github.com/ali-zahedi/az-iranian-bank-gateways"
+
+[tool.coverage.report]
+exclude_lines = [
+  "@overload",
+  "if TYPE_CHECKING:",
+  "pragma: no cover",
+  "raise NotImplementedError",
+]
+show_missing = true
+skip_covered = true
+skip_empty = true
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+
+[tool.django-stubs]
+django_settings_module = "azbankgateways.default_settings"
+
+[tool.hatch.build.targets.sdist]
+artifacts = ["azbankgateways"]
+packages = ["azbankgateways"]
+
+[tool.hatch.build.targets.wheel]
+artifacts = ["azbankgateways"]
+packages = ["azbankgateways"]
+
+[tool.hatch.version]
+path = "azbankgateways/__init__.py"
+
+[tool.mypy]
+ignore_missing_imports = true
+plugins = ["mypy_django_plugin.main"]
+python_version = "3.13"
+strict = true
+
+[[tool.mypy.overrides]]
+ignore_errors = true
+module = [
+  "azbankgateways.admin",
+  "azbankgateways.bankfactories",
+  "azbankgateways.banks.*",
+  "azbankgateways.models.*",
+  "azbankgateways.readers.*",
+  "azbankgateways.urls",
+  "azbankgateways.views.*",
+]
 
 [tool.pytest.ini_options]
-python_files = ["tests.py", "test_*.py", "*_tests.py", ]
-norecursedirs = [".git", ".pytest_cache", ".vscode", ".idea", "__pycache__", "dumps", "env", "venv", ]
+addopts = "--cov=azbankgateways --cov-report=xml --strict-markers"
+asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
+testpaths = [
+  "azbankgateways",
+  "tests",
+]
+
+[tool.ruff]
+exclude = [
+  ".cache",
+  ".git",
+  "__pycache",
+  "docs",
+  "migrations",
+]
+line-length = 120
+src = ["azbankgateways"]
+target-version = "py313"
+
+[tool.ruff.lint]
+extend-select = [
+  "B",  # flake8-bugbear
+  "C4",  # flake8-comprehensions
+  "DTZ",  # flake8-datetimez
+  "FAST",  # FastAPI
+  "I",  # isort
+  "PGH",  # pygrep-hooks
+  "PIE",  # flake8-pie
+  "PT",  # flake8-pytest-style
+  "RUF",  # ruff
+  "S",  # flake8-bandit
+  "SIM",  # flake8-simplify
+  "TCH",  # flake8-type-checking
+  "UP",  # pyupgrade
+]
+ignore = [
+  "A003",  # Class attribute `{name}` is shadowing a python builtin
+  "N818",  # Exception name `{name}` should be named with an Error suffix
+  "PLR0913",  # Too many arguments to function call ({c_args}/{max_args})
+  "RUF002",  # Docstring contains ambiguous letter
+  "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
+  "S101",  # Use of `assert` detected
+  "S105",  # Possible hardcoded password: "{}"
+  "UP007",  # Use `X | Y` for type annotations
+]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+parametrize-values-type = "tuple"
+
+[tool.ruff.lint.flake8-type-checking]
+exempt-modules = []
+runtime-evaluated-base-classes = [
+  "pydantic.BaseModel",
+  "pydantic_settings.BaseSettings",
+]
+strict = true
+
+[tool.ruff.lint.isort]
+force-single-line = true
+required-imports = ["from __future__ import annotations"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.tomlsort]
+all = true
+spaces_before_inline_comment = 2
+trailing_comma_inline_array = true
+
+[tool.uv]
+default-groups = [
+  "lint",
+  "test",
+  "type",
+]
+required-version = "==0.7.3"

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []
@@ -52,7 +51,9 @@ class Migration(migrations.Migration):
                 ("amount", models.CharField(max_length=10, verbose_name="Amount")),
                 (
                     "reference_number",
-                    models.CharField(max_length=255, unique=True, verbose_name="Reference number"),
+                    models.CharField(
+                        max_length=255, unique=True, verbose_name="Reference number"
+                    ),
                 ),
                 (
                     "response_result",
@@ -61,7 +62,9 @@ class Migration(migrations.Migration):
                 ("callback_url", models.TextField(verbose_name="Callback url")),
                 (
                     "extra_information",
-                    models.TextField(blank=True, null=True, verbose_name="Extra information"),
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Extra information"
+                    ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("update_at", models.DateTimeField(auto_now=True)),

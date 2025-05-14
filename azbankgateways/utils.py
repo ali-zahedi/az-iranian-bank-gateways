@@ -1,10 +1,16 @@
+from __future__ import annotations
+
 import json
+from typing import TYPE_CHECKING
 from urllib import parse
 
-from azbankgateways.types import DictQuerystring
+if TYPE_CHECKING:
+    from typing import Any
+
+    from azbankgateways.types import DictQuerystring
 
 
-def get_json(resp):
+def get_json(resp: Any) -> Any:
     """
     :param response:returned response as json when sending a request
     using 'requests' module.
@@ -15,7 +21,7 @@ def get_json(resp):
     return json.loads(resp.content.decode("utf-8"))
 
 
-def append_querystring(url: str, params: dict) -> str:
+def append_querystring(url: str, params: dict[str, Any]) -> str:
     url_parts = list(parse.urlparse(url))
     query = dict(parse.parse_qsl(url_parts[4]))
     query.update(params)

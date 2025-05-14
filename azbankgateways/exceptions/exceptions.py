@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class AZBankGatewaysException(Exception):
     """AZ bank gateways exception"""
 

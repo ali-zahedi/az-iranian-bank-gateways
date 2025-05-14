@@ -1,20 +1,24 @@
-from typing import Type
+from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+import pytest
 import responses as responses_lib
-from pytest import fixture
 
 from azbankgateways.v3.currencies import CurrencyRegistry
-from azbankgateways.v3.interfaces import (
-    CallbackURLType,
-    Currency,
-    MessageServiceInterface,
-    OrderDetails,
-)
+from azbankgateways.v3.interfaces import Currency
 from azbankgateways.v3.message_services import MessageService
 
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
-@fixture(autouse=True)
-def responses():
+    from azbankgateways.v3.interfaces import CallbackURLType
+    from azbankgateways.v3.interfaces import MessageServiceInterface
+    from azbankgateways.v3.interfaces import OrderDetails
+
+
+@pytest.fixture(autouse=True)
+def responses() -> Generator[responses_lib.RequestsMock]:
     """
     Globally register responses in every test.
     This causes every test to fail that makes external HTTP requests via the "requests" library.
@@ -31,24 +35,24 @@ def responses():
         yield rsps
 
 
-@fixture
-def currency_registry() -> Type[CurrencyRegistry]:
+@pytest.fixture
+def currency_registry() -> type[CurrencyRegistry]:
     CurrencyRegistry.register_currency(Currency.IRR)
     CurrencyRegistry.register_currency(Currency.IRT)
     return CurrencyRegistry
 
 
-@fixture
+@pytest.fixture
 def message_service() -> MessageServiceInterface:
     return MessageService()
 
 
-@fixture
+@pytest.fixture
 def base_callback_url() -> str:
-    return 'https://az.bank/callback'
+    return "https://az.bank/callback"
 
 
-@fixture
+@pytest.fixture
 def callback_url_generator(base_callback_url: str) -> CallbackURLType:
     def callback(order_details: OrderDetails) -> str:
         return f"{base_callback_url}/{order_details.tracking_code}"

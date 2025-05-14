@@ -1,13 +1,20 @@
-import logging
-from json import dumps, loads
-from time import gmtime, strftime
+from __future__ import annotations
 
-from zeep import Client, Transport
+import logging
+from json import dumps
+from json import loads
+from time import gmtime
+from time import strftime
+
+from zeep import Client
+from zeep import Transport
 
 from azbankgateways.banks import BaseBank
 from azbankgateways.exceptions import SettingDoesNotExist
 from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
-from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus
+from azbankgateways.models import BankType
+from azbankgateways.models import CurrencyEnum
+from azbankgateways.models import PaymentStatus
 
 
 class Mellat(BaseBank):
@@ -16,7 +23,7 @@ class Mellat(BaseBank):
     _password = None
 
     def __init__(self, **kwargs):
-        super(Mellat, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.set_gateway_currency(CurrencyEnum.IRR)
         self._payment_url = "https://bpm.shaparak.ir/pgwchannel/startpay.mellat"
 
@@ -55,7 +62,7 @@ class Mellat(BaseBank):
     """
 
     def get_pay_data(self):
-        description = "خرید با شماره پیگیری - {}".format(self.get_tracking_code())
+        description = f"خرید با شماره پیگیری - {self.get_tracking_code()}"
         data = {
             "terminalId": int(self._terminal_code),
             "userName": self._username,
@@ -71,10 +78,10 @@ class Mellat(BaseBank):
         return data
 
     def prepare_pay(self):
-        super(Mellat, self).prepare_pay()
+        super().prepare_pay()
 
     def pay(self):
-        super(Mellat, self).pay()
+        super().pay()
 
         data = self.get_pay_data()
         client = self._get_client()
@@ -163,9 +170,7 @@ class Mellat(BaseBank):
                 status_text = "Payment ID is incorrect"
             elif response == "414":
                 status_text = "The organization issuing the bill is invalid"
-            elif response == "415":
-                status_text = "The working session has ended"
-            elif response == "416":
+            elif response == "415" or response == "416":
                 status_text = "The working session has ended"
             elif response == "417":
                 status_text = "Payer ID is invalid"
@@ -178,32 +183,32 @@ class Mellat(BaseBank):
 
             self._set_transaction_status_text(status_text)
             logging.critical(status_text)
-            raise BankGatewayRejectPayment(self.get_transaction_status_text())
+            raise BankGatewayRejectPayment(self.get_transaction_status_text()) from None
 
     """
     verify from gateway
     """
 
     def prepare_verify_from_gateway(self):
-        super(Mellat, self).prepare_verify_from_gateway()
+        super().prepare_verify_from_gateway()
         post = self.get_request().POST
         token = post.get("RefId", None)
         if not token:
             return
         self._set_reference_number(token)
         self._set_bank_record()
-        self._bank.extra_information = dumps(dict(zip(post.keys(), post.values())))
+        self._bank.extra_information = dumps(dict(zip(post.keys(), post.values(), strict=False)))
         self._bank.save()
 
     def verify_from_gateway(self, request):
-        super(Mellat, self).verify_from_gateway(request)
+        super().verify_from_gateway(request)
 
     """
     verify
     """
 
     def get_verify_data(self):
-        super(Mellat, self).get_verify_data()
+        super().get_verify_data()
         data = {
             "terminalId": self._terminal_code,
             "userName": self._username,
@@ -215,10 +220,10 @@ class Mellat(BaseBank):
         return data
 
     def prepare_verify(self, tracking_code):
-        super(Mellat, self).prepare_verify(tracking_code)
+        super().prepare_verify(tracking_code)
 
     def verify(self, transaction_code):
-        super(Mellat, self).verify(transaction_code)
+        super().verify(transaction_code)
         data = self.get_verify_data()
         client = self._get_client()
 

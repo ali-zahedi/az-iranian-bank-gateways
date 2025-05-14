@@ -1,17 +1,20 @@
+from __future__ import annotations
+
 import base64
 import datetime
 import logging
 
 import requests
 from Crypto.Cipher import DES3
-from django.conf import settings
+
 from azbankgateways.banks import BaseBank
-from azbankgateways.exceptions import BankGatewayConnectionError, SettingDoesNotExist
-from azbankgateways.exceptions.exceptions import (
-    BankGatewayRejectPayment,
-    BankGatewayStateInvalid,
-)
-from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus
+from azbankgateways.exceptions import BankGatewayConnectionError
+from azbankgateways.exceptions import SettingDoesNotExist
+from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
+from azbankgateways.exceptions.exceptions import BankGatewayStateInvalid
+from azbankgateways.models import BankType
+from azbankgateways.models import CurrencyEnum
+from azbankgateways.models import PaymentStatus
 from azbankgateways.utils import get_json
 
 
@@ -21,9 +24,11 @@ class BMI(BaseBank):
     _secret_key = None
 
     def __init__(self, **kwargs):
-        super(BMI, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if not self._is_strict_origin_policy_enabled():
-            raise SettingDoesNotExist("SECURE_REFERRER_POLICY is not set to 'strict-origin-when-cross-origin' in django setting, it's mandatory for BMI gateway") 
+            raise SettingDoesNotExist(
+                "SECURE_REFERRER_POLICY is not set to 'strict-origin-when-cross-origin' in django setting, it's mandatory for BMI gateway"
+            )
 
         self.set_gateway_currency(CurrencyEnum.IRR)
         self._token_api_url = "https://sadad.shaparak.ir/vpg/api/v0/Request/PaymentRequest"
@@ -40,30 +45,28 @@ class BMI(BaseBank):
             setattr(self, f"_{item.lower()}", self.default_setting_kwargs[item])
 
     def get_pay_data(self):
-        time_now = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S %p")
+        time_now = datetime.datetime.now().strftime(  # noqa: DTZ005
+            "%m/%d/%Y %H:%M:%S %p",
+        )
         data = {
             "TerminalId": self._terminal_code,
             "MerchantId": self._merchant_code,
             "Amount": self.get_gateway_amount(),
             "SignData": self._encrypt_des3(
-                "{};{};{}".format(
-                    self._terminal_code,
-                    self.get_tracking_code(),
-                    self.get_gateway_amount(),
-                )
+                f"{self._terminal_code};{self.get_tracking_code()};{self.get_gateway_amount()}"
             ),
             "ReturnUrl": self._get_gateway_callback_url(),
             "LocalDateTime": time_now,
             "OrderId": self.get_tracking_code(),
-            "AdditionalData": "oi:%s-ou:%s" % (self.get_tracking_code(), self.get_mobile_number()),
+            "AdditionalData": f"oi:{self.get_tracking_code()}-ou:{self.get_mobile_number()}",
         }
         return data
 
     def prepare_pay(self):
-        super(BMI, self).prepare_pay()
+        super().prepare_pay()
 
     def pay(self):
-        super(BMI, self).pay()
+        super().pay()
         data = self.get_pay_data()
         response_json = self._send_data(self._token_api_url, data)
         if str(response_json["ResCode"]) == "0":
@@ -88,7 +91,7 @@ class BMI(BaseBank):
         return params
 
     def get_verify_data(self):
-        super(BMI, self).get_verify_data()
+        super().get_verify_data()
         data = {
             "Token": self.get_reference_number(),
             "SignData": self._encrypt_des3(self.get_reference_number()),
@@ -96,10 +99,10 @@ class BMI(BaseBank):
         return data
 
     def prepare_verify(self, tracking_code):
-        super(BMI, self).prepare_verify(tracking_code)
+        super().prepare_verify(tracking_code)
 
     def verify(self, transaction_code):
-        super(BMI, self).verify(transaction_code)
+        super().verify(transaction_code)
         data = self.get_verify_data()
         response_json = self._send_data(self._verify_api_url, data)
         if str(response_json["ResCode"]) == "0":
@@ -114,7 +117,7 @@ class BMI(BaseBank):
             logging.debug("BMI gateway unapprove payment")
 
     def prepare_verify_from_gateway(self):
-        super(BMI, self).prepare_verify_from_gateway()
+        super().prepare_verify_from_gateway()
         request = self.get_request()
         for method in ["POST", "GET", "data", "PUT"]:
             token = getattr(request, method, {}).get("token", None)
@@ -126,7 +129,7 @@ class BMI(BaseBank):
         self._set_bank_record()
 
     def verify_from_gateway(self, request):
-        super(BMI, self).verify_from_gateway(request)
+        super().verify_from_gateway(request)
 
     @classmethod
     def _pad(cls, text, pad_size=16):
@@ -147,11 +150,11 @@ class BMI(BaseBank):
         try:
             response = requests.post(api, json=data, timeout=5)
         except requests.Timeout:
-            logging.exception("BMI time out gateway {}".format(data))
-            raise BankGatewayConnectionError()
+            logging.exception(f"BMI time out gateway {data}")
+            raise BankGatewayConnectionError() from None
         except requests.ConnectionError:
-            logging.exception("BMI time out gateway {}".format(data))
-            raise BankGatewayConnectionError()
+            logging.exception(f"BMI time out gateway {data}")
+            raise BankGatewayConnectionError() from None
 
         response_json = get_json(response)
         self._set_transaction_status_text(response_json["Description"])

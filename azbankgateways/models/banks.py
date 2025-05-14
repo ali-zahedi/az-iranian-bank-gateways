@@ -1,14 +1,17 @@
+from __future__ import annotations
+
 import datetime
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from .enum import BankType, PaymentStatus
+from .enum import BankType
+from .enum import PaymentStatus
 
 
 class BankQuerySet(models.QuerySet):
     def __init__(self, *args, **kwargs):
-        super(BankQuerySet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def active(self):
         return self.filter()
@@ -26,14 +29,20 @@ class BankManager(models.Manager):
             self.active()
             .filter(
                 status=PaymentStatus.RETURN_FROM_BANK,
-                update_at__lte=datetime.datetime.now() - datetime.timedelta(minutes=15),
+                update_at__lte=datetime.datetime.now()  # noqa: DTZ005
+                - datetime.timedelta(
+                    minutes=15,
+                ),
             )
             .update(status=PaymentStatus.EXPIRE_VERIFY_PAYMENT)
         )
 
         count = count + self.active().filter(
             status=PaymentStatus.REDIRECT_TO_BANK,
-            update_at__lt=datetime.datetime.now() - datetime.timedelta(minutes=15),
+            update_at__lt=datetime.datetime.now()  # noqa: DTZ005
+            - datetime.timedelta(
+                minutes=15,
+            ),
         ).update(status=PaymentStatus.EXPIRE_GATEWAY_TOKEN)
         return count
 
@@ -82,7 +91,7 @@ class Bank(models.Model):
         verbose_name_plural = _("Bank gateways")
 
     def __str__(self):
-        return "{}-{}".format(self.pk, self.tracking_code)
+        return f"{self.pk}-{self.tracking_code}"
 
     @property
     def is_success(self):

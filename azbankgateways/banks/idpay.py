@@ -1,13 +1,19 @@
+from __future__ import annotations
+
 import json
 import logging
 
 import requests
 
 from azbankgateways.banks import BaseBank
-from azbankgateways.exceptions import BankGatewayConnectionError, SettingDoesNotExist
+from azbankgateways.exceptions import BankGatewayConnectionError
+from azbankgateways.exceptions import SettingDoesNotExist
 from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
-from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus
-from azbankgateways.utils import get_json, split_to_dict_querystring
+from azbankgateways.models import BankType
+from azbankgateways.models import CurrencyEnum
+from azbankgateways.models import PaymentStatus
+from azbankgateways.utils import get_json
+from azbankgateways.utils import split_to_dict_querystring
 
 
 class IDPay(BaseBank):
@@ -15,10 +21,10 @@ class IDPay(BaseBank):
     _method = None
     _x_sandbox = None
     _payment_url = None
-    _params = {}
+    _params: dict = {}
 
     def __init__(self, **kwargs):
-        super(IDPay, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.set_gateway_currency(CurrencyEnum.IRR)
         self._token_api_url = "https://api.idpay.ir/v1.1/payment"
         self._verify_api_url = "https://api.idpay.ir/v1.1/payment/verify"
@@ -63,10 +69,10 @@ class IDPay(BaseBank):
         return data
 
     def prepare_pay(self):
-        super(IDPay, self).prepare_pay()
+        super().prepare_pay()
 
     def pay(self):
-        super(IDPay, self).pay()
+        super().pay()
         data = self.get_pay_data()
         response_json = self._send_data(self._token_api_url, data)
         if "id" in response_json and "link" in response_json and response_json["link"] and response_json["id"]:
@@ -82,7 +88,7 @@ class IDPay(BaseBank):
     """
 
     def prepare_verify_from_gateway(self):
-        super(IDPay, self).prepare_verify_from_gateway()
+        super().prepare_verify_from_gateway()
         for method in ["GET", "POST", "data"]:
             token = getattr(self.get_request(), method).get("id", None)
             if token:
@@ -91,14 +97,14 @@ class IDPay(BaseBank):
                 break
 
     def verify_from_gateway(self, request):
-        super(IDPay, self).verify_from_gateway(request)
+        super().verify_from_gateway(request)
 
     """
     verify
     """
 
     def get_verify_data(self):
-        super(IDPay, self).get_verify_data()
+        super().get_verify_data()
         data = {
             "id": self.get_reference_number(),
             "order_id": self.get_tracking_code(),
@@ -106,10 +112,10 @@ class IDPay(BaseBank):
         return data
 
     def prepare_verify(self, tracking_code):
-        super(IDPay, self).prepare_verify(tracking_code)
+        super().prepare_verify(tracking_code)
 
     def verify(self, transaction_code):
-        super(IDPay, self).verify(transaction_code)
+        super().verify(transaction_code)
         data = self.get_verify_data()
         response_json = self._send_data(self._verify_api_url, data, timeout=10)
         if response_json.get("verify", {}).get("date", None):
@@ -129,11 +135,11 @@ class IDPay(BaseBank):
         try:
             response = requests.post(api, headers=headers, json=data, timeout=timeout)
         except requests.Timeout:
-            logging.exception("IDPay time out gateway {}".format(data))
-            raise BankGatewayConnectionError()
+            logging.exception(f"IDPay time out gateway {data}")
+            raise BankGatewayConnectionError() from None
         except requests.ConnectionError:
-            logging.exception("IDPay time out gateway {}".format(data))
-            raise BankGatewayConnectionError()
+            logging.exception(f"IDPay time out gateway {data}")
+            raise BankGatewayConnectionError() from None
 
         response_json = get_json(response)
         if "error_message" in response_json:
