@@ -1,22 +1,29 @@
+from __future__ import annotations
+
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 import pytest
-from requests import ConnectionError, Timeout
+from requests import ConnectionError
+from requests import Timeout
 
-from azbankgateways.exceptions.exceptions import (
-    BankGatewayConnectionError,
-    BankGatewayRejectPayment,
-)
+from azbankgateways.exceptions.exceptions import BankGatewayConnectionError
+from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
 from azbankgateways.v3.currencies import CurrencyRegistry
 from azbankgateways.v3.interfaces import OrderDetails
-from azbankgateways.v3.providers.zarinpal import (
-    ZarinpalPaymentGatewayConfig,
-    ZarinpalProvider,
-)
+from azbankgateways.v3.providers.zarinpal import ZarinpalPaymentGatewayConfig
+from azbankgateways.v3.providers.zarinpal import ZarinpalProvider
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from responses import RequestsMock
+
+    from azbankgateways.v3.interfaces import MessageServiceInterface
 
 
 @pytest.fixture
-def zarinpal_payment_config(currency_registry, callback_url_generator):
+def zarinpal_payment_config(currency_registry: Any, callback_url_generator: Any) -> ZarinpalPaymentGatewayConfig:
     return ZarinpalPaymentGatewayConfig(
         merchant_code="zarinpal-merchant-code",
         callback_url=callback_url_generator,
@@ -27,22 +34,25 @@ def zarinpal_payment_config(currency_registry, callback_url_generator):
 
 
 @pytest.fixture
-def order_details():
+def order_details() -> OrderDetails:
     return OrderDetails(
-        amount=Decimal(1000.01),
+        amount=Decimal("1000.01"),
         tracking_code="tracking-code-1",
-        first_name='John',
-        last_name='Doe',
-        phone_number='+989112223344',
-        email='mail@az.bank',
-        order_id='order-id',
+        first_name="John",
+        last_name="Doe",
+        phone_number="+989112223344",
+        email="mail@az.bank",
+        order_id="order-id",
         currency=CurrencyRegistry.get_currency("IRT").value,
     )
 
 
 def test_zarinpal__payment_request__successful(
-    responses, zarinpal_payment_config, message_service, order_details
-):
+    responses: RequestsMock,
+    zarinpal_payment_config: ZarinpalPaymentGatewayConfig,
+    message_service: MessageServiceInterface,
+    order_details: OrderDetails,
+) -> None:
     provider = ZarinpalProvider(zarinpal_payment_config, message_service, order_details)
 
     responses.add(
@@ -61,22 +71,38 @@ def test_zarinpal__payment_request__successful(
         status=200,
     )
 
-    assert provider.get_request_pay().url == 'https://az.bank/start/A0000000000000000000000000000wwOGYpd'
+    assert provider.get_request_pay().url == "https://az.bank/start/A0000000000000000000000000000wwOGYpd"
 
 
 @pytest.mark.parametrize(
     "errors",
-    [
-        {"message": "The metadata.mobile must be a string.", "code": -9, "validations": []},
+    [  # noqa: PT007
+        {
+            "message": "The metadata.mobile must be a string.",
+            "code": -9,
+            "validations": [],
+        },
         [
-            {"message": "The metadata.mobile must be a string.", "code": -9, "validations": []},
-            {"message": "The metadata.order_id must be a string.", "code": -9, "validations": []},
+            {
+                "message": "The metadata.mobile must be a string.",
+                "code": -9,
+                "validations": [],
+            },
+            {
+                "message": "The metadata.order_id must be a string.",
+                "code": -9,
+                "validations": [],
+            },
         ],
     ],
 )
 def test_zarinpal__payment_request__failed(
-    responses, zarinpal_payment_config, message_service, order_details, errors
-):
+    responses: RequestsMock,
+    zarinpal_payment_config: ZarinpalPaymentGatewayConfig,
+    message_service: MessageServiceInterface,
+    order_details: OrderDetails,
+    errors: list[dict[str, Any]] | dict[str, Any],
+) -> None:
     provider = ZarinpalProvider(zarinpal_payment_config, message_service, order_details)
 
     responses.add(
@@ -90,10 +116,20 @@ def test_zarinpal__payment_request__failed(
         assert provider.get_request_pay()
 
 
-@pytest.mark.parametrize("side_effect", [ConnectionError, Timeout])
+@pytest.mark.parametrize(
+    "side_effect",
+    [  # noqa: PT007
+        ConnectionError,
+        Timeout,
+    ],
+)
 def test_zarinpal__payment_request__failed__side_effect(
-    responses, zarinpal_payment_config, message_service, order_details, side_effect
-):
+    responses: RequestsMock,
+    zarinpal_payment_config: ZarinpalPaymentGatewayConfig,
+    message_service: MessageServiceInterface,
+    order_details: OrderDetails,
+    side_effect: Any,
+) -> None:
     provider = ZarinpalProvider(zarinpal_payment_config, message_service, order_details)
 
     responses.add(
@@ -106,7 +142,11 @@ def test_zarinpal__payment_request__failed__side_effect(
         assert provider.get_request_pay()
 
 
-def test_zarinpal__minimum_amount(zarinpal_payment_config, message_service, order_details):
+def test_zarinpal__minimum_amount(
+    zarinpal_payment_config: ZarinpalPaymentGatewayConfig,
+    message_service: MessageServiceInterface,
+    order_details: OrderDetails,
+) -> None:
     order_details.amount = Decimal(100)
     provider = ZarinpalProvider(zarinpal_payment_config, message_service, order_details)
 

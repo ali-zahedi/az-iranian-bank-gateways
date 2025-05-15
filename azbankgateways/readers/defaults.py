@@ -1,7 +1,13 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from azbankgateways import default_settings as settings
-from azbankgateways.models import BankType
 
 from .bases import Reader
+
+if TYPE_CHECKING:
+    from azbankgateways.models import BankType
 
 
 class DefaultReader(Reader):

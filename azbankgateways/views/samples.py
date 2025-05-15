@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 
 from django.http import Http404
@@ -7,7 +9,6 @@ from django.urls import reverse
 from azbankgateways import bankfactories
 from azbankgateways import default_settings as settings
 from azbankgateways import models as bank_models
-from azbankgateways.apps import AZIranianBankGatewaysConfig
 from azbankgateways.exceptions import AZBankGatewaysException
 
 from ..forms import PaymentSampleForm
@@ -35,11 +36,15 @@ def sample_payment_view(request):
                 # بعدا بتوانید ارتباط بین محصول یا خدمات را با این
                 # پرداخت برقرار کنید.
 
-                bank_record = bank.ready()  # noqa
+                bank.ready()
 
                 # هدایت کاربر به درگاه بانک
                 if settings.IS_SAMPLE_FORM_ENABLE:
-                    return render(request, 'azbankgateways/redirect_to_bank.html', context=bank.get_gateway())
+                    return render(
+                        request,
+                        "azbankgateways/redirect_to_bank.html",
+                        context=bank.get_gateway(),
+                    )
                 return bank.redirect_gateway()
             except AZBankGatewaysException as e:
                 logging.critical(e)
@@ -57,12 +62,12 @@ def sample_result_view(request):
     tracking_code = request.GET.get(settings.TRACKING_CODE_QUERY_PARAM, None)
     if not tracking_code:
         logging.debug("این لینک معتبر نیست.")
-        raise Http404
+        raise Http404 from None
 
     try:
         bank_record = bank_models.Bank.objects.get(tracking_code=tracking_code)
     except bank_models.Bank.DoesNotExist:
         logging.debug("این لینک معتبر نیست.")
-        raise Http404
+        raise Http404 from None
 
     return render(request, "azbankgateways/samples/result.html", {"bank_record": bank_record})

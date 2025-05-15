@@ -1,13 +1,13 @@
+from __future__ import annotations
+
 from django.urls import path
 
 from . import default_settings as settings
 from .apps import AZIranianBankGatewaysConfig
-from .views import (
-    callback_view,
-    go_to_bank_gateway,
-    sample_payment_view,
-    sample_result_view,
-)
+from .views import callback_view
+from .views import go_to_bank_gateway
+from .views import sample_payment_view
+from .views import sample_result_view
 
 app_name = AZIranianBankGatewaysConfig.name
 

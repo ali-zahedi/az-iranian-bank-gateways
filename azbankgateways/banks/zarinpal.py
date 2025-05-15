@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 import logging
 
-from zeep import Client, Transport
+from zeep import Client
+from zeep import Transport
 
 from azbankgateways.banks import BaseBank
 from azbankgateways.exceptions import SettingDoesNotExist
 from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
-from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus
+from azbankgateways.models import BankType
+from azbankgateways.models import CurrencyEnum
+from azbankgateways.models import PaymentStatus
 
 
 class Zarinpal(BaseBank):
@@ -14,7 +19,7 @@ class Zarinpal(BaseBank):
 
     def __init__(self, **kwargs):
         kwargs.setdefault("SANDBOX", 0)
-        super(Zarinpal, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.set_gateway_currency(CurrencyEnum.IRT)
         self._payment_url = "https://www.zarinpal.com/pg/StartPay/{}/ZarinGate"
         self._sandbox_url = "https://sandbox.zarinpal.com/pg/StartPay/{}/ZarinGate"
@@ -52,7 +57,7 @@ class Zarinpal(BaseBank):
     """
 
     def get_pay_data(self):
-        description = "خرید با شماره پیگیری - {}".format(self.get_tracking_code())
+        description = f"خرید با شماره پیگیری - {self.get_tracking_code()}"
 
         return {
             "Description": description,
@@ -64,10 +69,10 @@ class Zarinpal(BaseBank):
         }
 
     def prepare_pay(self):
-        super(Zarinpal, self).prepare_pay()
+        super().prepare_pay()
 
     def pay(self):
-        super(Zarinpal, self).pay()
+        super().pay()
         data = self.get_pay_data()
         client = self._get_client()
         result = client.service.PaymentRequest(**data)
@@ -83,20 +88,20 @@ class Zarinpal(BaseBank):
     """
 
     def prepare_verify_from_gateway(self):
-        super(Zarinpal, self).prepare_verify_from_gateway()
+        super().prepare_verify_from_gateway()
         token = self.get_request().GET.get("Authority", None)
         self._set_reference_number(token)
         self._set_bank_record()
 
     def verify_from_gateway(self, request):
-        super(Zarinpal, self).verify_from_gateway(request)
+        super().verify_from_gateway(request)
 
     """
     verify
     """
 
     def get_verify_data(self):
-        super(Zarinpal, self).get_verify_data()
+        super().get_verify_data()
         return {
             "MerchantID": self._merchant_code,
             "Authority": self.get_reference_number(),
@@ -104,10 +109,10 @@ class Zarinpal(BaseBank):
         }
 
     def prepare_verify(self, tracking_code):
-        super(Zarinpal, self).prepare_verify(tracking_code)
+        super().prepare_verify(tracking_code)
 
     def verify(self, transaction_code):
-        super(Zarinpal, self).verify(transaction_code)
+        super().verify(transaction_code)
         data = self.get_verify_data()
         client = self._get_client(timeout=10)
         result = client.service.PaymentVerification(**data)

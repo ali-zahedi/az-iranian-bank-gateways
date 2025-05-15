@@ -1,3 +1,5 @@
-import typing
+from __future__ import annotations
 
-DictQuerystring = typing.Tuple[str, dict]
+from typing import Any
+
+DictQuerystring = tuple[str, dict[Any, Any]]

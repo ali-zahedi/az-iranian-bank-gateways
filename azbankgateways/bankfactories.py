@@ -1,12 +1,15 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import annotations
 
 import importlib
 import logging
+from typing import TYPE_CHECKING
 
 from . import default_settings as settings
-from .banks import BaseBank
 from .exceptions.exceptions import BankGatewayAutoConnectionFailed
-from .models import BankType
+
+if TYPE_CHECKING:
+    from .banks import BaseBank
+    from .models import BankType
 
 
 class BankFactory:
@@ -31,13 +34,13 @@ class BankFactory:
 
         return bank_class, self._secret_value_reader.read(bank_type=bank_type, identifier=identifier)
 
-    def create(self, bank_type: BankType = None, identifier: str = "1") -> BaseBank:
+    def create(self, bank_type: BankType | None = None, identifier: str = "1") -> BaseBank:
         """Build bank class"""
         if not bank_type:
             bank_type = self._secret_value_reader.default(identifier)
         logging.debug("Request create bank", extra={"bank_type": bank_type})
 
-        bank_klass, bank_settings = self._import_bank(bank_type, identifier)
+        bank_klass, bank_settings = self._import_bank(bank_type, identifier)  # type: ignore[arg-type]
         bank = bank_klass(**bank_settings, identifier=identifier)
         bank.set_currency(self._secret_value_reader.currency(identifier))
 

@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 import abc
+from typing import TYPE_CHECKING
 
 import six
 
 from azbankgateways import default_settings as settings
-from azbankgateways.models import BankType
+
+if TYPE_CHECKING:
+    from azbankgateways.models import BankType
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -22,7 +27,6 @@ class Reader:
             'SECRET_KEY': '<YOUR INFO>',
         }
         """
-        pass
 
     def klass(self, bank_type: BankType, identifier: str) -> dict:
         return settings.BANK_CLASS[bank_type]

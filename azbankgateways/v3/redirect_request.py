@@ -1,6 +1,12 @@
-from typing import Any, Dict
+from __future__ import annotations
 
-from azbankgateways.v3.interfaces import HttpMethod, RequestInterface
+from typing import TYPE_CHECKING
+
+from azbankgateways.v3.interfaces import HttpMethod
+from azbankgateways.v3.interfaces import RequestInterface
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class RedirectRequest(RequestInterface):
@@ -8,8 +14,8 @@ class RedirectRequest(RequestInterface):
         self,
         http_method: HttpMethod,
         url: str,
-        headers: Dict[str, Any] = None,
-        data: Dict[str, Any] = None,
+        headers: dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
         is_json: bool = False,
     ):
         self.__http_method = http_method
@@ -19,7 +25,7 @@ class RedirectRequest(RequestInterface):
         self.__is_json = is_json
         self.__validate_request()
 
-    def __validate_request(self):
+    def __validate_request(self) -> None:
         if not self.__url:
             raise ValueError("URL cannot be empty.")
         if self.__http_method == HttpMethod.GET and self.__data:
@@ -36,11 +42,11 @@ class RedirectRequest(RequestInterface):
         return self.__url
 
     @property
-    def headers(self) -> Dict[str, Any]:
+    def headers(self) -> dict[str, Any]:
         return self.__headers
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> dict[str, Any]:
         return self.__data
 
     @property

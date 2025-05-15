@@ -1,14 +1,22 @@
-from abc import ABC, abstractmethod
+from __future__ import annotations
+
+from abc import ABC
+from abc import abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
-from decimal import Decimal
 from enum import Enum
-from typing import Any, Callable, Dict, Literal, Optional
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from decimal import Decimal
+    from typing import Any
+    from typing import Literal
 
 
 # TODO: abstract
 class Currency(Enum):
-    IRT = 'IRT'
-    IRR = 'IRR'
+    IRT = "IRT"
+    IRR = "IRR"
 
 
 # TODO: abstract
@@ -18,11 +26,11 @@ class BankType(Enum):
 
 # TODO: abstract
 class MessageType(Enum):
-    DESCRIPTION = 'description'
-    TIMEOUT_ERROR = 'timeout_error'
-    CONNECTION_ERROR = 'connection_error'
-    REJECTED_PAYMENT = 'rejected_payment'
-    MINIMUM_AMOUNT = 'minimum_amount'
+    DESCRIPTION = "description"
+    TIMEOUT_ERROR = "timeout_error"
+    CONNECTION_ERROR = "connection_error"
+    REJECTED_PAYMENT = "rejected_payment"
+    MINIMUM_AMOUNT = "minimum_amount"
 
 
 class HttpMethod(Enum):
@@ -37,7 +45,7 @@ class HttpMethod(Enum):
 
 class BankEntityInterface(ABC):
     @abstractmethod
-    def persist(self):
+    def persist(self) -> None:
         raise NotImplementedError()
 
 
@@ -74,7 +82,7 @@ class RequestInterface(ABC):
 
     @property
     @abstractmethod
-    def headers(self) -> Dict[str, Any]:
+    def headers(self) -> dict[str, Any]:
         """
         Retrieves the headers to be included in the redirect request.
 
@@ -84,7 +92,7 @@ class RequestInterface(ABC):
 
     @property
     @abstractmethod
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> dict[str, Any]:
         """
         Retrieves the body data content for the redirect request.
         Note: For GET requests, the data should typically be empty.
@@ -108,28 +116,28 @@ class RequestInterface(ABC):
 class OrderDetails:
     amount: Decimal
     tracking_code: str
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    phone_number: Optional[str] = None
-    email: Optional[str] = None
-    order_id: Optional[str] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    phone_number: str | None = None
+    email: str | None = None
+    order_id: str | None = None
     currency: Literal["IRT", "IRR"] = "IRT"
 
 
 CallbackURLType = Callable[[OrderDetails], str]
 
 
-class PaymentGatewayConfigInterface(ABC):
+class PaymentGatewayConfigInterface(ABC):  # noqa: B024
     """Payment Gateway configuration interface."""
 
 
 class MessageServiceInterface(ABC):
     @abstractmethod
-    def generate_message(self, key: MessageType, context: Dict[str, Any]) -> str:
+    def generate_message(self, key: MessageType, context: dict[str, Any]) -> str:
         raise NotImplementedError()
 
     @abstractmethod
-    def get_required_parameters(self, key: MessageType) -> Optional[list]:
+    def get_required_parameters(self, key: MessageType) -> list[str] | None:
         raise NotImplementedError()
 
 

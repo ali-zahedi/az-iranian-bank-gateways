@@ -1,25 +1,31 @@
+from __future__ import annotations
+
 import abc
 import logging
 import uuid
+from typing import TYPE_CHECKING
 from urllib import parse
 
 import six
+from django.conf import settings as django_settings
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
 
 from .. import default_settings as settings
-from django.conf import settings as django_settings
-from ..exceptions import (
-    AmountDoesNotSupport,
-    BankGatewayStateInvalid,
-    BankGatewayTokenExpired,
-    CurrencyDoesNotSupport,
-    SafeSettingsEnabled,
-)
-from ..models import Bank, CurrencyEnum, PaymentStatus
+from ..exceptions import AmountDoesNotSupport
+from ..exceptions import BankGatewayStateInvalid
+from ..exceptions import BankGatewayTokenExpired
+from ..exceptions import CurrencyDoesNotSupport
+from ..exceptions import SafeSettingsEnabled
+from ..models import Bank
+from ..models import CurrencyEnum
+from ..models import PaymentStatus
 from ..utils import append_querystring
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 # TODO: handle and expire record after 15 minutes
@@ -31,26 +37,25 @@ class BaseBank:
     _currency: str = CurrencyEnum.IRR
     _amount: int = 0
     _gateway_amount: int = 0
-    _mobile_number: str = None
-    _tracking_code: int = None
+    _mobile_number: str | None = None
+    _tracking_code: int | None = None
     _reference_number: str = ""
     _transaction_status_text: str = ""
     _client_callback_url: str = ""
-    _bank: Bank = None
-    _request = None
+    _bank: Bank | None = None
+    _request: Any = None
 
     def __init__(self, identifier: str, **kwargs):
         self.identifier = identifier
         self.default_setting_kwargs = kwargs
         self.set_default_settings()
-    
+
     def _is_strict_origin_policy_enabled(self):
-        return django_settings.SECURE_REFERRER_POLICY == 'strict-origin-when-cross-origin'
+        return django_settings.SECURE_REFERRER_POLICY == "strict-origin-when-cross-origin"
 
     @abc.abstractmethod
     def set_default_settings(self):
         """default setting, like fetch merchant code, terminal id and etc"""
-        pass
 
     def prepare_amount(self):
         """prepare amount"""
@@ -121,7 +126,7 @@ class BaseBank:
 
     def ready(self) -> Bank:
         self.pay()
-        bank = Bank.objects.create(
+        bank: Bank = Bank.objects.create(
             bank_choose_identifier=self.identifier,
             bank_type=self.get_bank_type(),
             amount=self.get_amount(),
@@ -198,10 +203,8 @@ class BaseBank:
         except Bank.DoesNotExist:
             logging.debug("Cant find bank record object.")
             raise BankGatewayStateInvalid(
-                "Cant find bank record with reference number reference number is {}".format(
-                    self.get_reference_number()
-                )
-            )
+                f"Cant find bank record with reference number reference number is {self.get_reference_number()}"
+            ) from None
         self._set_tracking_code(self._bank.tracking_code)
         self._set_reference_number(self._bank.reference_number)
         self.set_amount(self._bank.amount)
@@ -227,7 +230,7 @@ class BaseBank:
             )
             raise BankGatewayStateInvalid(
                 "You change the status bank record before/after this record change status from redirect to bank. "
-                "current status is {}".format(self._bank.status)
+                f"current status is {self._bank.status}"
             )
         self._bank.status = payment_status
         self._bank.save()
@@ -294,7 +297,6 @@ class BaseBank:
         :return
         url: str
         """
-        pass
 
     @abc.abstractmethod
     def _get_gateway_payment_parameter(self):
@@ -303,7 +305,6 @@ class BaseBank:
         :return
         params: dict
         """
-        pass
 
     @abc.abstractmethod
     def _get_gateway_payment_method_parameter(self):
@@ -312,7 +313,6 @@ class BaseBank:
         :return
         method: POST, GET
         """
-        pass
 
     def _verify_payment_expiry(self):
         """برسی میکند درگاه ساخته شده اعتبار دارد یا خیر"""

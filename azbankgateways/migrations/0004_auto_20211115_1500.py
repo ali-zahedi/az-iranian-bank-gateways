@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("azbankgateways", "0003_bank_bank_choose_identifier"),
     ]

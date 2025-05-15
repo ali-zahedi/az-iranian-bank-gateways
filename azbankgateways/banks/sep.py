@@ -1,12 +1,18 @@
+from __future__ import annotations
+
 import logging
 
 import requests
-from zeep import Client, Transport
+from zeep import Client
+from zeep import Transport
 
 from azbankgateways.banks import BaseBank
-from azbankgateways.exceptions import BankGatewayConnectionError, SettingDoesNotExist
+from azbankgateways.exceptions import BankGatewayConnectionError
+from azbankgateways.exceptions import SettingDoesNotExist
 from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
-from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus
+from azbankgateways.models import BankType
+from azbankgateways.models import CurrencyEnum
+from azbankgateways.models import PaymentStatus
 from azbankgateways.utils import get_json
 
 
@@ -15,7 +21,7 @@ class SEP(BaseBank):
     _terminal_code = None
 
     def __init__(self, **kwargs):
-        super(SEP, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if not self._is_strict_origin_policy_enabled():
             raise SettingDoesNotExist(
                 "SECURE_REFERRER_POLICY is not set to 'strict-origin-when-cross-origin' in django setting,"
@@ -49,10 +55,10 @@ class SEP(BaseBank):
         return data
 
     def prepare_pay(self):
-        super(SEP, self).prepare_pay()
+        super().prepare_pay()
 
     def pay(self):
-        super(SEP, self).pay()
+        super().pay()
         data = self.get_pay_data()
         response_json = self._send_data(self._token_api_url, data)
         if str(response_json["status"]) == "1":
@@ -84,7 +90,7 @@ class SEP(BaseBank):
     """
 
     def prepare_verify_from_gateway(self):
-        super(SEP, self).prepare_verify_from_gateway()
+        super().prepare_verify_from_gateway()
         request = self.get_request()
         tracking_code = request.GET.get("ResNum")
         token = request.GET.get("Token")
@@ -99,22 +105,22 @@ class SEP(BaseBank):
             self._bank.save()
 
     def verify_from_gateway(self, request):
-        super(SEP, self).verify_from_gateway(request)
+        super().verify_from_gateway(request)
 
     """
     verify
     """
 
     def get_verify_data(self):
-        super(SEP, self).get_verify_data()
+        super().get_verify_data()
         data = self.get_reference_number(), self._merchant_code
         return data
 
     def prepare_verify(self, tracking_code):
-        super(SEP, self).prepare_verify(tracking_code)
+        super().prepare_verify(tracking_code)
 
     def verify(self, transaction_code):
-        super(SEP, self).verify(transaction_code)
+        super().verify(transaction_code)
         data = self.get_verify_data()
         client = self._get_client(self._verify_api_url)
         result = client.service.verifyTransaction(*data)
@@ -128,11 +134,11 @@ class SEP(BaseBank):
         try:
             response = requests.post(api, json=data, timeout=5)
         except requests.Timeout:
-            logging.exception("SEP time out gateway {}".format(data))
-            raise BankGatewayConnectionError()
+            logging.exception(f"SEP time out gateway {data}")
+            raise BankGatewayConnectionError() from None
         except requests.ConnectionError:
-            logging.exception("SEP time out gateway {}".format(data))
-            raise BankGatewayConnectionError()
+            logging.exception(f"SEP time out gateway {data}")
+            raise BankGatewayConnectionError() from None
 
         response_json = get_json(response)
         self._set_transaction_status_text(response_json.get("errorDesc"))
