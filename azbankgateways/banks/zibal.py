@@ -55,6 +55,7 @@ class Zibal(BaseBank):
             "orderId": self.get_tracking_code(),
             "mobile": self.get_mobile_number(),
         }
+        data.update(self.get_custom_data())
         return data
 
     def prepare_pay(self):

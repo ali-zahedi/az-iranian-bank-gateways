@@ -60,6 +60,7 @@ class PayV1(BaseBank):
             "mobile": self.get_mobile_number(),
             "factorNumber": self.get_tracking_code(),
         }
+        data.update(self.get_custom_data())
         return data
 
     def prepare_pay(self):

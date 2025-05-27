@@ -68,6 +68,7 @@ class Mellat(BaseBank):
             "callBackUrl": self._get_gateway_callback_url(),
             "payerId": 0,
         }
+        data.update(self.get_custom_data())
         return data
 
     def prepare_pay(self):

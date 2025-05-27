@@ -4,13 +4,13 @@ import uuid
 from urllib import parse
 
 import six
+from django.conf import settings as django_settings
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
 
 from .. import default_settings as settings
-from django.conf import settings as django_settings
 from ..exceptions import (
     AmountDoesNotSupport,
     BankGatewayStateInvalid,
@@ -42,8 +42,9 @@ class BaseBank:
     def __init__(self, identifier: str, **kwargs):
         self.identifier = identifier
         self.default_setting_kwargs = kwargs
+        self._custom_data: dict = {}
         self.set_default_settings()
-    
+
     def _is_strict_origin_policy_enabled(self):
         return django_settings.SECURE_REFERRER_POLICY == 'strict-origin-when-cross-origin'
 
@@ -166,6 +167,13 @@ class BaseBank:
     def get_mobile_number(self):
         return self._mobile_number
 
+    def set_custom_data(self, data: dict):
+        """تنظیم قابلیت های سفارشی برای درگاه"""
+        self._custom_data = data
+
+    def get_custom_data(self):
+        return self._custom_data
+
     def set_client_callback_url(self, callback_url):
         """ذخیره کال بک از طریق نرم افزار برای بازگردانی کاربر پس از بازگشت درگاه بانک به پکیج و سپس از پکیج به نرم
         افزار."""
@@ -191,7 +199,10 @@ class BaseBank:
     def _set_bank_record(self):
         try:
             self._bank = Bank.objects.get(
-                Q(Q(reference_number=self.get_reference_number()) | Q(tracking_code=self.get_tracking_code())),
+                Q(
+                    Q(reference_number=self.get_reference_number())
+                    | Q(tracking_code=self.get_tracking_code())
+                ),
                 Q(bank_type=self.get_bank_type()),
             )
             logging.debug("Set reference find bank object.")
@@ -220,7 +231,10 @@ class BaseBank:
         return self._transaction_status_text
 
     def _set_payment_status(self, payment_status):
-        if payment_status == PaymentStatus.RETURN_FROM_BANK and self._bank.status != PaymentStatus.REDIRECT_TO_BANK:
+        if (
+            payment_status == PaymentStatus.RETURN_FROM_BANK
+            and self._bank.status != PaymentStatus.REDIRECT_TO_BANK
+        ):
             logging.debug(
                 "Payment status is not status suitable.",
                 extra={"status": self._bank.status},

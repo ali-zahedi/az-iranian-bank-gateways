@@ -60,6 +60,7 @@ class IDPay(BaseBank):
             "phone": self.get_mobile_number(),
             "callback": self._get_gateway_callback_url(),
         }
+        data.update(self.get_custom_data())
         return data
 
     def prepare_pay(self):

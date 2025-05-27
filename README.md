@@ -224,6 +224,11 @@ def go_to_gateway_view(request):
         )  # or factory.create(bank_models.BankType.BMI) or set identifier
         bank.set_request(request)
         bank.set_amount(amount)
+
+        # در صورت تمایل می توانید داده های دلخواه خود را به درگاه ارسال کنید
+        bank.set_custom_data({"foo": "bar"})
+
+
         # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند
         bank.set_client_callback_url(reverse("callback-gateway"))
         bank.set_mobile_number(user_mobile_number)  # اختیاری
@@ -558,6 +563,7 @@ pre-commit install
 * [apidemy](https://github.com/apidemy) ریفکتور _is_strict_origin_policy_enabled و پیروی از DRY
 * [TinyPuff](https://github.com/TinyPuff) رفع مشکل Pay.ir
 * [mojtabaakbari221b](https://github.com/mojtabaakbari221b ) اضافه کردن اینترفیس برای bankfactory
+* [MrMRM1](https://github.com/MrMRM1) برای درگاه زرین پال ورژن4
 
 ## Star History
 

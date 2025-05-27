@@ -58,6 +58,7 @@ class Bahamta(BaseBank):
             "payer_mobile": self.get_mobile_number(),
             "callback_url": self._get_gateway_callback_url(),
         }
+        data.update(self.get_custom_data())
         return data
 
     def prepare_pay(self):
