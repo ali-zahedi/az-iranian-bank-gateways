@@ -15,10 +15,18 @@ from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus
 from azbankgateways.utils import get_json
 
 
+"""
+BMI is a payment gateway integration class for Bank Melli Iran (BMI), 
+extending BaseBank to handle payment requests, verifications, and transaction management 
+using the Sadad API. It includes support for encryption, card number validation.
+"""
+
 class BMI(BaseBank):
     _merchant_code = None
     _terminal_code = None
     _secret_key = None
+    _iban_country_code = "IR"
+    _card_number = None
 
     def __init__(self, **kwargs):
         super(BMI, self).__init__(**kwargs)
@@ -32,6 +40,7 @@ class BMI(BaseBank):
         self._token_api_url = "https://sadad.shaparak.ir/vpg/api/v0/Request/PaymentRequest"
         self._payment_url = "https://sadad.shaparak.ir/VPG/Purchase"
         self._verify_api_url = "https://sadad.shaparak.ir/vpg/api/v0/Advice/Verify"
+        self._transaction_result = None
 
     def get_bank_type(self):
         return BankType.BMI
@@ -76,10 +85,6 @@ class BMI(BaseBank):
         else:
             logging.critical("BMI gateway reject payment")
             raise BankGatewayRejectPayment(self.get_transaction_status_text())
-
-    """
-    : gateway
-    """
 
     def _get_gateway_payment_method_parameter(self):
         return "GET"
@@ -136,6 +141,32 @@ class BMI(BaseBank):
     def verify_from_gateway(self, request):
         super(BMI, self).verify_from_gateway(request)
 
+    def get_transaction_result(self):
+        return self._transaction_result
+
+    def is_transaction_successful(self):
+        return self._transaction_result == PaymentStatus.COMPLETE
+
+    def cancel_transaction(self):
+        self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
+        self._bank.save()
+        logging.info("Transaction was manually cancelled by user")
+
+    def get_iban_country_code(self):
+        return self._iban_country_code
+
+    def get_card_number(self):
+        return self._card_number
+
+    def set_card_number(self, card_number):
+        self._card_number = card_number
+
+    def validate_card_number(self):
+        if not self._card_number or len(self._card_number) != 16 or not self._card_number.isdigit():
+            raise ValueError("Invalid card number. Must be 16 digits.")
+        return True
+
+
     @classmethod
     def _pad(cls, text, pad_size=16):
         text_length = len(text)
@@ -163,4 +194,6 @@ class BMI(BaseBank):
 
         response_json = get_json(response)
         self._set_transaction_status_text(response_json["Description"])
+        self._transaction_result = response_json.get("ResCode")
         return response_json
+ 

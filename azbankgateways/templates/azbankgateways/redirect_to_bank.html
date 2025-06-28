@@ -2,27 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #444;
+        }
+        .status-message {
+            margin-top: 1.5rem;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 
-<form id='id_form' action="{{ url }}" method="{{ method }}">
+<noscript>
+    <div class="status-message">Please enable JavaScript in your browser to continue.</div>
+</noscript>
+
+<form id="autoSubmitForm" action="{{ url }}" method="{{ method|upper }}">
     {% csrf_token %}
     {% for key, value in params.items %}
         <input type="hidden" name="{{ key }}" value="{{ value }}">
     {% endfor %}
 </form>
 
-<script type="text/javascript">
-    window.onload = function () {
+<div class="status-message">Please wait while we redirect you...</div>
 
-        function submitForm() {
-            document.forms['id_form'].submit();
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('autoSubmitForm');
+        if (form) {
+            form.submit();
         }
-
-        submitForm();
-    }
+    });
 </script>
 
 </body>
 </html>
+ 
