@@ -64,7 +64,7 @@ class Zarinpal(BaseBank):
             "description": description,
             "merchant_id": self._merchant_code,
             "amount": self.get_gateway_amount(),
-            "currency": self._currency,
+            "currency": self.get_gateway_currency(),
             "metadata": {},
             "callback_url": self._get_gateway_callback_url(),
         }
