@@ -1,5 +1,4 @@
 import logging
-
 import requests
 from zeep import Client, Transport
 
@@ -9,17 +8,17 @@ from azbankgateways.exceptions.exceptions import BankGatewayRejectPayment
 from azbankgateways.models import BankType, CurrencyEnum, PaymentStatus
 from azbankgateways.utils import get_json
 
+# IBAN = IR (Iran)
 
 class SEP(BaseBank):
     _merchant_code = None
     _terminal_code = None
 
     def __init__(self, **kwargs):
-        super(SEP, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if not self._is_strict_origin_policy_enabled():
             raise SettingDoesNotExist(
-                "SECURE_REFERRER_POLICY is not set to 'strict-origin-when-cross-origin' in django setting,"
-                " it's mandatory for Saman gateway"
+                "SECURE_REFERRER_POLICY must be 'strict-origin-when-cross-origin' for SEP gateway."
             )
 
         self.set_gateway_currency(CurrencyEnum.IRR)
@@ -31,10 +30,10 @@ class SEP(BaseBank):
         return BankType.SEP
 
     def set_default_settings(self):
-        for item in ["MERCHANT_CODE", "TERMINAL_CODE"]:
-            if item not in self.default_setting_kwargs:
-                raise SettingDoesNotExist()
-            setattr(self, f"_{item.lower()}", self.default_setting_kwargs[item])
+        for key in ["MERCHANT_CODE", "TERMINAL_CODE"]:
+            if key not in self.default_setting_kwargs:
+                raise SettingDoesNotExist(f"Missing setting: {key}")
+            setattr(self, f"_{key.lower()}", self.default_setting_kwargs[key])
 
     def get_pay_data(self):
         data = {
@@ -50,22 +49,16 @@ class SEP(BaseBank):
         return data
 
     def prepare_pay(self):
-        super(SEP, self).prepare_pay()
+        super().prepare_pay()
 
     def pay(self):
-        super(SEP, self).pay()
-        data = self.get_pay_data()
-        response_json = self._send_data(self._token_api_url, data)
-        if str(response_json["status"]) == "1":
-            token = response_json["token"]
-            self._set_reference_number(token)
+        super().pay()
+        response = self._send_data(self._token_api_url, self.get_pay_data())
+        if str(response.get("status")) == "1":
+            self._set_reference_number(response["token"])
         else:
-            logging.critical("SEP gateway reject payment")
+            logging.critical("SEP gateway rejected payment: %s", response)
             raise BankGatewayRejectPayment(self.get_transaction_status_text())
-
-    """
-    : gateway
-    """
 
     def _get_gateway_payment_url_parameter(self):
         return self._payment_url
@@ -74,80 +67,106 @@ class SEP(BaseBank):
         return "POST"
 
     def _get_gateway_payment_parameter(self):
-        params = {
+        return {
             "Token": self.get_reference_number(),
             "GetMethod": "true",
         }
-        return params
-
-    """
-    verify from gateway
-    """
 
     def prepare_verify_from_gateway(self):
-        super(SEP, self).prepare_verify_from_gateway()
+        super().prepare_verify_from_gateway()
         request = self.get_request()
-        tracking_code = request.GET.get("ResNum")
-        token = request.GET.get("Token")
-        self._set_tracking_code(tracking_code)
+        if not self.validate_callback_data():
+            raise BankGatewayRejectPayment("Invalid callback data")
+
+        self._set_tracking_code(request.GET.get("ResNum"))
         self._set_bank_record()
         ref_num = request.GET.get("RefNum")
-        if request.GET.get("State", "NOK") == "OK" and ref_num:
-            self._set_reference_number(ref_num)
-            self._bank.reference_number = ref_num
-            extra_information = f"TRACENO={request.GET.get('TRACENO')}, RefNum={ref_num}, Token={token}"
-            self._bank.extra_information = extra_information
-            self._bank.save()
+        token = request.GET.get("Token")
+        traceno = request.GET.get("TRACENO")
+
+        self._set_reference_number(ref_num)
+        self._bank.reference_number = ref_num
+        self._bank.extra_information = f"TRACENO={traceno}, RefNum={ref_num}, Token={token}"
+        self._bank.save()
 
     def verify_from_gateway(self, request):
-        super(SEP, self).verify_from_gateway(request)
-
-    """
-    verify
-    """
+        super().verify_from_gateway(request)
 
     def get_verify_data(self):
-        super(SEP, self).get_verify_data()
-        data = self.get_reference_number(), self._merchant_code
-        return data
+        super().get_verify_data()
+        return self.get_reference_number(), self._merchant_code
 
     def prepare_verify(self, tracking_code):
-        super(SEP, self).prepare_verify(tracking_code)
+        super().prepare_verify(tracking_code)
 
     def verify(self, transaction_code):
-        super(SEP, self).verify(transaction_code)
-        data = self.get_verify_data()
+        super().verify(transaction_code)
         client = self._get_client(self._verify_api_url)
-        result = client.service.verifyTransaction(*data)
+        result = client.service.verifyTransaction(*self.get_verify_data())
         if result == self.get_gateway_amount():
             self._set_payment_status(PaymentStatus.COMPLETE)
         else:
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
-            logging.debug("SEP gateway unapprove payment")
+            logging.debug("SEP gateway did not approve payment")
 
-    def _send_data(self, api, data):
+    def _send_data(self, url, data):
         try:
-            response = requests.post(api, json=data, timeout=5)
-        except requests.Timeout:
-            logging.exception("SEP time out gateway {}".format(data))
-            raise BankGatewayConnectionError()
-        except requests.ConnectionError:
-            logging.exception("SEP time out gateway {}".format(data))
+            response = requests.post(url, json=data, timeout=5)
+            response.raise_for_status()
+        except (requests.Timeout, requests.ConnectionError) as e:
+            logging.exception("SEP request error: %s", e)
             raise BankGatewayConnectionError()
 
-        response_json = get_json(response)
-        self._set_transaction_status_text(response_json.get("errorDesc"))
-        return response_json
+        json_response = get_json(response)
+        self._set_transaction_status_text(json_response.get("errorDesc"))
+        return json_response
 
     @staticmethod
-    def _get_client(url):
-        headers = {
+    def _get_client(wsdl_url):
+        transport = Transport(timeout=5, operation_timeout=5)
+        transport.session.headers.update({
             "Accept": "*/*",
             "Accept-Encoding": "gzip, deflate, br",
             "Connection": "keep-alive",
-            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0",
+            "User-Agent": "PythonClient/SEP",
+        })
+        return Client(wsdl_url, transport=transport)
+
+    def is_transaction_successful(self):
+        return self._bank and self._bank.payment_status == PaymentStatus.COMPLETE
+
+    def get_transaction_info(self):
+        return {
+            "tracking_code": self.get_tracking_code(),
+            "reference_number": self.get_reference_number(),
+            "amount": self.get_gateway_amount(),
+            "status": self._bank.payment_status.name if self._bank else "UNKNOWN",
+            "extra_information": getattr(self._bank, 'extra_information', None),
         }
-        transport = Transport(timeout=5, operation_timeout=5)
-        transport.session.headers = headers
-        client = Client(url, transport=transport)
-        return client
+
+    def cancel_transaction(self, reason="User cancelled the payment"):
+        self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
+        if self._bank:
+            self._bank.extra_information = f"Cancelled: {reason}"
+            self._bank.save()
+        logging.info("Transaction cancelled: %s", reason)
+
+    def log_transaction_summary(self):
+        logging.info("SEP Transaction | Amount: %s | Ref#: %s | Status: %s",
+                     self.get_gateway_amount(),
+                     self.get_reference_number(),
+                     self._bank.payment_status.name if self._bank else "UNKNOWN")
+
+    def resend_token_request(self):
+        logging.info("Resending token request to SEP")
+        return self._send_data(self._token_api_url, self.get_pay_data())
+
+    def validate_callback_data(self):
+        request = self.get_request()
+        required = ["ResNum", "RefNum", "State", "Token"]
+        missing = [p for p in required if not request.GET.get(p)]
+        if missing:
+            logging.warning("Missing callback data: %s", missing)
+            return False
+        return True
+ 
