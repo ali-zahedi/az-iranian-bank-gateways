@@ -564,6 +564,7 @@ pre-commit install
 * [TinyPuff](https://github.com/TinyPuff) رفع مشکل Pay.ir
 * [mojtabaakbari221b](https://github.com/mojtabaakbari221b ) اضافه کردن اینترفیس برای bankfactory
 * [MrMRM1](https://github.com/MrMRM1) برای درگاه زرین پال ورژن4
+* [mmfarahmand](https://github.com/mmfarahmand) برای حل مشکل  نوع ارز در درگاه زرین پال
 
 ## Star History
 
