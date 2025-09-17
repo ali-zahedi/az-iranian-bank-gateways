@@ -18,7 +18,7 @@ from azbankgateways.v3.providers.zarinpal import (
 def zarinpal_payment_config(callback_url_generator):
     return ZarinpalPaymentGatewayConfig(
         merchant_code="zarinpal-merchant-code",
-        callback_url=callback_url_generator,
+        callback_url_generator=callback_url_generator,
         payment_request_url="https://az.bank/request",
         start_payment_url="https://az.bank/start",
     )
