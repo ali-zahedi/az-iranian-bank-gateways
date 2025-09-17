@@ -1,12 +1,8 @@
-from typing import Type
-
 import responses as responses_lib
 from pytest import fixture
 
-from azbankgateways.v3.currencies import CurrencyRegistry
 from azbankgateways.v3.interfaces import (
     CallbackURLType,
-    Currency,
     MessageServiceInterface,
     OrderDetails,
 )
@@ -29,13 +25,6 @@ def responses():
     """
     with responses_lib.RequestsMock() as rsps:
         yield rsps
-
-
-@fixture
-def currency_registry() -> Type[CurrencyRegistry]:
-    CurrencyRegistry.register_currency(Currency.IRR)
-    CurrencyRegistry.register_currency(Currency.IRT)
-    return CurrencyRegistry
 
 
 @fixture
