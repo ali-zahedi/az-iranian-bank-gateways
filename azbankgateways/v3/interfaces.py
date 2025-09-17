@@ -145,18 +145,6 @@ class ProviderInterface(ABC):
 
     @property
     @abstractmethod
-    def currency(self) -> Currency:
-        """
-        Defines the currency in which the payment will be made.
-        This should return a value from the Currency enum, representing the type of currency being used
-        (e.g., IRT, IRR).
-
-        :return: An instance of Currency representing the payment currency.
-        """
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
     def minimum_amount(self) -> Decimal:
         """
         Specifies the minimum payment amount required for the payment process.

@@ -8,10 +8,8 @@ from azbankgateways.exceptions.exceptions import (
     BankGatewayConnectionError,
     BankGatewayRejectPayment,
 )
-from azbankgateways.v3.currencies import CurrencyRegistry
 from azbankgateways.v3.interfaces import (
     CallbackURLType,
-    Currency,
     HttpMethod,
     MessageServiceInterface,
     MessageType,
@@ -30,13 +28,9 @@ class ZarinpalPaymentGatewayConfig(PaymentGatewayConfigInterface):
         callback_url: CallbackURLType,
         payment_request_url: Optional[str] = None,
         start_payment_url: Optional[str] = None,
-        currency: Optional[Currency] = None,
     ):
         assert merchant_code, "Merchant code is required"
         assert callback_url, "Callback url is required"
-
-        if not currency:
-            currency = CurrencyRegistry.get_currency("IRT")
 
         if not payment_request_url:
             payment_request_url = "https://payment.zarinpal.com/pg/v4/payment/request.json"
@@ -46,7 +40,6 @@ class ZarinpalPaymentGatewayConfig(PaymentGatewayConfigInterface):
 
         self.__merchant_code = merchant_code
         self.__callback_url = callback_url
-        self.__currency = currency
         self.__payment_request_url = payment_request_url
         self.__start_payment_url = start_payment_url.strip('/')
 
@@ -61,10 +54,6 @@ class ZarinpalPaymentGatewayConfig(PaymentGatewayConfigInterface):
     @property
     def start_payment_url(self) -> str:
         return self.__start_payment_url
-
-    @property
-    def currency(self) -> Currency:
-        return self.__currency
 
     @property
     def callback_url(self) -> CallbackURLType:
@@ -84,10 +73,6 @@ class ZarinpalProvider(ProviderInterface):
         self.__config = config
         self.__message_service = message_service
         self.__order_details = order_details
-
-    @property
-    def currency(self) -> Currency:
-        return self.__config.currency
 
     @property
     def minimum_amount(self) -> Decimal:
@@ -135,7 +120,6 @@ class ZarinpalProvider(ProviderInterface):
             "amount": str(self.__get_final_amount()),
             "callback_url": self.__config.callback_url(self.__order_details),
             "description": description,
-            "currency": self.currency.value,
             "metadata": metadata,
         }
 
