@@ -122,6 +122,9 @@ CallbackURLType = Callable[[OrderDetails], str]
 class PaymentGatewayConfigInterface(ABC):
     """Payment Gateway configuration interface."""
 
+    # TODO: Ensure all subclasses of PaymentGatewayConfigInterface are
+    #  decorated with @dataclass(frozen=True, slots=True).
+
 
 class MessageServiceInterface(ABC):
     @abstractmethod
@@ -141,18 +144,6 @@ class ProviderInterface(ABC):
         message_service: MessageServiceInterface,
         order_details: OrderDetails,
     ):
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def currency(self) -> Currency:
-        """
-        Defines the currency in which the payment will be made.
-        This should return a value from the Currency enum, representing the type of currency being used
-        (e.g., IRT, IRR).
-
-        :return: An instance of Currency representing the payment currency.
-        """
         raise NotImplementedError()
 
     @property

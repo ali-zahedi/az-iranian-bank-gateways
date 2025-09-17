@@ -7,7 +7,6 @@ from azbankgateways.exceptions.exceptions import (
     BankGatewayConnectionError,
     BankGatewayRejectPayment,
 )
-from azbankgateways.v3.currencies import CurrencyRegistry
 from azbankgateways.v3.interfaces import OrderDetails
 from azbankgateways.v3.providers.zarinpal import (
     ZarinpalPaymentGatewayConfig,
@@ -16,13 +15,12 @@ from azbankgateways.v3.providers.zarinpal import (
 
 
 @pytest.fixture
-def zarinpal_payment_config(currency_registry, callback_url_generator):
+def zarinpal_payment_config(callback_url_generator):
     return ZarinpalPaymentGatewayConfig(
         merchant_code="zarinpal-merchant-code",
-        callback_url=callback_url_generator,
+        callback_url_generator=callback_url_generator,
         payment_request_url="https://az.bank/request",
         start_payment_url="https://az.bank/start",
-        currency=CurrencyRegistry.get_currency("IRT"),
     )
 
 
@@ -36,7 +34,6 @@ def order_details():
         phone_number='+989112223344',
         email='mail@az.bank',
         order_id='order-id',
-        currency=CurrencyRegistry.get_currency("IRT").value,
     )
 
 
