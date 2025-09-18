@@ -12,12 +12,12 @@ from azbankgateways.exceptions.exceptions import (
 from azbankgateways.v3.interfaces import (
     CallbackURLType,
     HttpMethod,
+    HttpRequestInterface,
     MessageServiceInterface,
     MessageType,
     OrderDetails,
     PaymentGatewayConfigInterface,
     ProviderInterface,
-    RequestInterface,
 )
 from azbankgateways.v3.redirect_request import RedirectRequest
 
@@ -30,6 +30,7 @@ class ZarinpalPaymentGatewayConfig(PaymentGatewayConfigInterface):
     callback_url_generator: CallbackURLType
     payment_request_url: str = field(default="https://payment.zarinpal.com/pg/v4/payment/request.json/")
     start_payment_url: str = field(default="https://payment.zarinpal.com/pg/StartPay/")
+    http_requests_timeout: int = 20
 
     def __post_init__(self):
         if not self.merchant_code:
@@ -54,7 +55,7 @@ class ZarinpalProvider(ProviderInterface):
     def minimum_amount(self) -> Decimal:
         return Decimal(1000)
 
-    def get_request_pay(self, order_details: OrderDetails) -> RequestInterface:
+    def get_request_pay(self, order_details: OrderDetails) -> HttpRequestInterface:
         return RedirectRequest(
             http_method=HttpMethod.GET,
             url=f'{self.__config.start_payment_url}/{self.__pay(order_details)}',
@@ -91,7 +92,7 @@ class ZarinpalProvider(ProviderInterface):
             "callback_url": self.__config.callback_url_generator(order_details),
             "description": description,
             "metadata": metadata,
-            "currency": "IRR"
+            "currency": "IRR",
         }
 
     def __pay(self, order_details: OrderDetails) -> str:

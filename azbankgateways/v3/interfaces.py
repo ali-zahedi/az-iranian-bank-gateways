@@ -41,7 +41,7 @@ class BankEntityInterface(ABC):
         raise NotImplementedError()
 
 
-class RequestInterface(ABC):
+class HttpRequestInterface(ABC):
     """
     An interface for defining the structure of a redirect request, typically used to
      manage payment redirections or external API redirects.
@@ -103,6 +103,95 @@ class RequestInterface(ABC):
         """
         raise NotImplementedError()
 
+    @property
+    @abstractmethod
+    def timeout(self) -> int:
+        """
+        Specifies the maximum duration (in seconds) the request should wait
+        for a response before timing out.
+
+        :return: An integer representing the timeout duration in seconds.
+        """
+        raise NotImplementedError()
+
+
+class HttpResponseInterface(ABC):
+    """
+    An interface representing the structure of an HTTP response.
+
+    Implementations must provide consistent access to HTTP status, headers,
+    body content, and content type.
+    This abstraction allows response handling to remain decoupled from
+    specific HTTP client libraries or transport layers.
+
+    Common use cases include payment gateway responses, API integrations,
+    or testing environments where HTTP behavior is mocked.
+    """
+
+    @property
+    @abstractmethod
+    def status_code(self) -> int:
+        """
+        The HTTP status code returned by the server.
+
+        :return: Integer representing the HTTP status code (e.g., 200, 404, 500).
+        """
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def headers(self) -> Dict[str, Any]:
+        """
+        The HTTP headers included in the response.
+
+        :return: Dictionary containing header names and values.
+        """
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def body(self) -> Any:
+        """
+        The raw body content of the HTTP response.
+
+        This may be a string, bytes, or parsed object depending on implementation.
+
+        :return: The raw or parsed content of the response body.
+        """
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def ok(self) -> bool:
+        """
+        Indicates whether the HTTP response is considered successful.
+
+        Typically, returns True for status codes in the 200–299 range.
+
+        :return: True if the status_code represents a successful response, else False.
+        """
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def is_json(self) -> bool:
+        """
+        Indicates whether the response body contains JSON data.
+
+        :return: True if the response is JSON, otherwise False.
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def json(self) -> Optional[Dict[str, Any]]:
+        """
+        Parses and returns the response body as a JSON object if available.
+
+        :return: Dictionary representing the JSON body, or None if invalid/non‑JSON.
+        :raises ValueError: If the body cannot be parsed as JSON.
+        """
+        raise NotImplementedError()
+
 
 @dataclass
 class OrderDetails:
@@ -148,6 +237,7 @@ class ProviderInterface(ABC):
         self,
         config: PaymentGatewayConfigInterface,
         message_service: MessageServiceInterface,
+        http_requests_timeout: int,
     ):
         raise NotImplementedError()
 
@@ -163,6 +253,26 @@ class ProviderInterface(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_request_pay(self, order_details: OrderDetails) -> RequestInterface:
+    def get_request_pay(self, order_details: OrderDetails) -> HttpRequestInterface:
         # TODO: add proper doc string
+        raise NotImplementedError()
+
+
+class HttpClientInterface(ABC):
+    @abstractmethod
+    def send(
+        self,
+        http_request: HttpRequestInterface,
+    ) -> HttpResponseInterface:
+        """
+        Send an HTTP request and return the corresponding response.
+
+        Implementations must perform the network call and return a response object conforming to HttpResponseInterface.
+
+        Args:
+            http_request (HttpRequestInterface): The request to send.
+
+        Returns:
+            HttpResponseInterface: The response associated with the request.
+        """
         raise NotImplementedError()
