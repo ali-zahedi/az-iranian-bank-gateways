@@ -1,4 +1,4 @@
-from .interfaces import BankEntityInterface, ProviderInterface, RequestInterface
+from .interfaces import BankEntityInterface, HttpRequestInterface, ProviderInterface
 
 
 class PaymentGateway:
@@ -7,7 +7,7 @@ class PaymentGateway:
         self.provider = provider
         self.storage = storage
 
-    def request_pay(self) -> RequestInterface:
+    def request_pay(self) -> HttpRequestInterface:
         return self.provider.get_request_pay()
 
     def process_payment(self, transaction_data):
