@@ -1,9 +1,9 @@
 from typing import Any, Dict
 
-from azbankgateways.v3.interfaces import HttpMethod, RequestInterface
+from azbankgateways.v3.interfaces import HttpMethod, HttpRequestInterface
 
 
-class RedirectRequest(RequestInterface):
+class RedirectRequest(HttpRequestInterface):
     def __init__(
         self,
         http_method: HttpMethod,
