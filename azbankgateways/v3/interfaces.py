@@ -122,6 +122,9 @@ CallbackURLType = Callable[[OrderDetails], str]
 class PaymentGatewayConfigInterface(ABC):
     """Payment Gateway configuration interface."""
 
+    # TODO: Ensure all subclasses of PaymentGatewayConfigInterface are
+    #  decorated with @dataclass(frozen=True, slots=True).
+
 
 class MessageServiceInterface(ABC):
     @abstractmethod
