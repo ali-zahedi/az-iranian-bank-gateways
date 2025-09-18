@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Callable, Dict, Literal, Optional
+from typing import Any, Callable, Dict, Optional
 
 
 # TODO: abstract
@@ -106,6 +106,13 @@ class RequestInterface(ABC):
 
 @dataclass
 class OrderDetails:
+    """
+    Represents order payment details.
+
+    Note:
+        `amount` is always specified in IRR.
+    """
+
     amount: Decimal
     tracking_code: str
     first_name: Optional[str] = None
@@ -113,7 +120,6 @@ class OrderDetails:
     phone_number: Optional[str] = None
     email: Optional[str] = None
     order_id: Optional[str] = None
-    currency: Literal["IRT", "IRR"] = "IRT"
 
 
 CallbackURLType = Callable[[OrderDetails], str]
@@ -142,7 +148,6 @@ class ProviderInterface(ABC):
         self,
         config: PaymentGatewayConfigInterface,
         message_service: MessageServiceInterface,
-        order_details: OrderDetails,
     ):
         raise NotImplementedError()
 
@@ -158,6 +163,6 @@ class ProviderInterface(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_request_pay(self) -> RequestInterface:
+    def get_request_pay(self, order_details: OrderDetails) -> RequestInterface:
         # TODO: add proper doc string
         raise NotImplementedError()
