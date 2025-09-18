@@ -43,23 +43,21 @@ class ZarinpalProvider(ProviderInterface):
         self,
         config: ZarinpalPaymentGatewayConfig,
         message_service: MessageServiceInterface,
-        order_details: OrderDetails,
     ):
         assert config, "Config is required"
         assert message_service, "Message service is required"
 
         self.__config = config
         self.__message_service = message_service
-        self.__order_details = order_details
 
     @property
     def minimum_amount(self) -> Decimal:
         return Decimal(1000)
 
-    def get_request_pay(self) -> RequestInterface:
+    def get_request_pay(self, order_details: OrderDetails) -> RequestInterface:
         return RedirectRequest(
             http_method=HttpMethod.GET,
-            url=f'{self.__config.start_payment_url}/{self.__pay()}',
+            url=f'{self.__config.start_payment_url}/{self.__pay(order_details)}',
         )
 
     def get_payment_redirect_method(self) -> HttpMethod:
@@ -71,45 +69,40 @@ class ZarinpalProvider(ProviderInterface):
     def get_payment_gateway_url(self) -> str:
         raise NotImplementedError()
 
-    def __get_final_amount(self) -> Decimal:
-        # TODO: get rid of this method, TEMP method, converting IRT to IRR or vice versa,
-        #  should support multiple currencies. Consider using a service or interface to handle the conversion process,
-        #  where the input includes the amount, source currency, and target currency.
-        return self.__order_details.amount
-
-    def __get_pay_data(self) -> Dict[str, Any]:
+    def __get_pay_data(self, order_details: OrderDetails) -> Dict[str, Any]:
         description = self.__message_service.generate_message(
             MessageType.DESCRIPTION,
             {
-                "tracking_code": self.__order_details.tracking_code,
+                "tracking_code": order_details.tracking_code,
             },
         )
 
         metadata = {}
-        if self.__order_details.phone_number:
-            metadata['mobile'] = self.__order_details.phone_number
-        if self.__order_details.email:
-            metadata['email'] = self.__order_details.email
-        if self.__order_details.order_id:
-            metadata['order_id'] = self.__order_details.order_id
+        if order_details.phone_number:
+            metadata['mobile'] = order_details.phone_number
+        if order_details.email:
+            metadata['email'] = order_details.email
+        if order_details.order_id:
+            metadata['order_id'] = order_details.order_id
 
         return {
             "merchant_id": self.__config.merchant_code,
-            "amount": str(self.__get_final_amount()),
-            "callback_url": self.__config.callback_url_generator(self.__order_details),
+            "amount": str(order_details.amount),
+            "callback_url": self.__config.callback_url_generator(order_details),
             "description": description,
             "metadata": metadata,
+            "currency": "IRR"
         }
 
-    def __pay(self) -> str:
-        if self.__order_details.amount < self.minimum_amount:
+    def __pay(self, order_details: OrderDetails) -> str:
+        if order_details.amount < self.minimum_amount:
             raise BankGatewayRejectPayment(
                 self.__message_service.generate_message(
                     MessageType.MINIMUM_AMOUNT, context={'minimum_amount': self.minimum_amount}
                 )
             )
 
-        data = self.__get_pay_data()
+        data = self.__get_pay_data(order_details)
         result = self._send_data(self.__config.payment_request_url, data).get('data', {})
 
         if not result:
