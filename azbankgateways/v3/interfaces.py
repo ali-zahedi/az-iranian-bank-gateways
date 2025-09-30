@@ -199,12 +199,12 @@ class HttpResponseInterface(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def json(self) -> Optional[Dict[str, Any]]:
+    def json(self) -> Dict[str, Any]:
         """
         Parses and returns the response body as a JSON object if available.
 
-        :return: Dictionary representing the JSON body, or None if invalid/non‑JSON.
-        :raises ValueError: If the body cannot be parsed as JSON.
+        :return: Dictionary representing the JSON body.
+        :raises BankGatewayHttpResponseError: If the body cannot be parsed as JSON.
         """
         raise NotImplementedError()
 
