@@ -40,15 +40,3 @@ class BankGatewayAutoConnectionFailed(AZBankGatewaysException):
 
 class SafeSettingsEnabled(AZBankGatewaysException):
     """This feature is disabled when the safe gateway is active"""
-
-
-class HttpResponseError(AZBankGatewaysException):
-    """Base class for all HttpResponse related errors."""
-
-
-class ResponseIsNotJSONError(HttpResponseError):
-    """Raised when .json() is called but Content-Type is not application/json."""
-
-
-class JSONDecodeError(HttpResponseError):
-    """Raised when response body cannot be decoded as JSON."""

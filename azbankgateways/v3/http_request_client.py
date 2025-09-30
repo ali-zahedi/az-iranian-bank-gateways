@@ -3,8 +3,11 @@ from typing import Any, Dict, Optional
 
 import requests
 
-from azbankgateways.exceptions import BankGatewayConnectionError
-from azbankgateways.exceptions.exceptions import JSONDecodeError, ResponseIsNotJSONError
+from azbankgateways.v3.exceptions import (
+    BankGatewayConnectionError,
+    BankGatewayHttpResponseIsNotJSONError,
+    BankGatewayHttpResponseJSONDecodeError,
+)
 from azbankgateways.v3.interfaces import (
     HttpClientInterface,
     HttpMethod,
@@ -74,11 +77,11 @@ class HttpResponse(HttpResponseInterface):
 
     def json(self) -> Optional[Dict[str, Any]]:
         if not self.is_json:
-            raise ResponseIsNotJSONError()
+            raise BankGatewayHttpResponseIsNotJSONError()
         try:
             return json.loads(self.body)
         except (TypeError, json.JSONDecodeError):
-            raise JSONDecodeError()
+            raise BankGatewayHttpResponseJSONDecodeError()
 
     @property
     def ok(self) -> bool:

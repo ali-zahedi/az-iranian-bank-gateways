@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
-from azbankgateways.exceptions.exceptions import (
+from azbankgateways.v3.exceptions import (
     BankGatewayConnectionError,
     BankGatewayRejectPayment,
 )
