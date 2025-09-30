@@ -267,7 +267,7 @@ class ProviderInterface(ABC):
 class HttpClientInterface(ABC):
     @abstractmethod
     def __init__(
-        self, message_service: MessageServiceInterface, http_response_dataclass: type[HttpResponseInterface]
+        self, message_service: MessageServiceInterface, http_response_cls: type[HttpResponseInterface]
     ):
         raise NotImplementedError()
 

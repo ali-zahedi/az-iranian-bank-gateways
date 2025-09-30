@@ -87,10 +87,10 @@ class HttpResponse(HttpResponseInterface):
 
 class HttpRequestClient(HttpClientInterface):
     def __init__(
-        self, message_service: MessageServiceInterface, http_response_dataclass: type[HttpResponseInterface]
+        self, message_service: MessageServiceInterface, http_response_cls: type[HttpResponseInterface]
     ):
         self.__message_service = message_service
-        self.__http_response_dataclass = http_response_dataclass
+        self.__http_response_cls = http_response_cls
 
     def send(self, request: HttpRequestInterface) -> HttpResponseInterface:
         data = json.dumps(request.data) if request.is_json else request.data
@@ -124,7 +124,7 @@ class HttpRequestClient(HttpClientInterface):
                     context={'request': request, 'exception': e},
                 )
             )
-        return self.__http_response_dataclass(
+        return self.__http_response_cls(
             status_code=response.status_code,
             headers=response.headers,
             body=response.content,
