@@ -23,6 +23,8 @@ class MessageType(Enum):
     CONNECTION_ERROR = 'connection_error'
     REJECTED_PAYMENT = 'rejected_payment'
     MINIMUM_AMOUNT = 'minimum_amount'
+    RESPONSE_IS_NOT_JSON = 'response_is_not_json'
+    JSON_DECODE_ERROR = 'json_decode_error'
 
 
 class HttpMethod(Enum):
@@ -38,6 +40,16 @@ class HttpMethod(Enum):
 class BankEntityInterface(ABC):
     @abstractmethod
     def persist(self):
+        raise NotImplementedError()
+
+
+class MessageServiceInterface(ABC):
+    @abstractmethod
+    def generate_message(self, key: MessageType, context: Dict[str, Any]) -> str:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_required_parameters(self, key: MessageType) -> Optional[list]:
         raise NotImplementedError()
 
 
@@ -127,6 +139,10 @@ class HttpResponseInterface(ABC):
     Common use cases include payment gateway responses, API integrations,
     or testing environments where HTTP behavior is mocked.
     """
+
+    @abstractmethod
+    def __init__(self, status_code: int, headers: Dict[str, Any], body: Any):
+        raise NotImplementedError()
 
     @property
     @abstractmethod
@@ -221,16 +237,6 @@ class PaymentGatewayConfigInterface(ABC):
     #  decorated with @dataclass(frozen=True, slots=True).
 
 
-class MessageServiceInterface(ABC):
-    @abstractmethod
-    def generate_message(self, key: MessageType, context: Dict[str, Any]) -> str:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def get_required_parameters(self, key: MessageType) -> Optional[list]:
-        raise NotImplementedError()
-
-
 class ProviderInterface(ABC):
     @abstractmethod
     def __init__(
@@ -259,6 +265,12 @@ class ProviderInterface(ABC):
 
 
 class HttpClientInterface(ABC):
+    @abstractmethod
+    def __init__(
+        self, message_service: MessageServiceInterface, http_response_dataclass: type[HttpResponseInterface]
+    ):
+        raise NotImplementedError()
+
     @abstractmethod
     def send(
         self,
