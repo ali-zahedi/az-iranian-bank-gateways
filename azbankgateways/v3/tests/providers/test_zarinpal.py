@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 from requests import ConnectionError, Timeout
 
-from azbankgateways.exceptions.exceptions import (
+from azbankgateways.v3.exceptions import (
     BankGatewayConnectionError,
     BankGatewayRejectPayment,
 )
