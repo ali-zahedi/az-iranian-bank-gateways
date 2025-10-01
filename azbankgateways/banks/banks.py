@@ -10,6 +10,8 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
 
+from azbankgateways.utils import append_querystring, build_full_url
+
 from .. import default_settings as settings
 from ..exceptions import (
     AmountDoesNotSupport,
@@ -19,7 +21,6 @@ from ..exceptions import (
     SafeSettingsEnabled,
 )
 from ..models import Bank, CurrencyEnum, PaymentStatus
-from ..utils import append_querystring
 
 
 # TODO: handle and expire record after 15 minutes
@@ -375,8 +376,8 @@ class BaseBank:
         return redirect_url
 
     def _get_gateway_callback_url(self):
-        url = reverse(settings.CALLBACK_NAMESPACE)
         if self.get_request():
+            url = reverse(settings.CALLBACK_NAMESPACE)
             url_parts = list(parse.urlparse(url))
             if not (url_parts[0] and url_parts[1]):
                 url = self.get_request().build_absolute_uri(url)
@@ -384,5 +385,6 @@ class BaseBank:
             query.update({"bank_type": self.get_bank_type()})
             query.update({"identifier": self.identifier})
             url = append_querystring(url, query)
-
+        else:
+            url = build_full_url(settings.CALLBACK_NAMESPACE)
         return url
