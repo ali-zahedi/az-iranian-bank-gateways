@@ -1,6 +1,9 @@
 import json
 from urllib import parse
 
+from django.conf import settings
+from django.urls import reverse
+
 from azbankgateways.types import DictQuerystring
 
 
@@ -33,3 +36,28 @@ def split_to_dict_querystring(url: str) -> DictQuerystring:
     url_parts[5] = ""
 
     return parse.urlunparse(url_parts), query
+
+
+def build_full_url(viewname: str, *args, **kwargs):
+    """
+    Build a full absolute URL including domain if Sites framework is available.
+    Falls back to relative path if no site is configured.
+    """
+    # Generate the path part
+    path = reverse(viewname, args=args, kwargs=kwargs)
+
+    # Try to use django.contrib.sites if installed
+    if "django.contrib.sites" in settings.INSTALLED_APPS:
+        try:
+            from django.contrib.sites.models import Site
+
+            site = Site.objects.get_current()
+            if site and site.domain:
+                protocol = getattr(settings, "DEFAULT_PROTOCOL", "https")
+                return f"{protocol}://{site.domain}{path}"
+        except Exception:
+            # Any issue with Sites, just return relative path
+            pass
+
+    # Fallback: return only relative path
+    return path
