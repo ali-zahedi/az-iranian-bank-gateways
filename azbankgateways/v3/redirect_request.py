@@ -1,5 +1,6 @@
 from typing import Any, Dict
 
+from azbankgateways.v3.http_utils import URL
 from azbankgateways.v3.interfaces import HttpMethod, HttpRequestInterface
 
 
@@ -7,16 +8,18 @@ class RedirectRequest(HttpRequestInterface):
     def __init__(
         self,
         http_method: HttpMethod,
-        url: str,
+        url: URL,
         headers: Dict[str, Any] = None,
         data: Dict[str, Any] = None,
         is_json: bool = False,
+        timeout: int = 20,
     ):
         self.__http_method = http_method
         self.__url = url
         self.__headers = headers if headers is not None else {}
         self.__data = data if data is not None else {}
         self.__is_json = is_json
+        self.__timeout = timeout
         self.__validate_request()
 
     def __validate_request(self):
@@ -32,7 +35,7 @@ class RedirectRequest(HttpRequestInterface):
         return self.__http_method
 
     @property
-    def url(self) -> str:
+    def url(self) -> URL:
         return self.__url
 
     @property
@@ -46,3 +49,7 @@ class RedirectRequest(HttpRequestInterface):
     @property
     def is_json(self) -> bool:
         return self.__is_json
+
+    @property
+    def timeout(self) -> int:
+        return self.__timeout

@@ -1,8 +1,14 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
+
+
+if TYPE_CHECKING:
+    from azbankgateways.v3.http_utils import URL
 
 
 # TODO: abstract
@@ -21,6 +27,7 @@ class MessageType(Enum):
     DESCRIPTION = 'description'
     TIMEOUT_ERROR = 'timeout_error'
     CONNECTION_ERROR = 'connection_error'
+    REQUEST_ERROR = 'request_error'
     REJECTED_PAYMENT = 'rejected_payment'
     MINIMUM_AMOUNT = 'minimum_amount'
     RESPONSE_IS_NOT_JSON = 'response_is_not_json'
@@ -64,6 +71,17 @@ class HttpRequestInterface(ABC):
      (such as the method, headers, or body) need to be abstracted and standardized across different implementations.
     """
 
+    @abstractmethod
+    def __init__(
+        self,
+        http_method: HttpMethod,
+        url: URL,
+        timeout: int,
+        headers: Optional[dict[str, Any]] = None,
+        data: Optional[dict[str, Any]] = None,
+    ):
+        raise NotImplementedError()
+
     @property
     @abstractmethod
     def http_method(self) -> HttpMethod:
@@ -76,7 +94,7 @@ class HttpRequestInterface(ABC):
 
     @property
     @abstractmethod
-    def url(self) -> str:
+    def url(self) -> URL:
         """
         Provides the full URL to which the request should be made.
 
@@ -86,7 +104,7 @@ class HttpRequestInterface(ABC):
 
     @property
     @abstractmethod
-    def headers(self) -> Dict[str, Any]:
+    def headers(self) -> Optional[Dict[str, Any]]:
         """
         Retrieves the headers to be included in the redirect request.
 
@@ -96,7 +114,7 @@ class HttpRequestInterface(ABC):
 
     @property
     @abstractmethod
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> Optional[Dict[str, Any]]:
         """
         Retrieves the body data content for the redirect request.
         Note: For GET requests, the data should typically be empty.
@@ -225,9 +243,10 @@ class OrderDetails:
     phone_number: Optional[str] = None
     email: Optional[str] = None
     order_id: Optional[str] = None
+    description: Optional[str] = None
 
 
-CallbackURLType = Callable[[OrderDetails], str]
+CallbackURLType = Callable[[OrderDetails], 'URL']
 
 
 class PaymentGatewayConfigInterface(ABC):
@@ -237,38 +256,9 @@ class PaymentGatewayConfigInterface(ABC):
     #  decorated with @dataclass(frozen=True, slots=True).
 
 
-class ProviderInterface(ABC):
-    @abstractmethod
-    def __init__(
-        self,
-        config: PaymentGatewayConfigInterface,
-        message_service: MessageServiceInterface,
-        http_requests_timeout: int,
-    ):
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def minimum_amount(self) -> Decimal:
-        """
-        Specifies the minimum payment amount required for the payment process.
-        This value should be returned as a Decimal to maintain precision in financial calculations.
-
-        :return: A Decimal value representing the minimum payment amount.
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def get_request_pay(self, order_details: OrderDetails) -> HttpRequestInterface:
-        # TODO: add proper doc string
-        raise NotImplementedError()
-
-
 class HttpClientInterface(ABC):
     @abstractmethod
-    def __init__(
-        self, message_service: MessageServiceInterface, http_response_cls: type[HttpResponseInterface]
-    ):
+    def __init__(self, http_response_cls: type[HttpResponseInterface]):
         raise NotImplementedError()
 
     @abstractmethod
@@ -288,3 +278,36 @@ class HttpClientInterface(ABC):
             HttpResponseInterface: The response associated with the request.
         """
         raise NotImplementedError()
+
+
+class ProviderInterface(ABC):
+    @classmethod
+    @abstractmethod
+    def create(
+        cls,
+        config: PaymentGatewayConfigInterface,
+        message_service: MessageServiceInterface,
+        http_client: HttpClientInterface,
+        http_request_cls: type[HttpRequestInterface],
+    ):
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def minimum_amount(self) -> Decimal:
+        """
+        Specifies the minimum payment amount required for the payment process.
+        This value should be returned as a Decimal to maintain precision in financial calculations.
+
+        :return: A Decimal value representing the minimum payment amount.
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def create_payment_request(self, order_details: OrderDetails) -> HttpRequestInterface:
+        # TODO: add proper doc string
+        raise NotImplementedError()
+
+    @abstractmethod
+    def check_minimum_amount(self, order_details: OrderDetails) -> None:
+        raise NotImplementedError

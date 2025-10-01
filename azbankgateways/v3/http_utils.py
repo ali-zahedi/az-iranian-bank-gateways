@@ -1,27 +1,55 @@
 import json
-from typing import Any, Dict
+from dataclasses import dataclass
+from typing import Any, Dict, Optional
+from urllib.parse import urlparse
 
 import requests
 
-from azbankgateways.v3.exceptions import (
+from azbankgateways.v3.exceptions.internal import (
     BankGatewayConnectionError,
-    BankGatewayHttpResponseError,
+    BankGatewayInvalidJsonError,
 )
 from azbankgateways.v3.interfaces import (
     HttpClientInterface,
     HttpMethod,
     HttpRequestInterface,
     HttpResponseInterface,
-    MessageServiceInterface,
-    MessageType,
 )
+
+
+@dataclass(frozen=True, slots=True)
+class URL:
+    value: str
+
+    def __post_init__(self) -> None:
+        parsed = urlparse(self.value)
+        if not parsed.scheme or not parsed.netloc:
+            raise ValueError(f"Invalid URL: {self.value}")
+
+        normalized = self.value if self.value.endswith("/") else self.value + "/"
+        object.__setattr__(self, "value", normalized)
+
+    def __str__(self) -> str:
+        return self.value
+
+    def __repr__(self) -> str:
+        return f"URL({self.value!r})"
+
+    def join(self, path: str) -> str:
+        """Join a relative path to this base URL"""
+        return self.value.rstrip("/") + "/" + path.lstrip("/")
 
 
 class HttpRequest(HttpRequestInterface):
     def __init__(
-        self, method: HttpMethod, url: str, headers: dict[str, Any], data: dict[str, Any], timeout: int
+        self,
+        http_method: HttpMethod,
+        url: URL,
+        timeout: int,
+        headers: Optional[dict[str, Any]] = None,
+        data: Optional[dict[str, Any]] = None,
     ):
-        self.__method = method
+        self.__http_method = http_method
         self.__url = url
         self.__headers = headers
         self.__data = data
@@ -29,18 +57,18 @@ class HttpRequest(HttpRequestInterface):
 
     @property
     def http_method(self) -> HttpMethod:
-        return self.__method
+        return self.__http_method
 
     @property
-    def url(self) -> str:
+    def url(self) -> URL:
         return self.__url
 
     @property
-    def headers(self) -> Dict[str, Any]:
+    def headers(self) -> Optional[Dict[str, Any]]:
         return self.__headers
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> Optional[Dict[str, Any]]:
         return self.__data
 
     @property
@@ -76,11 +104,11 @@ class HttpResponse(HttpResponseInterface):
 
     def json(self) -> Dict[str, Any]:
         if not self.is_json:
-            raise BankGatewayHttpResponseError()
+            raise BankGatewayInvalidJsonError(self, message="Response content-type is not JSON.")
         try:
             return json.loads(self.body)
         except (TypeError, json.JSONDecodeError):
-            raise BankGatewayHttpResponseError()
+            raise BankGatewayInvalidJsonError(self, message="Failed to decode response body as JSON.")
 
     @property
     def ok(self) -> bool:
@@ -88,10 +116,7 @@ class HttpResponse(HttpResponseInterface):
 
 
 class HttpRequestClient(HttpClientInterface):
-    def __init__(
-        self, message_service: MessageServiceInterface, http_response_cls: type[HttpResponseInterface]
-    ):
-        self.__message_service = message_service
+    def __init__(self, http_response_cls: type[HttpResponseInterface]):
         self.__http_response_cls = http_response_cls
 
     def send(self, request: HttpRequestInterface) -> HttpResponseInterface:
@@ -100,32 +125,17 @@ class HttpRequestClient(HttpClientInterface):
         try:
             response = requests.request(
                 request.http_method.value,
-                request.url,
+                str(request.url),
                 data=data,
                 headers=request.headers,
                 timeout=request.timeout,
             )
         except requests.exceptions.Timeout as e:
-            raise BankGatewayConnectionError(
-                self.__message_service.generate_message(
-                    MessageType.TIMEOUT_ERROR,
-                    context={'request': request, 'exception': e},
-                )
-            )
+            raise BankGatewayConnectionError(request, exception=e)
         except requests.exceptions.ConnectionError as e:
-            raise BankGatewayConnectionError(
-                self.__message_service.generate_message(
-                    MessageType.CONNECTION_ERROR,
-                    context={'request': request, 'exception': e},
-                )
-            )
+            raise BankGatewayConnectionError(request, exception=e)
         except requests.exceptions.RequestException as e:
-            raise BankGatewayConnectionError(
-                self.__message_service.generate_message(
-                    MessageType.CONNECTION_ERROR,
-                    context={'request': request, 'exception': e},
-                )
-            )
+            raise BankGatewayConnectionError(request, exception=e)
         return self.__http_response_cls(
             status_code=response.status_code,
             headers=response.headers,
