@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import Protocol
 
-from azbankgateways.v3.exceptions.internal import BankGatewayMinimumAmountError
+from azbankgateways.v3.exceptions.internal import InternalMinimumAmountError
 from azbankgateways.v3.interfaces import MessageServiceInterface, OrderDetails
 
 
@@ -20,4 +20,4 @@ class MinimumAmountCheckMixin:
 
     def check_minimum_amount(self: _HasMinimumAmountAndMessageService, order_details: OrderDetails) -> None:
         if order_details.amount < self.minimum_amount:
-            raise BankGatewayMinimumAmountError(order_details, self.minimum_amount)
+            raise InternalMinimumAmountError(order_details, self.minimum_amount)

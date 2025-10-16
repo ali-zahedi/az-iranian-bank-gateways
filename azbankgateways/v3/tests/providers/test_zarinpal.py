@@ -4,9 +4,9 @@ import pytest
 from requests import ConnectionError, Timeout
 
 from azbankgateways.v3.exceptions.internal import (
-    BankGatewayConnectionError,
-    BankGatewayMinimumAmountError,
-    BankGatewayRejectPayment,
+    InternalConnectionError,
+    InternalMinimumAmountError,
+    InternalRejectPaymentError,
 )
 from azbankgateways.v3.http_utils import URL
 from azbankgateways.v3.interfaces import OrderDetails
@@ -63,7 +63,7 @@ def test_zarinpal__payment_request__successful(
 
     payment_request = provider.create_payment_request(order_details)
 
-    assert str(payment_request.url) == 'https://az.bank/start/A00000001'
+    assert str(payment_request.url) == 'https://az.bank/start/A00000001/'
 
 
 @pytest.mark.parametrize(
@@ -95,7 +95,7 @@ def test_zarinpal__payment_request__failed(
         status=422,
     )
 
-    with pytest.raises(BankGatewayRejectPayment):
+    with pytest.raises(InternalRejectPaymentError):
         assert provider.create_payment_request(order_details)
 
 
@@ -118,7 +118,7 @@ def test_zarinpal__payment_request__failed__side_effect(
         body=side_effect(),
     )
 
-    with pytest.raises(BankGatewayConnectionError):
+    with pytest.raises(InternalConnectionError):
         assert provider.create_payment_request(order_details)
 
 
@@ -130,5 +130,5 @@ def test_zarinpal__minimum_amount(
         zarinpal_payment_config, message_service, http_client, http_request_cls
     )
 
-    with pytest.raises(BankGatewayMinimumAmountError):
+    with pytest.raises(InternalMinimumAmountError):
         assert provider.create_payment_request(order_details)

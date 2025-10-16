@@ -1,4 +1,6 @@
-from azbankgateways.v3.exceptions import AZBankGatewaysException
+import decimal
+from typing import Optional
+
 from azbankgateways.v3.interfaces import (
     HttpRequestInterface,
     HttpResponseInterface,
@@ -6,40 +8,51 @@ from azbankgateways.v3.interfaces import (
 )
 
 
-class AzBankInternalExceptions(AZBankGatewaysException):
-    pass
+class AZBankInternalException(Exception):
+    default_message = "An Internal error occurred in AZBank gateway."
+
+    def __init__(self, message: Optional[str] = None, *args):
+        self.message = message or self.default_message
+        super().__init__(self.message, *args)
 
 
-class BankGatewayMinimumAmountError(AzBankInternalExceptions):
-    def __init__(self, order_details: OrderDetails, minimum_amount, *args) -> None:
+class InternalMinimumAmountError(AZBankInternalException):
+    default_message = "The order amount is below the minimum allowed."
+
+    def __init__(
+        self,
+        order_details: OrderDetails,
+        minimum_amount: decimal.Decimal,
+        message: Optional[str] = None,
+        *args
+    ) -> None:
         self.order_details = order_details
         self.minimum_amount = minimum_amount
-        super().__init__(
-            f"Amount {self.order_details.amount} is below the minimum required {self.minimum_amount}.", *args
-        )
+        super().__init__(message, *args)
 
 
-class BankGatewayRejectPayment(AzBankInternalExceptions):
-    """The requested bank reject payment"""
+class InternalRejectPaymentError(AZBankInternalException):
+    default_message = "Bank rejected the payment."
 
-    def __init__(self, message: str, *args) -> None:
-        self.message = message
-        super().__init__(f"Bank rejected payment: {self.message}", *args)
+    def __init__(self, bank_message: str, message: Optional[str] = None, *args) -> None:
+        self.bank_message = bank_message
+        super().__init__(message, *args)
 
 
-class BankGatewayConnectionError(AzBankInternalExceptions):
-    """The requested gateway connection error"""
+class InternalConnectionError(AZBankInternalException):
+    default_message = "Failed to connect to the bank gateway."
 
-    def __init__(self, request: HttpRequestInterface, exception: Exception, *args) -> None:
+    def __init__(
+        self, request: HttpRequestInterface, exception: Exception, message: Optional[str] = None, *args
+    ) -> None:
         self.request = request
         self.exception = exception
-        super().__init__(*args)
+        super().__init__(message, *args)
 
 
-class BankGatewayInvalidJsonError(AzBankInternalExceptions):
-    """Raised when the response is not valid JSON (wrong content-type or decode error)."""
+class InternalInvalidJsonError(AZBankInternalException):
+    default_message = "Invalid or malformed JSON received."
 
-    def __init__(self, response: HttpResponseInterface, message: str, *args) -> None:
+    def __init__(self, response: HttpResponseInterface, message: Optional[str] = None, *args) -> None:
         self.response = response
-        self.message = message
-        super().__init__(response, f"Invalid JSON response: {self.message}", *args)
+        super().__init__(message, *args)

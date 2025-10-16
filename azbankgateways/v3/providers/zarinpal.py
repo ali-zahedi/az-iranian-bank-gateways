@@ -2,7 +2,7 @@ from dataclasses import MISSING, dataclass, field
 from decimal import Decimal
 from typing import Self
 
-from azbankgateways.v3.exceptions.internal import BankGatewayRejectPayment
+from azbankgateways.v3.exceptions.internal import InternalRejectPaymentError
 from azbankgateways.v3.http_utils import URL
 from azbankgateways.v3.interfaces import (
     CallbackURLType,
@@ -157,7 +157,7 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
                 # Unexpected type
                 message = str(errors)
 
-            raise BankGatewayRejectPayment(message)
+            raise InternalRejectPaymentError(message)
 
         if not response.ok:
-            raise BankGatewayRejectPayment(response.body)
+            raise InternalRejectPaymentError(response.body)

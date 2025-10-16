@@ -1,5 +1,4 @@
-from .public import *  # noqa: F401, F403
+from azbankgateways.v3.exceptions.public import AZBankPublicExceptions
 
 
-class AZBankGatewaysException(Exception):
-    """AZ bank gateways exception"""
+__all__ = ('AZBankPublicExceptions',)

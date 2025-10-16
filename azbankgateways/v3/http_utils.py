@@ -6,8 +6,8 @@ from urllib.parse import urlparse
 import requests
 
 from azbankgateways.v3.exceptions.internal import (
-    BankGatewayConnectionError,
-    BankGatewayInvalidJsonError,
+    InternalConnectionError,
+    InternalInvalidJsonError,
 )
 from azbankgateways.v3.interfaces import (
     HttpClientInterface,
@@ -104,11 +104,11 @@ class HttpResponse(HttpResponseInterface):
 
     def json(self) -> Dict[str, Any]:
         if not self.is_json:
-            raise BankGatewayInvalidJsonError(self, message="Response content-type is not JSON.")
+            raise InternalInvalidJsonError(self, message="Response content-type is not JSON.")
         try:
             return json.loads(self.body)
         except (TypeError, json.JSONDecodeError):
-            raise BankGatewayInvalidJsonError(self, message="Failed to decode response body as JSON.")
+            raise InternalInvalidJsonError(self, message="Failed to decode response body as JSON.")
 
     @property
     def ok(self) -> bool:
@@ -131,11 +131,11 @@ class HttpRequestClient(HttpClientInterface):
                 timeout=request.timeout,
             )
         except requests.exceptions.Timeout as e:
-            raise BankGatewayConnectionError(request, exception=e)
+            raise InternalConnectionError(request, exception=e)
         except requests.exceptions.ConnectionError as e:
-            raise BankGatewayConnectionError(request, exception=e)
+            raise InternalConnectionError(request, exception=e)
         except requests.exceptions.RequestException as e:
-            raise BankGatewayConnectionError(request, exception=e)
+            raise InternalConnectionError(request, exception=e)
         return self.__http_response_cls(
             status_code=response.status_code,
             headers=response.headers,
