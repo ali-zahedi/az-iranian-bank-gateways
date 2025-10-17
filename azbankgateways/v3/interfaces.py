@@ -4,7 +4,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Self
+
+from azbankgateways.v3.protocols import MinimumAmountCheckMixinProtocol
 
 
 if TYPE_CHECKING:
@@ -71,15 +73,16 @@ class HttpRequestInterface(ABC):
      (such as the method, headers, or body) need to be abstracted and standardized across different implementations.
     """
 
+    @classmethod
     @abstractmethod
-    def __init__(
-        self,
+    def create(
+        cls,
         http_method: HttpMethod,
         url: URL,
         timeout: int,
         headers: Optional[dict[str, Any]] = None,
         data: Optional[dict[str, Any]] = None,
-    ):
+    ) -> Self:
         raise NotImplementedError()
 
     @property
@@ -158,8 +161,9 @@ class HttpResponseInterface(ABC):
     or testing environments where HTTP behavior is mocked.
     """
 
+    @classmethod
     @abstractmethod
-    def __init__(self, status_code: int, headers: Dict[str, Any], body: Any):
+    def create(cls, status_code: int, headers: Dict[str, Any], body: Any) -> Self:
         raise NotImplementedError()
 
     @property
@@ -257,8 +261,9 @@ class PaymentGatewayConfigInterface(ABC):
 
 
 class HttpClientInterface(ABC):
+    @classmethod
     @abstractmethod
-    def __init__(self, http_response_cls: type[HttpResponseInterface]):
+    def create(cls, http_response_cls: type[HttpResponseInterface]) -> Self:
         raise NotImplementedError()
 
     @abstractmethod
@@ -280,7 +285,7 @@ class HttpClientInterface(ABC):
         raise NotImplementedError()
 
 
-class ProviderInterface(ABC):
+class ProviderInterface(MinimumAmountCheckMixinProtocol, ABC):
     @classmethod
     @abstractmethod
     def create(
@@ -289,7 +294,7 @@ class ProviderInterface(ABC):
         message_service: MessageServiceInterface,
         http_client: HttpClientInterface,
         http_request_cls: type[HttpRequestInterface],
-    ):
+    ) -> Self:
         raise NotImplementedError()
 
     @property

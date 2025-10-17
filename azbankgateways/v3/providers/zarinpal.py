@@ -99,7 +99,7 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
     def create_payment_request(self, order_details: OrderDetails) -> HttpRequestInterface:
         payment_token = self._create_payment_token(order_details)
         url = URL(self.config.start_payment_url.join(payment_token))
-        return self.__http_request_cls(
+        return self.__http_request_cls.create(
             http_method=HttpMethod.GET, url=url, timeout=self.config.http_requests_timeout
         )
 
@@ -134,7 +134,7 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         }
-        return self.__http_request_cls(
+        return self.__http_request_cls.create(
             HttpMethod.POST,
             self.config.payment_request_url,
             headers=headers,

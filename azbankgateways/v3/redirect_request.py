@@ -1,26 +1,44 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Self
 
 from azbankgateways.v3.http_utils import URL
 from azbankgateways.v3.interfaces import HttpMethod, HttpRequestInterface
 
 
 class RedirectRequest(HttpRequestInterface):
+    __allow_init = False
+
     def __init__(
         self,
         http_method: HttpMethod,
         url: URL,
-        headers: Dict[str, Any] = None,
-        data: Dict[str, Any] = None,
-        is_json: bool = False,
         timeout: int = 20,
+        headers: Optional[dict[str, Any]] = None,
+        data: Optional[dict[str, Any]] = None,
     ):
+        if not self.__allow_init:
+            raise RuntimeError("Direct instantiation is not allowed. Use RedirectRequest.create(...)")
+
         self.__http_method = http_method
         self.__url = url
         self.__headers = headers if headers is not None else {}
         self.__data = data if data is not None else {}
-        self.__is_json = is_json
         self.__timeout = timeout
         self.__validate_request()
+
+    @classmethod
+    def create(
+        cls,
+        http_method: HttpMethod,
+        url: URL,
+        timeout: int = 20,
+        headers: Optional[dict[str, Any]] = None,
+        data: Optional[dict[str, Any]] = None,
+    ) -> Self:
+        obj = cls.__new__(cls)
+        obj.__allow_init = True
+        obj.__init__(http_method, url, timeout, headers, data)
+        obj.__allow_init = False
+        return obj
 
     def __validate_request(self):
         if not self.__url:

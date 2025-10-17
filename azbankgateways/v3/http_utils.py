@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Self
 from urllib.parse import urlparse
 
 import requests
@@ -41,6 +41,8 @@ class URL:
 
 
 class HttpRequest(HttpRequestInterface):
+    __allow_init = False
+
     def __init__(
         self,
         http_method: HttpMethod,
@@ -49,11 +51,28 @@ class HttpRequest(HttpRequestInterface):
         headers: Optional[dict[str, Any]] = None,
         data: Optional[dict[str, Any]] = None,
     ):
+        if not self.__allow_init:
+            raise RuntimeError("Direct instantiation is not allowed. Use HttpRequest.create(...)")
         self.__http_method = http_method
         self.__url = url
         self.__headers = headers
         self.__data = data
         self.__timeout = timeout
+
+    @classmethod
+    def create(
+        cls,
+        http_method: HttpMethod,
+        url: URL,
+        timeout: int,
+        headers: Optional[dict[str, Any]] = None,
+        data: Optional[dict[str, Any]] = None,
+    ) -> Self:
+        obj = cls.__new__(cls)
+        obj.__allow_init = True
+        obj.__init__(http_method, url, timeout, headers, data)
+        obj.__allow_init = False
+        return obj
 
     @property
     def http_method(self) -> HttpMethod:
@@ -81,10 +100,23 @@ class HttpRequest(HttpRequestInterface):
 
 
 class HttpResponse(HttpResponseInterface):
+    __allow_init = False
+
     def __init__(self, status_code: int, headers: dict[str, Any], body: Any):
+        if not self.__allow_init:
+            raise RuntimeError("Direct instantiation is not allowed. Use HttpResponse.create(...)")
+
         self.__status_code = status_code
         self.__headers = headers
         self.__body = body
+
+    @classmethod
+    def create(cls, status_code: int, headers: Dict[str, Any], body: Any) -> Self:
+        obj = cls.__new__(cls)
+        obj.__allow_init = True
+        obj.__init__(status_code, headers, body)
+        obj.__allow_init = False
+        return obj
 
     @property
     def status_code(self) -> int:
@@ -116,8 +148,20 @@ class HttpResponse(HttpResponseInterface):
 
 
 class HttpRequestClient(HttpClientInterface):
+    __allow_init = False
+
     def __init__(self, http_response_cls: type[HttpResponseInterface]):
+        if not self.__allow_init:
+            raise RuntimeError("Direct instantiation is not allowed. Use HttpRequestClient.create(...)")
         self.__http_response_cls = http_response_cls
+
+    @classmethod
+    def create(cls, http_response_cls: type[HttpResponseInterface]) -> Self:
+        obj = cls.__new__(cls)
+        obj.__allow_init = True
+        obj.__init__(http_response_cls)
+        obj.__allow_init = False
+        return obj
 
     def send(self, request: HttpRequestInterface) -> HttpResponseInterface:
         data = json.dumps(request.data) if request.is_json else request.data
@@ -136,7 +180,7 @@ class HttpRequestClient(HttpClientInterface):
             raise InternalConnectionError(request, exception=e)
         except requests.exceptions.RequestException as e:
             raise InternalConnectionError(request, exception=e)
-        return self.__http_response_cls(
+        return self.__http_response_cls.create(
             status_code=response.status_code,
             headers=response.headers,
             body=response.content,
