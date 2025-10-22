@@ -1,4 +1,4 @@
-from azbankgateways.v3.exceptions.public import AZBankPublicExceptions
+from azbankgateways.v3.exceptions.public import AZBankException
 
 
-__all__ = ('AZBankPublicExceptions',)
+__all__ = ('AZBankException',)

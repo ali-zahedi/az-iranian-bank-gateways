@@ -1,7 +1,7 @@
 from typing import Optional
 
 
-class AZBankPublicExceptions(Exception):
+class AZBankException(Exception):
     default_message = "An error occurred in AZBank gateway."
 
     def __init__(self, message: Optional[str] = None, *args):
