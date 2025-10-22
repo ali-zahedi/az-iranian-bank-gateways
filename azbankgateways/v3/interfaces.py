@@ -6,7 +6,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Self
 
-from azbankgateways.v3.protocols import MinimumAmountCheckMixinProtocol
+from azbankgateways.v3.protocols import ProviderProtocol
 
 
 if TYPE_CHECKING:
@@ -63,6 +63,8 @@ class MessageServiceInterface(ABC):
 
 
 class HttpRequestInterface(ABC):
+    allow_init = False
+
     """
     An interface for defining the structure of a redirect request, typically used to
      manage payment redirections or external API redirects.
@@ -149,6 +151,8 @@ class HttpRequestInterface(ABC):
 
 
 class HttpResponseInterface(ABC):
+    allow_init = False
+
     """
     An interface representing the structure of an HTTP response.
 
@@ -261,6 +265,8 @@ class PaymentGatewayConfigInterface(ABC):
 
 
 class HttpClientInterface(ABC):
+    allow_init = False
+
     @classmethod
     @abstractmethod
     def create(cls, http_response_cls: type[HttpResponseInterface]) -> Self:
@@ -285,7 +291,9 @@ class HttpClientInterface(ABC):
         raise NotImplementedError()
 
 
-class ProviderInterface(MinimumAmountCheckMixinProtocol, ABC):
+class ProviderInterface(ProviderProtocol, ABC):
+    allow_init = False
+
     @classmethod
     @abstractmethod
     def create(

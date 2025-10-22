@@ -5,8 +5,6 @@ from azbankgateways.v3.interfaces import HttpMethod, HttpRequestInterface
 
 
 class RedirectRequest(HttpRequestInterface):
-    __allow_init = False
-
     def __init__(
         self,
         http_method: HttpMethod,

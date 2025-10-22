@@ -16,7 +16,7 @@ from azbankgateways.v3.interfaces import (
     PaymentGatewayConfigInterface,
     ProviderInterface,
 )
-from azbankgateways.v3.mixins import MinimumAmountCheckMixin
+from azbankgateways.v3.mixins import MinimumAmountCheckMixin, NoDirectInitMixin
 
 
 # TODO: Ensure all subclasses of PaymentGatewayConfigInterface are
@@ -45,9 +45,7 @@ class ZarinpalPaymentGatewayConfig(PaymentGatewayConfigInterface):
             raise TypeError("start_payment_url must be a URL instance")
 
 
-class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
-    __allow_init = False
-
+class ZarinpalProvider(MinimumAmountCheckMixin, NoDirectInitMixin, ProviderInterface):
     def __init__(
         self,
         config: ZarinpalPaymentGatewayConfig,
@@ -55,8 +53,7 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
         http_client: HttpClientInterface,
         http_request_cls: type[HttpRequestInterface],
     ) -> None:
-        if not self.__allow_init:
-            raise RuntimeError("Direct instantiation is not allowed. Use ZarinpalProvider.create(...)")
+        super().__init__(config, message_service, http_client, http_request_cls)
 
         assert config, "Config is required"
         assert message_service, "Message service is required"
@@ -74,44 +71,28 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
         http_client: HttpClientInterface,
         http_request_cls: type[HttpRequestInterface],
     ) -> Self:
-        obj = cls.__new__(cls)
-        obj.__allow_init = True
-        obj.__init__(config, message_service, http_client, http_request_cls)
-        obj.__allow_init = False
-        return obj
+        return super().create(config, message_service, http_client, http_request_cls)
 
     @property
     def minimum_amount(self) -> Decimal:
         return Decimal(1000)
 
-    @property
-    def config(self) -> ZarinpalPaymentGatewayConfig:
-        return self.__config
-
-    @property
-    def message_service(self) -> MessageServiceInterface:
-        return self.__message_service
-
-    @property
-    def http_client(self) -> HttpClientInterface:
-        return self.__http_client
-
     def create_payment_request(self, order_details: OrderDetails) -> HttpRequestInterface:
         payment_token = self._create_payment_token(order_details)
-        url = URL(self.config.start_payment_url.join(payment_token))
+        url = URL(self.__config.start_payment_url.join(payment_token))
         return self.__http_request_cls.create(
-            http_method=HttpMethod.GET, url=url, timeout=self.config.http_requests_timeout
+            http_method=HttpMethod.GET, url=url, timeout=self.__config.http_requests_timeout
         )
 
     def _create_payment_token(self, order_details: OrderDetails) -> str:
         self.check_minimum_amount(order_details)
         http_request = self._build_payment_token_http_request(order_details)
-        http_response = self.http_client.send(http_request)
+        http_response = self.__http_client.send(http_request)
         self._check_response(http_response)
         return http_response.json()["data"]["authority"]
 
     def _build_payment_token_http_request(self, order_details: OrderDetails) -> HttpRequestInterface:
-        description = self.message_service.generate_message(
+        description = self.__message_service.generate_message(
             MessageType.DESCRIPTION,
             {
                 "tracking_code": order_details.tracking_code,
@@ -123,9 +104,9 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
             "order_id": order_details.order_id,
         }
         data = {
-            'merchant_id': self.config.merchant_code,
+            'merchant_id': self.__config.merchant_code,
             'amount': int(order_details.amount),
-            'callback_url': self.config.callback_url_generator(order_details),
+            'callback_url': self.__config.callback_url_generator(order_details),
             'description': description,
             'metadata': {k: v for k, v in metadata.items() if v},
             "currency": "IRR",
@@ -136,10 +117,10 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
         }
         return self.__http_request_cls.create(
             HttpMethod.POST,
-            self.config.payment_request_url,
+            self.__config.payment_request_url,
             headers=headers,
             data=data,
-            timeout=self.config.http_requests_timeout,
+            timeout=self.__config.http_requests_timeout,
         )
 
     @classmethod

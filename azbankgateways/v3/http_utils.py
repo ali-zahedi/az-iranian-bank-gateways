@@ -15,6 +15,7 @@ from azbankgateways.v3.interfaces import (
     HttpRequestInterface,
     HttpResponseInterface,
 )
+from azbankgateways.v3.mixins import NoDirectInitMixin
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,9 +41,7 @@ class URL:
         return self.value.rstrip("/") + "/" + path.lstrip("/")
 
 
-class HttpRequest(HttpRequestInterface):
-    __allow_init = False
-
+class HttpRequest(NoDirectInitMixin, HttpRequestInterface):
     def __init__(
         self,
         http_method: HttpMethod,
@@ -51,8 +50,7 @@ class HttpRequest(HttpRequestInterface):
         headers: Optional[dict[str, Any]] = None,
         data: Optional[dict[str, Any]] = None,
     ):
-        if not self.__allow_init:
-            raise RuntimeError("Direct instantiation is not allowed. Use HttpRequest.create(...)")
+        super().__init__()
         self.__http_method = http_method
         self.__url = url
         self.__headers = headers
@@ -68,11 +66,7 @@ class HttpRequest(HttpRequestInterface):
         headers: Optional[dict[str, Any]] = None,
         data: Optional[dict[str, Any]] = None,
     ) -> Self:
-        obj = cls.__new__(cls)
-        obj.__allow_init = True
-        obj.__init__(http_method, url, timeout, headers, data)
-        obj.__allow_init = False
-        return obj
+        return super().create(http_method, url, timeout, headers, data)
 
     @property
     def http_method(self) -> HttpMethod:
@@ -99,24 +93,16 @@ class HttpRequest(HttpRequestInterface):
         return self.__timeout
 
 
-class HttpResponse(HttpResponseInterface):
-    __allow_init = False
-
+class HttpResponse(NoDirectInitMixin, HttpResponseInterface):
     def __init__(self, status_code: int, headers: dict[str, Any], body: Any):
-        if not self.__allow_init:
-            raise RuntimeError("Direct instantiation is not allowed. Use HttpResponse.create(...)")
-
+        super().__init__()
         self.__status_code = status_code
         self.__headers = headers
         self.__body = body
 
     @classmethod
     def create(cls, status_code: int, headers: Dict[str, Any], body: Any) -> Self:
-        obj = cls.__new__(cls)
-        obj.__allow_init = True
-        obj.__init__(status_code, headers, body)
-        obj.__allow_init = False
-        return obj
+        return super().create(status_code, headers, body)
 
     @property
     def status_code(self) -> int:
@@ -147,21 +133,14 @@ class HttpResponse(HttpResponseInterface):
         return self.status_code in range(200, 400)
 
 
-class HttpRequestClient(HttpClientInterface):
-    __allow_init = False
-
+class HttpRequestClient(NoDirectInitMixin, HttpClientInterface):
     def __init__(self, http_response_cls: type[HttpResponseInterface]):
-        if not self.__allow_init:
-            raise RuntimeError("Direct instantiation is not allowed. Use HttpRequestClient.create(...)")
+        super().__init__()
         self.__http_response_cls = http_response_cls
 
     @classmethod
     def create(cls, http_response_cls: type[HttpResponseInterface]) -> Self:
-        obj = cls.__new__(cls)
-        obj.__allow_init = True
-        obj.__init__(http_response_cls)
-        obj.__allow_init = False
-        return obj
+        return super().create(http_response_cls)
 
     def send(self, request: HttpRequestInterface) -> HttpResponseInterface:
         data = json.dumps(request.data) if request.is_json else request.data
