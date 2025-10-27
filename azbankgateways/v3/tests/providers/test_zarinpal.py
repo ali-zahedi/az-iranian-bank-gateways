@@ -8,7 +8,7 @@ from azbankgateways.v3.exceptions.internal import (
     InternalMinimumAmountError,
     InternalRejectPaymentError,
 )
-from azbankgateways.v3.http_utils import URL
+from azbankgateways.v3.http_utils.url import URL
 from azbankgateways.v3.interfaces import OrderDetails
 from azbankgateways.v3.providers.zarinpal import (
     ZarinpalPaymentGatewayConfig,
@@ -42,9 +42,7 @@ def order_details():
 def test_zarinpal__payment_request__successful(
     responses, zarinpal_payment_config, message_service, order_details, http_client, http_request_cls
 ):
-    provider = ZarinpalProvider.create(
-        zarinpal_payment_config, message_service, http_client, http_request_cls
-    )
+    provider = ZarinpalProvider(zarinpal_payment_config, message_service, http_client, http_request_cls)
     responses.add(
         responses.POST,
         "https://az.bank/request/",
@@ -85,9 +83,7 @@ def test_zarinpal__payment_request__failed(
     http_client,
     http_request_cls,
 ):
-    provider = ZarinpalProvider.create(
-        zarinpal_payment_config, message_service, http_client, http_request_cls
-    )
+    provider = ZarinpalProvider(zarinpal_payment_config, message_service, http_client, http_request_cls)
     responses.add(
         responses.POST,
         "https://az.bank/request/",
@@ -109,9 +105,7 @@ def test_zarinpal__payment_request__failed__side_effect(
     http_client,
     http_request_cls,
 ):
-    provider = ZarinpalProvider.create(
-        zarinpal_payment_config, message_service, http_client, http_request_cls
-    )
+    provider = ZarinpalProvider(zarinpal_payment_config, message_service, http_client, http_request_cls)
     responses.add(
         responses.POST,
         "https://az.bank/request/",
@@ -126,9 +120,7 @@ def test_zarinpal__minimum_amount(
     zarinpal_payment_config, message_service, order_details, http_client, http_request_cls
 ):
     order_details.amount = Decimal(100)
-    provider = ZarinpalProvider.create(
-        zarinpal_payment_config, message_service, http_client, http_request_cls
-    )
+    provider = ZarinpalProvider(zarinpal_payment_config, message_service, http_client, http_request_cls)
 
     with pytest.raises(InternalMinimumAmountError):
         assert provider.create_payment_request(order_details)

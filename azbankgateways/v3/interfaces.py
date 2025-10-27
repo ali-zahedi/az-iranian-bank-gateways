@@ -4,13 +4,11 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Self
-
-from azbankgateways.v3.protocols import ProviderProtocol
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 
 
 if TYPE_CHECKING:
-    from azbankgateways.v3.http_utils import URL
+    from azbankgateways.v3.http_utils.url import URL
 
 
 # TODO: abstract
@@ -63,8 +61,6 @@ class MessageServiceInterface(ABC):
 
 
 class HttpRequestInterface(ABC):
-    allow_init = False
-
     """
     An interface for defining the structure of a redirect request, typically used to
      manage payment redirections or external API redirects.
@@ -74,59 +70,6 @@ class HttpRequestInterface(ABC):
     This is particularly useful for payment gateways or third-party integrations where the details of the HTTP request
      (such as the method, headers, or body) need to be abstracted and standardized across different implementations.
     """
-
-    @classmethod
-    @abstractmethod
-    def create(
-        cls,
-        http_method: HttpMethod,
-        url: URL,
-        timeout: int,
-        headers: Optional[dict[str, Any]] = None,
-        data: Optional[dict[str, Any]] = None,
-    ) -> Self:
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def http_method(self) -> HttpMethod:
-        """
-        Determines the HTTP method (e.g., GET, POST) to be used for the redirect request.
-
-        :return: An instance of HttpMethod indicating the HTTP method.
-        """
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def url(self) -> URL:
-        """
-        Provides the full URL to which the request should be made.
-
-        :return: A string representing the URL.
-        """
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def headers(self) -> Optional[Dict[str, Any]]:
-        """
-        Retrieves the headers to be included in the redirect request.
-
-        :return: A dictionary containing header key-value pairs.
-        """
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def data(self) -> Optional[Dict[str, Any]]:
-        """
-        Retrieves the body data content for the redirect request.
-        Note: For GET requests, the data should typically be empty.
-
-        :return: A dictionary containing the body data or parameters.
-        """
-        raise NotImplementedError()
 
     @property
     @abstractmethod
@@ -138,21 +81,8 @@ class HttpRequestInterface(ABC):
         """
         raise NotImplementedError()
 
-    @property
-    @abstractmethod
-    def timeout(self) -> int:
-        """
-        Specifies the maximum duration (in seconds) the request should wait
-        for a response before timing out.
-
-        :return: An integer representing the timeout duration in seconds.
-        """
-        raise NotImplementedError()
-
 
 class HttpResponseInterface(ABC):
-    allow_init = False
-
     """
     An interface representing the structure of an HTTP response.
 
@@ -164,43 +94,6 @@ class HttpResponseInterface(ABC):
     Common use cases include payment gateway responses, API integrations,
     or testing environments where HTTP behavior is mocked.
     """
-
-    @classmethod
-    @abstractmethod
-    def create(cls, status_code: int, headers: Dict[str, Any], body: Any) -> Self:
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def status_code(self) -> int:
-        """
-        The HTTP status code returned by the server.
-
-        :return: Integer representing the HTTP status code (e.g., 200, 404, 500).
-        """
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def headers(self) -> Dict[str, Any]:
-        """
-        The HTTP headers included in the response.
-
-        :return: Dictionary containing header names and values.
-        """
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def body(self) -> Any:
-        """
-        The raw body content of the HTTP response.
-
-        This may be a string, bytes, or parsed object depending on implementation.
-
-        :return: The raw or parsed content of the response body.
-        """
-        raise NotImplementedError()
 
     @property
     @abstractmethod
@@ -254,7 +147,7 @@ class OrderDetails:
     description: Optional[str] = None
 
 
-CallbackURLType = Callable[[OrderDetails], 'URL']
+CallbackURLType = Callable[[OrderDetails], "URL"]
 
 
 class PaymentGatewayConfigInterface(ABC):
@@ -265,13 +158,6 @@ class PaymentGatewayConfigInterface(ABC):
 
 
 class HttpClientInterface(ABC):
-    allow_init = False
-
-    @classmethod
-    @abstractmethod
-    def create(cls, http_response_cls: type[HttpResponseInterface]) -> Self:
-        raise NotImplementedError()
-
     @abstractmethod
     def send(
         self,
@@ -291,20 +177,7 @@ class HttpClientInterface(ABC):
         raise NotImplementedError()
 
 
-class ProviderInterface(ProviderProtocol, ABC):
-    allow_init = False
-
-    @classmethod
-    @abstractmethod
-    def create(
-        cls,
-        config: PaymentGatewayConfigInterface,
-        message_service: MessageServiceInterface,
-        http_client: HttpClientInterface,
-        http_request_cls: type[HttpRequestInterface],
-    ) -> Self:
-        raise NotImplementedError()
-
+class ProviderInterface(ABC):
     @property
     @abstractmethod
     def minimum_amount(self) -> Decimal:
