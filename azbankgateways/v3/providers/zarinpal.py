@@ -1,149 +1,112 @@
-import logging
-from dataclasses import dataclass, field
+from dataclasses import MISSING, dataclass, field
 from decimal import Decimal
-from typing import Any, Dict, List, Optional
 
-import requests
-
-from azbankgateways.v3.exceptions import (
-    BankGatewayConnectionError,
-    BankGatewayRejectPayment,
-)
+from azbankgateways.v3.exceptions.internal import InternalRejectPaymentError
+from azbankgateways.v3.http import URL, HttpRequest
 from azbankgateways.v3.interfaces import (
     CallbackURLType,
     HttpMethod,
-    HttpRequestInterface,
-    MessageServiceInterface,
+    HttpResponseInterface,
     MessageType,
     OrderDetails,
     PaymentGatewayConfigInterface,
-    ProviderInterface,
 )
-from azbankgateways.v3.redirect_request import RedirectRequest
+from azbankgateways.v3.providers.provider import Provider
 
 
 # TODO: Ensure all subclasses of PaymentGatewayConfigInterface are
 #  decorated with @dataclass(frozen=True, slots=True).
 @dataclass(frozen=True, slots=True)
 class ZarinpalPaymentGatewayConfig(PaymentGatewayConfigInterface):
-    merchant_code: str
-    callback_url_generator: CallbackURLType
-    payment_request_url: str = field(default="https://payment.zarinpal.com/pg/v4/payment/request.json/")
-    start_payment_url: str = field(default="https://payment.zarinpal.com/pg/StartPay/")
+    merchant_code: str = field(default=MISSING)
+
+    # TODO: Using `MISSING` as the default currently causes the IDE to show
+    #       "Literal[_MISSING_TYPE.MISSING] object is not callable".
+    #       Investigate and fix this issue.
+    callback_url_generator: CallbackURLType = field(default=MISSING)
+
+    payment_request_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/request.json/"))
+    start_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/StartPay/"))
     http_requests_timeout: int = 20
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.merchant_code:
             raise ValueError("Merchant code is required")
         if not self.callback_url_generator:
             raise ValueError("Callback url generator is required")
+        if not isinstance(self.payment_request_url, URL):
+            raise TypeError("payment_request_url must be a URL instance")
+        if not isinstance(self.start_payment_url, URL):
+            raise TypeError("start_payment_url must be a URL instance")
 
 
-class ZarinpalProvider(ProviderInterface):
-    def __init__(
-        self,
-        config: ZarinpalPaymentGatewayConfig,
-        message_service: MessageServiceInterface,
-    ):
-        assert config, "Config is required"
-        assert message_service, "Message service is required"
-
-        self.__config = config
-        self.__message_service = message_service
-
+class ZarinpalProvider(Provider):
     @property
     def minimum_amount(self) -> Decimal:
         return Decimal(1000)
 
-    def get_request_pay(self, order_details: OrderDetails) -> HttpRequestInterface:
-        return RedirectRequest(
-            http_method=HttpMethod.GET,
-            url=f'{self.__config.start_payment_url}/{self.__pay(order_details)}',
+    def create_payment_request(self, order_details: OrderDetails) -> HttpRequest:
+        payment_token = self._create_payment_token(order_details)
+        url = URL(self.config.start_payment_url.join(payment_token))
+        return self.http_request_cls(
+            http_method=HttpMethod.GET, url=url, timeout=self.config.http_requests_timeout
         )
 
-    def get_payment_redirect_method(self) -> HttpMethod:
-        raise NotImplementedError()
+    def _create_payment_token(self, order_details: OrderDetails) -> str:
+        self.check_minimum_amount(order_details)
+        http_request = self._build_payment_token_http_request(order_details)
+        http_response = self.http_client.send(http_request)
+        self._check_response(http_response)
+        return http_response.json()["data"]["authority"]
 
-    def get_payment_request_body(self) -> Optional[Dict[str, Any]]:
-        raise NotImplementedError()
-
-    def get_payment_gateway_url(self) -> str:
-        raise NotImplementedError()
-
-    def __get_pay_data(self, order_details: OrderDetails) -> Dict[str, Any]:
-        description = self.__message_service.generate_message(
+    def _build_payment_token_http_request(self, order_details: OrderDetails) -> HttpRequest:
+        description = self.message_service.generate_message(
             MessageType.DESCRIPTION,
             {
                 "tracking_code": order_details.tracking_code,
             },
         )
-
-        metadata = {}
-        if order_details.phone_number:
-            metadata['mobile'] = order_details.phone_number
-        if order_details.email:
-            metadata['email'] = order_details.email
-        if order_details.order_id:
-            metadata['order_id'] = order_details.order_id
-
-        return {
-            "merchant_id": self.__config.merchant_code,
-            "amount": str(order_details.amount),
-            "callback_url": self.__config.callback_url_generator(order_details),
-            "description": description,
-            "metadata": metadata,
+        metadata = {
+            "mobile": order_details.phone_number,
+            "email": order_details.email,
+            "order_id": order_details.order_id,
+        }
+        data = {
+            'merchant_id': self.config.merchant_code,
+            'amount': int(order_details.amount),
+            'callback_url': self.config.callback_url_generator(order_details),
+            'description': description,
+            'metadata': {k: v for k, v in metadata.items() if v},
             "currency": "IRR",
         }
-
-    def __pay(self, order_details: OrderDetails) -> str:
-        if order_details.amount < self.minimum_amount:
-            raise BankGatewayRejectPayment(
-                self.__message_service.generate_message(
-                    MessageType.MINIMUM_AMOUNT, context={'minimum_amount': self.minimum_amount}
-                )
-            )
-
-        data = self.__get_pay_data(order_details)
-        result = self._send_data(self.__config.payment_request_url, data).get('data', {})
-
-        if not result:
-            logging.critical("Zarinpal gateway reject payment")
-            raise BankGatewayRejectPayment
-
-        if str(result.get("code", "")) == "100" and not result.get("errors", []):
-            token = result.get('authority')
-            logging.critical("Toke is %s" % (token))
-            return token
-        else:
-            logging.critical("Zarinpal gateway reject payment")
-            raise BankGatewayRejectPayment
-
-    def _send_data(self, api, data):
-        try:
-            response = requests.post(api, json=data, timeout=5)
-        except requests.Timeout:
-            logging.exception("Zarinpal time out gateway {}".format(data))
-            raise BankGatewayConnectionError()
-        except requests.ConnectionError:
-            logging.exception("Zarinpal time out gateway {}".format(data))
-            raise BankGatewayConnectionError()
-
-        try:
-            response.raise_for_status()
-        except requests.HTTPError:
-            logging.exception("Zarinpal error {}".format(data))  # WTF
-            raise BankGatewayRejectPayment(self.__extract_error(response.json()))
-
-        return response.json()
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }
+        return self.http_request_cls(
+            HttpMethod.POST,
+            self.config.payment_request_url,
+            headers=headers,
+            data=data,
+            timeout=self.config.http_requests_timeout,
+        )
 
     @classmethod
-    def __extract_error(cls, data: Dict[str, Any]) -> List[str]:
-        assert isinstance(data, dict), "Data must be dict"
+    def _check_response(cls, response: HttpResponseInterface) -> None:
+        errors = response.json().get('errors')
 
-        errors_message = []
-        errors_response = data.get('errors', [])
-        if isinstance(errors_response, list):
-            errors_message = [error.get('message') for error in errors_response if error.get('message')]
-        elif isinstance(errors_response, dict):
-            errors_message = [errors_response.get('message', '')]
-        return errors_message
+        if errors:
+            if isinstance(errors, dict):
+                # Single error dict
+                message = errors.get("message", str(errors))
+            elif isinstance(errors, list):
+                # Multiple errors
+                message = "; ".join(err.get("message", str(err)) for err in errors)
+            else:
+                # Unexpected type
+                message = str(errors)
+
+            raise InternalRejectPaymentError(message)
+
+        if not response.ok:
+            raise InternalRejectPaymentError(response.body)

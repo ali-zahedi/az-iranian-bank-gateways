@@ -8,8 +8,10 @@ class MessageService(MessageServiceInterface):
     def __init__(self):
         self.__default_messages = {
             MessageType.DESCRIPTION: "Purchase with tracking code - {tracking_code}",
-            MessageType.TIMEOUT_ERROR: "Timeout while connecting to {url} with data {data}",
-            MessageType.CONNECTION_ERROR: "Connection error while connecting to {url} with data {data}",
+            MessageType.TIMEOUT_ERROR: "Timeout while connecting to {request.url} with data {request.data}",
+            MessageType.CONNECTION_ERROR: (
+                "Connection error while connecting to {request.url} " "with data {request.data}"
+            ),
             MessageType.REJECTED_PAYMENT: "Gateway rejected payment",
             MessageType.MINIMUM_AMOUNT: "Minimum amount is {minimum_amount}",
         }

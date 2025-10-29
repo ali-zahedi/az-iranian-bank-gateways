@@ -3,10 +3,12 @@ from decimal import Decimal
 import pytest
 from requests import ConnectionError, Timeout
 
-from azbankgateways.v3.exceptions import (
-    BankGatewayConnectionError,
-    BankGatewayRejectPayment,
+from azbankgateways.v3.exceptions.internal import (
+    InternalConnectionError,
+    InternalMinimumAmountError,
+    InternalRejectPaymentError,
 )
+from azbankgateways.v3.http import URL
 from azbankgateways.v3.interfaces import OrderDetails
 from azbankgateways.v3.providers.zarinpal import (
     ZarinpalPaymentGatewayConfig,
@@ -19,8 +21,8 @@ def zarinpal_payment_config(callback_url_generator):
     return ZarinpalPaymentGatewayConfig(
         merchant_code="zarinpal-merchant-code",
         callback_url_generator=callback_url_generator,
-        payment_request_url="https://az.bank/request",
-        start_payment_url="https://az.bank/start",
+        payment_request_url=URL("https://az.bank/request/"),
+        start_payment_url=URL("https://az.bank/start/"),
     )
 
 
@@ -38,18 +40,17 @@ def order_details():
 
 
 def test_zarinpal__payment_request__successful(
-    responses, zarinpal_payment_config, message_service, order_details
+    responses, zarinpal_payment_config, message_service, order_details, http_client, http_request_cls
 ):
-    provider = ZarinpalProvider(zarinpal_payment_config, message_service)
-
+    provider = ZarinpalProvider(zarinpal_payment_config, message_service, http_client, http_request_cls)
     responses.add(
         responses.POST,
-        "https://az.bank/request",
+        "https://az.bank/request/",
         json={
             "data": {
                 "code": 100,
                 "message": "Success",
-                "authority": "A0000000000000000000000000000wwOGYpd",
+                "authority": "A00000001",
                 "fee_type": "Merchant",
                 "fee": 100,
             },
@@ -58,10 +59,9 @@ def test_zarinpal__payment_request__successful(
         status=200,
     )
 
-    assert (
-        provider.get_request_pay(order_details).url
-        == 'https://az.bank/start/A0000000000000000000000000000wwOGYpd'
-    )
+    payment_request = provider.create_payment_request(order_details)
+
+    assert str(payment_request.url) == 'https://az.bank/start/A00000001/'
 
 
 @pytest.mark.parametrize(
@@ -75,40 +75,52 @@ def test_zarinpal__payment_request__successful(
     ],
 )
 def test_zarinpal__payment_request__failed(
-    responses, zarinpal_payment_config, message_service, order_details, errors
+    responses,
+    zarinpal_payment_config,
+    message_service,
+    order_details,
+    errors,
+    http_client,
+    http_request_cls,
 ):
-    provider = ZarinpalProvider(zarinpal_payment_config, message_service)
-
+    provider = ZarinpalProvider(zarinpal_payment_config, message_service, http_client, http_request_cls)
     responses.add(
         responses.POST,
-        "https://az.bank/request",
+        "https://az.bank/request/",
         json={"data": {}, "errors": errors},
         status=422,
     )
 
-    with pytest.raises(BankGatewayRejectPayment):
-        assert provider.get_request_pay(order_details)
+    with pytest.raises(InternalRejectPaymentError):
+        assert provider.create_payment_request(order_details)
 
 
 @pytest.mark.parametrize("side_effect", [ConnectionError, Timeout])
 def test_zarinpal__payment_request__failed__side_effect(
-    responses, zarinpal_payment_config, message_service, order_details, side_effect
+    responses,
+    zarinpal_payment_config,
+    message_service,
+    order_details,
+    side_effect,
+    http_client,
+    http_request_cls,
 ):
-    provider = ZarinpalProvider(zarinpal_payment_config, message_service)
-
+    provider = ZarinpalProvider(zarinpal_payment_config, message_service, http_client, http_request_cls)
     responses.add(
         responses.POST,
-        "https://az.bank/request",
+        "https://az.bank/request/",
         body=side_effect(),
     )
 
-    with pytest.raises(BankGatewayConnectionError):
-        assert provider.get_request_pay(order_details)
+    with pytest.raises(InternalConnectionError):
+        assert provider.create_payment_request(order_details)
 
 
-def test_zarinpal__minimum_amount(zarinpal_payment_config, message_service, order_details):
+def test_zarinpal__minimum_amount(
+    zarinpal_payment_config, message_service, order_details, http_client, http_request_cls
+):
     order_details.amount = Decimal(100)
-    provider = ZarinpalProvider(zarinpal_payment_config, message_service)
+    provider = ZarinpalProvider(zarinpal_payment_config, message_service, http_client, http_request_cls)
 
-    with pytest.raises(BankGatewayRejectPayment):
-        assert provider.get_request_pay(order_details)
+    with pytest.raises(InternalMinimumAmountError):
+        assert provider.create_payment_request(order_details)

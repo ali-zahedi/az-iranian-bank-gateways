@@ -1,4 +1,9 @@
-from .interfaces import BankEntityInterface, HttpRequestInterface, ProviderInterface
+from azbankgateways.v3.interfaces import (
+    BankEntityInterface,
+    HttpRequestInterface,
+    OrderDetails,
+    ProviderInterface,
+)
 
 
 class PaymentGateway:
@@ -7,8 +12,8 @@ class PaymentGateway:
         self.provider = provider
         self.storage = storage
 
-    def request_pay(self) -> HttpRequestInterface:
-        return self.provider.get_request_pay()
+    def create_payment_request(self, order_details: OrderDetails) -> HttpRequestInterface:
+        return self.provider.create_payment_request(order_details)
 
     def process_payment(self, transaction_data):
         # self.provider.process_transaction(transaction_data)
