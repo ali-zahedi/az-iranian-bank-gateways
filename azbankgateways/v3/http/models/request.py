@@ -1,9 +1,13 @@
-from abc import ABCMeta, abstractmethod
-from typing import Any, Optional, Type, TypeVar
+from __future__ import annotations
 
-from azbankgateways.v3.http_utils.url import URL
+from abc import ABCMeta, abstractmethod
+from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+
 from azbankgateways.v3.interfaces import HttpMethod, HttpRequestInterface
 
+
+if TYPE_CHECKING:
+    from azbankgateways.v3.http import URL
 
 T = TypeVar("T", bound="HttpRequestInterface")
 

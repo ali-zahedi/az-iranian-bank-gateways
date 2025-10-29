@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 
 
 if TYPE_CHECKING:
-    from azbankgateways.v3.http_utils.url import URL
+    from azbankgateways.v3.http import URL
 
 
 # TODO: abstract
@@ -193,7 +193,3 @@ class ProviderInterface(ABC):
     def create_payment_request(self, order_details: OrderDetails) -> HttpRequestInterface:
         # TODO: add proper doc string
         raise NotImplementedError()
-
-    @abstractmethod
-    def check_minimum_amount(self, order_details: OrderDetails) -> None:
-        raise NotImplementedError

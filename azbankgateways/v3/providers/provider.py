@@ -5,8 +5,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Type, TypeVar
 
 from azbankgateways.v3.exceptions.internal import InternalMinimumAmountError
-from azbankgateways.v3.http_utils.http_client import HttpClient
-from azbankgateways.v3.http_utils.http_request import HttpRequest
+from azbankgateways.v3.http import HttpClient, HttpRequest
 from azbankgateways.v3.interfaces import ProviderInterface
 
 

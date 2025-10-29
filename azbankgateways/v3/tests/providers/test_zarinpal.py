@@ -8,7 +8,7 @@ from azbankgateways.v3.exceptions.internal import (
     InternalMinimumAmountError,
     InternalRejectPaymentError,
 )
-from azbankgateways.v3.http_utils.url import URL
+from azbankgateways.v3.http import URL
 from azbankgateways.v3.interfaces import OrderDetails
 from azbankgateways.v3.providers.zarinpal import (
     ZarinpalPaymentGatewayConfig,

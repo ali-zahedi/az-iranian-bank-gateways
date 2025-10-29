@@ -2,8 +2,7 @@ from dataclasses import MISSING, dataclass, field
 from decimal import Decimal
 
 from azbankgateways.v3.exceptions.internal import InternalRejectPaymentError
-from azbankgateways.v3.http_utils.http_request import HttpRequest
-from azbankgateways.v3.http_utils.url import URL
+from azbankgateways.v3.http import URL, HttpRequest
 from azbankgateways.v3.interfaces import (
     CallbackURLType,
     HttpMethod,

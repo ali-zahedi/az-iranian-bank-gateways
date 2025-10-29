@@ -1,13 +1,17 @@
+from __future__ import annotations
+
 import json
 from abc import ABCMeta, abstractmethod
-from typing import Type, TypeVar
+from typing import TYPE_CHECKING, Type, TypeVar
 
 import requests
 
 from azbankgateways.v3.exceptions.internal import InternalConnectionError
-from azbankgateways.v3.http_utils.http_request import HttpRequest
-from azbankgateways.v3.http_utils.http_response import HttpResponse
 from azbankgateways.v3.interfaces import HttpClientInterface
+
+
+if TYPE_CHECKING:
+    from azbankgateways.v3.http import HttpRequest, HttpResponse
 
 
 T = TypeVar("T", bound="HttpClientInterface")
