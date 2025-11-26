@@ -122,7 +122,7 @@ class Bahamta(BaseBank):
     def _send_data(self, api, data):
         try:
             url = append_querystring(api, data)
-            response = requests.get(url, timeout=5)
+            response = requests.get(url, timeout=self.get_timeout())
         except requests.Timeout:
             logging.exception("Bahamta time out gateway {}".format(data))
             raise BankGatewayConnectionError()

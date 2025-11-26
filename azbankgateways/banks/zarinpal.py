@@ -128,7 +128,7 @@ class Zarinpal(BaseBank):
 
     def _send_data(self, api, data):
         try:
-            response = requests.post(api, json=data, timeout=10)
+            response = requests.post(api, json=data, timeout=self.get_timeout())
         except requests.Timeout:
             logging.exception("ZARINPAL time out gateway {}".format(data))
             raise BankGatewayConnectionError()

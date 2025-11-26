@@ -121,7 +121,7 @@ class PayV1(BaseBank):
         super(PayV1, self).verify(tracking_code)
         data = self.get_verify_data()
         try:
-            response = self._send_data(self._verify_api_url, data, timeout=10)
+            response = self._send_data(self._verify_api_url, data)
             response.raise_for_status()
             response_json = response.json()
             status = str(response_json.get("status", 0))
@@ -137,10 +137,10 @@ class PayV1(BaseBank):
         self._set_payment_status(status)
         self._bank.save()
 
-    def _send_data(self, url, data, timeout=5) -> requests.post:
+    def _send_data(self, url, data) -> requests.post:
         try:
             logging.debug("Sending POST request to {} with data {}".format(url, data))
-            response = requests.post(url, json=data, timeout=timeout)
+            response = requests.post(url, json=data, timeout=self.get_timeout())
         except requests.Timeout:
             logging.exception("PayV1 time out gateway {}".format(data))
             raise BankGatewayConnectionError()

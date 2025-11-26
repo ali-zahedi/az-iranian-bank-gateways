@@ -251,7 +251,7 @@ class Mellat(BaseBank):
 
     @staticmethod
     def _get_client():
-        transport = Transport(timeout=5, operation_timeout=5)
+        transport = Transport(timeout=Mellat.get_timeout(), operation_timeout=Mellat.get_timeout())
         client = Client("https://bpm.shaparak.ir/pgwchannel/services/pgw?wsdl", transport=transport)
         return client
 
