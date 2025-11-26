@@ -1,4 +1,5 @@
 import logging
+
 import requests
 
 from azbankgateways.banks import BaseBank
@@ -21,7 +22,7 @@ class IranDargah(BaseBank):
         self.set_gateway_currency(CurrencyEnum.IRR)
         self._sandbox = kwargs.get("SANDBOX", 0) == 1
 
-        base_url = "https://dargaah.com"
+        base_url = "https://dargaah.ir"
         if self._sandbox:
             base_url += "/sandbox"
 
@@ -30,17 +31,13 @@ class IranDargah(BaseBank):
         self._verify_url = f"{base_url}/verification"
 
     def get_bank_type(self):
-        return BankType("IRANDARGAH")
+        return BankType.IRANDARGAH
 
     def set_default_settings(self):
         for item in ["MERCHANT_CODE"]:
             if item not in self.default_setting_kwargs:
                 raise SettingDoesNotExist(f"{item} not in settings")
             setattr(self, f"_{item.lower()}", self.default_setting_kwargs[item])
-
-    @classmethod
-    def get_minimum_amount(cls):
-        return 50000
 
     def _get_gateway_payment_url_parameter(self):
         return f"{self._startpay_url}{self.get_reference_number()}"
@@ -106,7 +103,7 @@ class IranDargah(BaseBank):
 
     def _send_data(self, api, data):
         try:
-            response = requests.post(api, json=data, timeout=10)
+            response = requests.post(api, json=data, timeout=self.get_timeout())
             response.raise_for_status()
         except requests.RequestException as e:
             logging.exception("IranDargah connection error: %s", e)

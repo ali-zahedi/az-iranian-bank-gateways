@@ -31,6 +31,8 @@
 
  1. [درگاه پی ورژن ۱](https://www.pay.ir/)
 
+2. [درگاه ایران درگاه](https://irandargah.com/)
+
 [[_TOC_]]
 
 <h1 dir="rtl">آموزشی</h1>
@@ -95,6 +97,10 @@
          "PAYV1": {
              "MERCHANT_CODE": "<YOUR MERCHANT CODE>",
              "X_SANDBOX": 0,  # 0 disable, 1 active
+         },
+         "IRANDARGAH": {
+             "MERCHANT_CODE": "<YOUR MERCHANT CODE>",
+             "SANDBOX": 0,  # 0 disable, 1 active
          },
      },
      "IS_SAMPLE_FORM_ENABLE": True,  # اختیاری و پیش فرض غیر فعال است
