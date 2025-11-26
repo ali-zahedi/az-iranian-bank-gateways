@@ -100,7 +100,7 @@
      "IS_SAMPLE_FORM_ENABLE": True,  # اختیاری و پیش فرض غیر فعال است
      "DEFAULT": "BMI",
      "CURRENCY": "IRR",  # اختیاری
-     "BANK_TIMEOUT": 10 # اختیاری - تنظیم کردن تایم اوت 
+     "BANK_TIMEOUT": 5 # اختیاری - تنظیم کردن تایم اوت 
      "TRACKING_CODE_QUERY_PARAM": "tc",  # اختیاری
      "TRACKING_CODE_LENGTH": 16,  # اختیاری
      "SETTING_VALUE_READER_CLASS": "azbankgateways.readers.DefaultReader",  # اختیاری
@@ -597,6 +597,7 @@ pre-commit install
 * [mojtabaakbari221b](https://github.com/mojtabaakbari221b ) اضافه کردن اینترفیس برای bankfactory
 * [MrMRM1](https://github.com/MrMRM1) برای درگاه زرین پال ورژن4
 * [mmfarahmand](https://github.com/mmfarahmand) برای حل مشکل  نوع ارز در درگاه زرین پال
+* [mahdizolqadr](https://github.com/mahdizolqadr) برای اضافه کردن تایم اوت به تنظیمات پروژه
 
 ## Star History
 
