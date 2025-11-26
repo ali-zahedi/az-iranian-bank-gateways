@@ -597,6 +597,7 @@ pre-commit install
 * [MrMRM1](https://github.com/MrMRM1) برای درگاه زرین پال ورژن4
 * [mmfarahmand](https://github.com/mmfarahmand) برای حل مشکل  نوع ارز در درگاه زرین پال
 * [mahdizolqadr](https://github.com/mahdizolqadr) برای اضافه کردن تایم اوت به تنظیمات پروژه
+* [saber-be](https://github.com/saber-be) برای اضافه کردن درگاه ایران درگاه
 
 ## Star History
 
