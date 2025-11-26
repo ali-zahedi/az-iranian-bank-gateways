@@ -70,7 +70,12 @@ class IDPay(BaseBank):
         super(IDPay, self).pay()
         data = self.get_pay_data()
         response_json = self._send_data(self._token_api_url, data)
-        if "id" in response_json and "link" in response_json and response_json["link"] and response_json["id"]:
+        if (
+            "id" in response_json
+            and "link" in response_json
+            and response_json["link"]
+            and response_json["id"]
+        ):
             token = response_json["id"]
             self._payment_url, self._params = split_to_dict_querystring(response_json["link"])
             self._set_reference_number(token)
@@ -85,7 +90,7 @@ class IDPay(BaseBank):
     def prepare_verify_from_gateway(self):
         super(IDPay, self).prepare_verify_from_gateway()
         for method in ["GET", "POST", "data"]:
-            token = getattr(self.get_request(), method).get("id", None)
+            token = getattr(self.get_request(), method).get("id")
             if token:
                 self._set_reference_number(token)
                 self._set_bank_record()
@@ -112,8 +117,8 @@ class IDPay(BaseBank):
     def verify(self, transaction_code):
         super(IDPay, self).verify(transaction_code)
         data = self.get_verify_data()
-        response_json = self._send_data(self._verify_api_url, data, timeout=10)
-        if response_json.get("verify", {}).get("date", None):
+        response_json = self._send_data(self._verify_api_url, data)
+        if response_json.get("verify", {}).get("date"):
             self._set_payment_status(PaymentStatus.COMPLETE)
             extra_information = json.dumps(response_json)
             self._bank.extra_information = extra_information
@@ -122,13 +127,13 @@ class IDPay(BaseBank):
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
             logging.debug("IDPay gateway unapprove payment")
 
-    def _send_data(self, api, data, timeout=5):
+    def _send_data(self, api, data):
         headers = {
             "X-API-KEY": self._merchant_code,
             "X-SANDBOX": self._x_sandbox,
         }
         try:
-            response = requests.post(api, headers=headers, json=data, timeout=timeout)
+            response = requests.post(api, headers=headers, json=data, timeout=self.get_timeout())
         except requests.Timeout:
             logging.exception("IDPay time out gateway {}".format(data))
             raise BankGatewayConnectionError()

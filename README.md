@@ -100,6 +100,7 @@
      "IS_SAMPLE_FORM_ENABLE": True,  # اختیاری و پیش فرض غیر فعال است
      "DEFAULT": "BMI",
      "CURRENCY": "IRR",  # اختیاری
+     "BANK_TIMEOUT": 5,  # اختیاری - تنظیم کردن تایم اوت
      "TRACKING_CODE_QUERY_PARAM": "tc",  # اختیاری
      "TRACKING_CODE_LENGTH": 16,  # اختیاری
      "SETTING_VALUE_READER_CLASS": "azbankgateways.readers.DefaultReader",  # اختیاری
@@ -119,6 +120,7 @@
 
 1. `CURRENCY - (IRR, IRT)`: واحد پولی که نرم افزار با آن کار می کند. این واحد پولی فارغ از واحد پولی درگاه خواهد بود.  در صورتی که واحد پولی نرم افزار با واحد پولی درگاه بانک متفاوت باشد تبدیل ریال به تومان یا بالعکس انجام خواهد شد.
 
+1. `BANK_TIMEOUT`: با استفاده از این پارامتر میتوانید تایم اوت پیش فرض اتصال به بانک را تغییر دهید
 1. `TRACKING_CODE_QUERY_PARAM `: پارامتری که در هنگام بازگشت از درگاه به کال بک یو آر ال تعیین شده تنظیم و ارسال می گردد. به عنوان مثال زمانی که از کاربر از درگاه بانک باز می گردد چه پرداخت موفق داشته باشد و چه نا موفق کاربر به لینکی که در هنگام استفاده از درگاه تنظیم شده است٬ ارجاع داده می شود و در انتهای آن این رشته + کد پیگیری بازگردانده می شود تا بتوان داده ها را از این طریق بازیابی کرد.
 
 1. `TRACKING_CODE_LENGTH`: طول کد پیگیری تولید شده توسط سیستم است. دقت شود که در برخی درگاه ها مانند درگاه بانک ملی ایران، طول ۲۰ کاراکتر خطای `شماره سفارش ارسال نشده است` را می دهد.
@@ -258,7 +260,6 @@ def go_to_gateway_view(request):
         # در صورت تمایل می توانید داده های دلخواه خود را به درگاه ارسال کنید
         bank.set_custom_data({"foo": "bar"})
 
-
         # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند
         bank.set_client_callback_url(reverse("callback-gateway"))
         bank.set_mobile_number(user_mobile_number)  # اختیاری
@@ -349,7 +350,7 @@ from azbankgateways.exceptions import AZBankGatewaysException
 
 
 def go_to_gateway_view(request):
-    try :
+    try:
         factory = BankFactory()
         bank = factory.auto_create(
             request=request,
@@ -364,9 +365,8 @@ def go_to_gateway_view(request):
 
         # هدایت کاربر به درگاه بانک
         return bank.redirect_gateway()
-    except AZBankGatewaysException as e :
+    except AZBankGatewaysException as e:
         raise e
-
 ```
 
 عملیات create کردن factory از طریق interface :
@@ -377,14 +377,14 @@ from azbankgateways.exceptions import AZBankGatewaysException
 
 
 def go_to_gateway_view(request):
-    try :
+    try:
         factory = BankFactory()
         bank = factory.create(
             request=request,
             amount=amount,
             callback_url=callback_url,
             mobile_number=mobile_number,
-	        bank_type=bank_type,
+            bank_type=bank_type,
         )
 
         # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
@@ -393,8 +393,9 @@ def go_to_gateway_view(request):
 
         # هدایت کاربر به درگاه بانک
         return bank.redirect_gateway()
-    except AZBankGatewaysException as e :
+    except AZBankGatewaysException as e:
         raise e
+```
 
 <h2 dir="rtl">ساخت صفحه redirect_to_bank.html </h2>
 <p dir="rtl">
@@ -595,6 +596,7 @@ pre-commit install
 * [mojtabaakbari221b](https://github.com/mojtabaakbari221b ) اضافه کردن اینترفیس برای bankfactory
 * [MrMRM1](https://github.com/MrMRM1) برای درگاه زرین پال ورژن4
 * [mmfarahmand](https://github.com/mmfarahmand) برای حل مشکل  نوع ارز در درگاه زرین پال
+* [mahdizolqadr](https://github.com/mahdizolqadr) برای اضافه کردن تایم اوت به تنظیمات پروژه
 
 ## Star History
 

@@ -266,6 +266,10 @@ class BaseBank:
     def get_currency(self):
         return self._currency
 
+    @staticmethod
+    def get_timeout():
+        return settings.BANK_TIMEOUT
+
     def get_gateway_amount(self):
         return self._gateway_amount
 
