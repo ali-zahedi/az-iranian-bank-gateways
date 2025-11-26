@@ -100,7 +100,7 @@
      "IS_SAMPLE_FORM_ENABLE": True,  # اختیاری و پیش فرض غیر فعال است
      "DEFAULT": "BMI",
      "CURRENCY": "IRR",  # اختیاری
-     "BANK_TIMEOUT": 5 # اختیاری - تنظیم کردن تایم اوت 
+     "BANK_TIMEOUT": 5,  # اختیاری - تنظیم کردن تایم اوت
      "TRACKING_CODE_QUERY_PARAM": "tc",  # اختیاری
      "TRACKING_CODE_LENGTH": 16,  # اختیاری
      "SETTING_VALUE_READER_CLASS": "azbankgateways.readers.DefaultReader",  # اختیاری
@@ -260,7 +260,6 @@ def go_to_gateway_view(request):
         # در صورت تمایل می توانید داده های دلخواه خود را به درگاه ارسال کنید
         bank.set_custom_data({"foo": "bar"})
 
-
         # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند
         bank.set_client_callback_url(reverse("callback-gateway"))
         bank.set_mobile_number(user_mobile_number)  # اختیاری
@@ -351,7 +350,7 @@ from azbankgateways.exceptions import AZBankGatewaysException
 
 
 def go_to_gateway_view(request):
-    try :
+    try:
         factory = BankFactory()
         bank = factory.auto_create(
             request=request,
@@ -366,9 +365,8 @@ def go_to_gateway_view(request):
 
         # هدایت کاربر به درگاه بانک
         return bank.redirect_gateway()
-    except AZBankGatewaysException as e :
+    except AZBankGatewaysException as e:
         raise e
-
 ```
 
 عملیات create کردن factory از طریق interface :
@@ -379,14 +377,14 @@ from azbankgateways.exceptions import AZBankGatewaysException
 
 
 def go_to_gateway_view(request):
-    try :
+    try:
         factory = BankFactory()
         bank = factory.create(
             request=request,
             amount=amount,
             callback_url=callback_url,
             mobile_number=mobile_number,
-	        bank_type=bank_type,
+            bank_type=bank_type,
         )
 
         # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
@@ -395,8 +393,9 @@ def go_to_gateway_view(request):
 
         # هدایت کاربر به درگاه بانک
         return bank.redirect_gateway()
-    except AZBankGatewaysException as e :
+    except AZBankGatewaysException as e:
         raise e
+```
 
 <h2 dir="rtl">ساخت صفحه redirect_to_bank.html </h2>
 <p dir="rtl">

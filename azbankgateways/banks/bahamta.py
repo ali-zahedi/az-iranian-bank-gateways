@@ -71,7 +71,9 @@ class Bahamta(BaseBank):
         if response_json["ok"]:
             # در این سیستم رفرنس برای ذخیره سازی بر نمی گردد!
             token = self.get_tracking_code()
-            self._payment_url, self._params = split_to_dict_querystring(response_json["result"]["payment_url"])
+            self._payment_url, self._params = split_to_dict_querystring(
+                response_json["result"]["payment_url"]
+            )
             self._set_reference_number(token)
         else:
             logging.critical("Bahamta gateway reject payment")
@@ -83,7 +85,7 @@ class Bahamta(BaseBank):
 
     def prepare_verify_from_gateway(self):
         super(Bahamta, self).prepare_verify_from_gateway()
-        token = self.get_request().GET.get("reference", None)
+        token = self.get_request().GET.get("reference")
         self._set_reference_number(token)
         self._set_bank_record()
 
@@ -110,7 +112,7 @@ class Bahamta(BaseBank):
         super(Bahamta, self).verify(transaction_code)
         data = self.get_verify_data()
         response_json = self._send_data(self._verify_api_url, data)
-        if response_json.get("ok", False) and response_json.get("result", {}).get("state", None) == "paid":
+        if response_json.get("ok", False) and response_json.get("result", {}).get("state") == "paid":
             self._set_payment_status(PaymentStatus.COMPLETE)
             extra_information = json.dumps(response_json.get("result", {}))
             self._bank.extra_information = extra_information

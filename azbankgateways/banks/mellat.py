@@ -164,9 +164,7 @@ class Mellat(BaseBank):
                 status_text = "Payment ID is incorrect"
             elif response == "414":
                 status_text = "The organization issuing the bill is invalid"
-            elif response == "415":
-                status_text = "The working session has ended"
-            elif response == "416":
+            elif response in ["415", "416"]:
                 status_text = "The working session has ended"
             elif response == "417":
                 status_text = "Payer ID is invalid"
@@ -188,12 +186,12 @@ class Mellat(BaseBank):
     def prepare_verify_from_gateway(self):
         super(Mellat, self).prepare_verify_from_gateway()
         post = self.get_request().POST
-        token = post.get("RefId", None)
+        token = post.get("RefId")
         if not token:
             return
         self._set_reference_number(token)
         self._set_bank_record()
-        self._bank.extra_information = dumps(dict(zip(post.keys(), post.values())))
+        self._bank.extra_information = dumps(dict(post.items()))
         self._bank.save()
 
     def verify_from_gateway(self, request):
