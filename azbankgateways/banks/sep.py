@@ -1,7 +1,6 @@
 import logging
 
 import requests
-from zeep import Client, Transport
 
 from azbankgateways.banks import BaseBank
 from azbankgateways.exceptions import BankGatewayConnectionError, SettingDoesNotExist
@@ -23,9 +22,9 @@ class SEP(BaseBank):
             )
 
         self.set_gateway_currency(CurrencyEnum.IRR)
-        self._token_api_url = "https://sep.shaparak.ir/MobilePG/MobilePayment"
+        self._token_api_url = "https://sep.shaparak.ir/onlinepg/onlinepg"
         self._payment_url = "https://sep.shaparak.ir/OnlinePG/OnlinePG"
-        self._verify_api_url = "https://verify.sep.ir/Payments/ReferencePayment.asmx?WSDL"
+        self._verify_api_url = "https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/VerifyTransaction"
 
     def get_bank_type(self):
         return BankType.SEP
@@ -38,9 +37,8 @@ class SEP(BaseBank):
 
     def get_pay_data(self):
         data = {
-            "Action": "Token",
+            "action": "Token",
             "Amount": self.get_gateway_amount(),
-            "Wage": 0,
             "TerminalId": self._merchant_code,
             "ResNum": self.get_tracking_code(),
             "RedirectURL": self._get_gateway_callback_url(),
@@ -108,8 +106,7 @@ class SEP(BaseBank):
 
     def get_verify_data(self):
         super(SEP, self).get_verify_data()
-        data = self.get_reference_number(), self._merchant_code
-        return data
+        return {"RefNum": self.get_reference_number(), "TerminalNumber": self._merchant_code}
 
     def prepare_verify(self, tracking_code):
         super(SEP, self).prepare_verify(tracking_code)
@@ -117,9 +114,8 @@ class SEP(BaseBank):
     def verify(self, transaction_code):
         super(SEP, self).verify(transaction_code)
         data = self.get_verify_data()
-        client = self._get_client(self._verify_api_url)
-        result = client.service.verifyTransaction(*data)
-        if result == self.get_gateway_amount():
+        result = self._send_data(api=self._verify_api_url, data=data)
+        if result.get('ResultCode') == 0:
             self._set_payment_status(PaymentStatus.COMPLETE)
         else:
             self._set_payment_status(PaymentStatus.CANCEL_BY_USER)
@@ -138,16 +134,3 @@ class SEP(BaseBank):
         response_json = get_json(response)
         self._set_transaction_status_text(response_json.get("errorDesc"))
         return response_json
-
-    @staticmethod
-    def _get_client(url):
-        headers = {
-            "Accept": "*/*",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Connection": "keep-alive",
-            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0",
-        }
-        transport = Transport(timeout=SEP.get_timeout(), operation_timeout=SEP.get_timeout())
-        transport.session.headers = headers
-        client = Client(url, transport=transport)
-        return client
