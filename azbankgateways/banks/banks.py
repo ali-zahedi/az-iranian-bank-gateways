@@ -37,6 +37,7 @@ class BaseBank:
     _reference_number: str = ""
     _transaction_status_text: str = ""
     _client_callback_url: str = ""
+    _custom_callback_url: str = ""
     _bank: Bank = None
     _request = None
 
@@ -155,6 +156,10 @@ class BaseBank:
             self._bank.callback_url,
             {settings.TRACKING_CODE_QUERY_PARAM: self.get_tracking_code()},
         )
+    
+    def get_custom_callback_url(self):
+        """این متد برای گرفتن کال بک درگاه استفاده می شود."""
+        return self._custom_callback_url
 
     def redirect_client_callback(self):
         """ "این متد کاربر را به مسیری که نرم افزار میخواهد هدایت خواهد کرد و پس از وریفای شدن استفاده می شود."""
@@ -180,6 +185,23 @@ class BaseBank:
         افزار."""
         if not self._bank:
             self._client_callback_url = callback_url
+        else:
+            logging.critical(
+                "You are change the call back url in invalid situation.",
+                extra={
+                    "bank_id": self._bank.pk,
+                    "status": self._bank.status,
+                },
+            )
+            raise BankGatewayStateInvalid(
+                "Bank state not equal to waiting. Probably finish "
+                f"or redirect to bank gateway. status is {self._bank.status}"
+            )
+        
+    def set_custom_callback_url(self, callback_url):
+        """این متد برای تنظیم کردن کال بک درگاه به صورت دستی استفاده می شود."""
+        if not self._bank:
+            self._custom_callback_url = callback_url
         else:
             logging.critical(
                 "You are change the call back url in invalid situation.",
