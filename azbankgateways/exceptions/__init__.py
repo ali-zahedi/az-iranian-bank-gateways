@@ -8,4 +8,5 @@ from .exceptions import (  # noqa
     CurrencyDoesNotSupport,
     SettingDoesNotExist,
     SafeSettingsEnabled,
+    BankGatewayRejectPayment
 )
