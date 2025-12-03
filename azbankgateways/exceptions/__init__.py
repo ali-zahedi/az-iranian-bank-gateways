@@ -2,11 +2,11 @@ from .exceptions import (  # noqa
     AmountDoesNotSupport,
     AZBankGatewaysException,
     BankGatewayConnectionError,
+    BankGatewayRejectPayment,
     BankGatewayStateInvalid,
     BankGatewayTokenExpired,
     BankGatewayUnclear,
     CurrencyDoesNotSupport,
-    SettingDoesNotExist,
     SafeSettingsEnabled,
-    BankGatewayRejectPayment
+    SettingDoesNotExist,
 )
