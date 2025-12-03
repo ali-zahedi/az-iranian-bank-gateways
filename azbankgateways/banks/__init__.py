@@ -1,3 +1,4 @@
+from .asanpardakht import AsanPardakht  # noqa
 from .bahamta import Bahamta  # noqa
 from .banks import BaseBank  # noqa
 from .bmi import BMI  # noqa
