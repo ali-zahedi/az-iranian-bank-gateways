@@ -6,6 +6,8 @@ from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 
+from azbankgateways.v3.protocols import ProviderProtocol
+
 
 if TYPE_CHECKING:
     from azbankgateways.v3.http import URL
@@ -47,17 +49,17 @@ class HttpMethod(Enum):
 class BankEntityInterface(ABC):
     @abstractmethod
     def persist(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class MessageServiceInterface(ABC):
     @abstractmethod
     def generate_message(self, key: MessageType, context: Dict[str, Any]) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def get_required_parameters(self, key: MessageType) -> Optional[list]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class HttpRequestInterface(ABC):
@@ -71,6 +73,42 @@ class HttpRequestInterface(ABC):
      (such as the method, headers, or body) need to be abstracted and standardized across different implementations.
     """
 
+    @abstractmethod
+    def __init__(
+        self,
+        http_method: HttpMethod,
+        url: URL,
+        timeout: int,
+        headers: Optional[dict[str, Any]] = None,
+        data: Optional[dict[str, Any]] = None,
+    ) -> None:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def http_method(self) -> HttpMethod:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def url(self) -> URL:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def timeout(self) -> int:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def headers(self) -> Optional[dict[str, Any]]:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def data(self) -> Optional[dict[str, Any]]:
+        raise NotImplementedError
+
     @property
     @abstractmethod
     def is_json(self) -> bool:
@@ -79,7 +117,7 @@ class HttpRequestInterface(ABC):
 
         :return: True if the data should be sent as JSON, otherwise False.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class HttpResponseInterface(ABC):
@@ -95,6 +133,25 @@ class HttpResponseInterface(ABC):
     or testing environments where HTTP behavior is mocked.
     """
 
+    @abstractmethod
+    def __init__(self, status_code: int, headers: dict[str, Any], body: Any) -> None:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def status_code(self) -> int:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def headers(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def body(self) -> Any:
+        raise NotImplementedError
+
     @property
     @abstractmethod
     def ok(self) -> bool:
@@ -105,7 +162,7 @@ class HttpResponseInterface(ABC):
 
         :return: True if the status_code represents a successful response, else False.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abstractmethod
@@ -115,7 +172,7 @@ class HttpResponseInterface(ABC):
 
         :return: True if the response is JSON, otherwise False.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def json(self) -> Dict[str, Any]:
@@ -125,7 +182,7 @@ class HttpResponseInterface(ABC):
         :return: Dictionary representing the JSON body.
         :raises BankGatewayHttpResponseError: If the body cannot be parsed as JSON.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 @dataclass
@@ -159,6 +216,15 @@ class PaymentGatewayConfigInterface(ABC):
 
 class HttpClientInterface(ABC):
     @abstractmethod
+    def __init__(self, http_response_class: type[HttpResponseInterface]) -> None:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def http_response_class(self) -> type[HttpResponseInterface]:
+        raise NotImplementedError
+
+    @abstractmethod
     def send(
         self,
         http_request: HttpRequestInterface,
@@ -174,10 +240,20 @@ class HttpClientInterface(ABC):
         Returns:
             HttpResponseInterface: The response associated with the request.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
-class ProviderInterface(ABC):
+class ProviderInterface(ABC, ProviderProtocol):
+    @abstractmethod
+    def __init__(
+        self,
+        config: PaymentGatewayConfigInterface,
+        message_service: MessageServiceInterface,
+        http_client: HttpClientInterface,
+        http_request_class: type[HttpRequestInterface],
+    ) -> None:
+        raise NotImplementedError
+
     @property
     @abstractmethod
     def minimum_amount(self) -> Decimal:
@@ -187,9 +263,17 @@ class ProviderInterface(ABC):
 
         :return: A Decimal value representing the minimum payment amount.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def create_payment_request(self, order_details: OrderDetails) -> HttpRequestInterface:
         # TODO: add proper doc string
-        raise NotImplementedError()
+        raise NotImplementedError
+
+    @abstractmethod
+    def verify_payment(self, reference_number: str, amount: Decimal) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
+    def check_minimum_amount(self, order_details: OrderDetails) -> None:
+        raise NotImplementedError

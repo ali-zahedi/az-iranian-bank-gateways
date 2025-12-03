@@ -56,3 +56,10 @@ class InternalInvalidJsonError(AZBankInternalException):
     def __init__(self, response: HttpResponseInterface, message: Optional[str] = None, *args) -> None:
         self.response = response
         super().__init__(message, *args)
+
+
+class InternalInvalidGatewayResponseError(AZBankInternalException):
+    default_message = "Invalid gateway response error"
+
+    def __init__(self, message: Optional[str] = None, *args) -> None:
+        super().__init__(message, *args)

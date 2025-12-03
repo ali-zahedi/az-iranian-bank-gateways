@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Self
 from urllib.parse import urlparse
 
 
@@ -11,7 +12,7 @@ class URL:
         if not parsed.scheme or not parsed.netloc:
             raise ValueError(f"Invalid URL: {self.value}")
 
-        normalized = self.value if self.value.endswith("/") else self.value + "/"
+        normalized = self.value.removesuffix("/") + "/"
         object.__setattr__(self, "value", normalized)
 
     def __str__(self) -> str:
@@ -20,6 +21,6 @@ class URL:
     def __repr__(self) -> str:
         return f"URL({self.value!r})"
 
-    def join(self, path: str) -> str:
+    def join(self, path: str) -> Self:
         """Join a relative path to this base URL"""
-        return self.value.rstrip("/") + "/" + path.lstrip("/")
+        return URL(self.value.rstrip("/") + "/" + path.lstrip("/"))

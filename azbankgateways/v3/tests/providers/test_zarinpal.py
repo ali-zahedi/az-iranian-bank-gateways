@@ -23,6 +23,23 @@ def zarinpal_payment_config(callback_url_generator):
         callback_url_generator=callback_url_generator,
         payment_request_url=URL("https://az.bank/request/"),
         start_payment_url=URL("https://az.bank/start/"),
+        verify_payment_url=URL("https://az.bank/verify/"),
+    )
+
+
+@pytest.fixture
+def zarinpal_provider(
+    zarinpal_payment_config,
+    message_service,
+    http_client,
+    http_request_class,
+):
+    """Fixture to create a ZarinpalProvider instance."""
+    return ZarinpalProvider(
+        zarinpal_payment_config,
+        message_service,
+        http_client,
+        http_request_class,
     )
 
 
@@ -40,9 +57,10 @@ def order_details():
 
 
 def test_zarinpal__payment_request__successful(
-    responses, zarinpal_payment_config, message_service, order_details, http_client, http_request_cls
+    zarinpal_provider,
+    responses,
+    order_details,
 ):
-    provider = ZarinpalProvider(zarinpal_payment_config, message_service, http_client, http_request_cls)
     responses.add(
         responses.POST,
         "https://az.bank/request/",
@@ -59,7 +77,7 @@ def test_zarinpal__payment_request__successful(
         status=200,
     )
 
-    payment_request = provider.create_payment_request(order_details)
+    payment_request = zarinpal_provider.create_payment_request(order_details)
 
     assert str(payment_request.url) == 'https://az.bank/start/A00000001/'
 
@@ -75,15 +93,11 @@ def test_zarinpal__payment_request__successful(
     ],
 )
 def test_zarinpal__payment_request__failed(
+    zarinpal_provider,
     responses,
-    zarinpal_payment_config,
-    message_service,
     order_details,
     errors,
-    http_client,
-    http_request_cls,
 ):
-    provider = ZarinpalProvider(zarinpal_payment_config, message_service, http_client, http_request_cls)
     responses.add(
         responses.POST,
         "https://az.bank/request/",
@@ -92,20 +106,13 @@ def test_zarinpal__payment_request__failed(
     )
 
     with pytest.raises(InternalRejectPaymentError):
-        assert provider.create_payment_request(order_details)
+        assert zarinpal_provider.create_payment_request(order_details)
 
 
 @pytest.mark.parametrize("side_effect", [ConnectionError, Timeout])
 def test_zarinpal__payment_request__failed__side_effect(
-    responses,
-    zarinpal_payment_config,
-    message_service,
-    order_details,
-    side_effect,
-    http_client,
-    http_request_cls,
+    zarinpal_provider, responses, side_effect, order_details
 ):
-    provider = ZarinpalProvider(zarinpal_payment_config, message_service, http_client, http_request_cls)
     responses.add(
         responses.POST,
         "https://az.bank/request/",
@@ -113,14 +120,57 @@ def test_zarinpal__payment_request__failed__side_effect(
     )
 
     with pytest.raises(InternalConnectionError):
-        assert provider.create_payment_request(order_details)
+        assert zarinpal_provider.create_payment_request(order_details)
 
 
 def test_zarinpal__minimum_amount(
-    zarinpal_payment_config, message_service, order_details, http_client, http_request_cls
+    zarinpal_provider,
+    order_details,
 ):
     order_details.amount = Decimal(100)
-    provider = ZarinpalProvider(zarinpal_payment_config, message_service, http_client, http_request_cls)
 
     with pytest.raises(InternalMinimumAmountError):
-        assert provider.create_payment_request(order_details)
+        assert zarinpal_provider.create_payment_request(order_details)
+
+
+@pytest.mark.parametrize(
+    "verify_code,is_verified,description",
+    [
+        (
+            100,
+            True,
+            "Verified",
+        ),
+        (
+            101,
+            True,
+            "Already Verified",
+        ),
+        (
+            -8,
+            False,
+            "Cancelled",
+        ),
+    ],
+)
+def test_zarinpal__verify(responses, zarinpal_provider, verify_code, is_verified, description):
+    verify_response = {
+        "data": {
+            "code": verify_code,
+            "message": description,
+            "card_hash": "1EBE3EBEBE35C",
+            "card_pan": "502229******5995",
+            "ref_id": 201,
+            "fee_type": "Merchant",
+            "fee": 0,
+        },
+        "errors": [],
+    }
+    responses.add(
+        responses.POST,
+        "https://az.bank/verify/",
+        json=verify_response,
+        status=200,
+    )
+
+    assert zarinpal_provider.verify_payment("123", Decimal("100")) == is_verified

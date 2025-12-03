@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import json
-from abc import ABCMeta, abstractmethod
-from typing import TYPE_CHECKING, Type, TypeVar
+from typing import TYPE_CHECKING
 
 import requests
 
@@ -11,28 +10,18 @@ from azbankgateways.v3.interfaces import HttpClientInterface
 
 
 if TYPE_CHECKING:
-    from azbankgateways.v3.http import HttpRequest, HttpResponse
+    from azbankgateways.v3.interfaces import HttpRequestInterface, HttpResponseInterface
 
 
-T = TypeVar("T", bound="HttpClientInterface")
+class HttpClient(HttpClientInterface):
+    def __init__(self, http_response_class: type[HttpResponseInterface]) -> None:
+        self._http_response_class = http_response_class
 
+    @property
+    def http_response_class(self) -> type[HttpResponseInterface]:
+        return self._http_response_class
 
-class HttpClientMeta(ABCMeta):
-    def __call__(cls: Type[T], http_response_cls: Type[HttpResponse]) -> T:
-        return super().__call__(http_response_cls=http_response_cls)
-
-
-class HttpClient(HttpClientInterface, metaclass=HttpClientMeta):
-    def __init__(self, http_response_cls: type[HttpResponse]) -> None:
-        self.http_response_cls = http_response_cls
-
-    @abstractmethod
-    def send(self, request: HttpRequest) -> HttpResponse:
-        raise NotImplementedError("Subclasses must implement the `send` method.")
-
-
-class DefaultHttpClient(HttpClient):
-    def send(self, request: HttpRequest) -> HttpResponse:
+    def send(self, request: HttpRequestInterface) -> HttpResponseInterface:
         data = json.dumps(request.data) if request.is_json else request.data
 
         try:
@@ -49,7 +38,7 @@ class DefaultHttpClient(HttpClient):
             requests.exceptions.RequestException,
         ) as e:
             raise InternalConnectionError(request, exception=e) from e
-        return self.http_response_cls(
+        return self.http_response_class(
             status_code=response.status_code,
             headers=response.headers,
             body=response.content,

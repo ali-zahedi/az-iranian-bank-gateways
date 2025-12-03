@@ -1,48 +1,30 @@
 from __future__ import annotations
 
 import json
-from abc import ABCMeta, abstractmethod
-from typing import Any, Type, TypeVar
+from typing import Any
 
 from azbankgateways.v3.exceptions.internal import InternalInvalidJsonError
 from azbankgateways.v3.interfaces import HttpResponseInterface
 
 
-T = TypeVar("T", bound="HttpResponseInterface")
-
-
-class HttpResponseMeta(ABCMeta):
-    def __call__(
-        cls: Type[T],
-        status_code: int,
-        headers: dict[str, Any],
-        body: Any,
-    ) -> T:
-        return super().__call__(status_code=status_code, headers=headers, body=body)
-
-
-class HttpResponse(HttpResponseInterface, metaclass=HttpResponseMeta):
+class HttpResponse(HttpResponseInterface):
     def __init__(self, status_code: int, headers: dict[str, Any], body: Any) -> None:
-        self.status_code = status_code
-        self.headers = headers or {}
-        self.body = body
+        self._status_code = status_code
+        self._headers = headers or {}
+        self._body = body
 
     @property
-    @abstractmethod
-    def is_json(self) -> bool:
-        raise NotImplementedError("Subclasses must implement the `is_json` property.")
-
-    @abstractmethod
-    def json(self) -> dict[str, Any]:
-        raise NotImplementedError("Subclasses must implement the `json` method.")
+    def status_code(self) -> int:
+        return self._status_code
 
     @property
-    @abstractmethod
-    def ok(self) -> bool:
-        raise NotImplementedError("Subclasses must implement the `ok` property.")
+    def headers(self) -> dict[str, Any]:
+        return self._headers
 
+    @property
+    def body(self) -> Any:
+        return self._body
 
-class DefaultHttpResponse(HttpResponse):
     @property
     def is_json(self) -> bool:
         return self.headers.get('Content-Type') == 'application/json'

@@ -1,17 +1,26 @@
+import decimal
 from dataclasses import MISSING, dataclass, field
 from decimal import Decimal
 
-from azbankgateways.v3.exceptions.internal import InternalRejectPaymentError
-from azbankgateways.v3.http import URL, HttpRequest
+from azbankgateways.v3.exceptions.internal import (
+    InternalInvalidGatewayResponseError,
+    InternalMinimumAmountError,
+    InternalRejectPaymentError,
+)
+from azbankgateways.v3.http import URL
 from azbankgateways.v3.interfaces import (
     CallbackURLType,
+    HttpClientInterface,
     HttpMethod,
+    HttpRequestInterface,
     HttpResponseInterface,
+    MessageServiceInterface,
     MessageType,
     OrderDetails,
     PaymentGatewayConfigInterface,
+    ProviderInterface,
 )
-from azbankgateways.v3.providers.provider import Provider
+from azbankgateways.v3.mixins.minimum_amount_check import MinimumAmountCheckMixin
 
 
 # TODO: Ensure all subclasses of PaymentGatewayConfigInterface are
@@ -27,6 +36,7 @@ class ZarinpalPaymentGatewayConfig(PaymentGatewayConfigInterface):
 
     payment_request_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/request.json/"))
     start_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/StartPay/"))
+    verify_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/verify.json"))
     http_requests_timeout: int = 20
 
     def __post_init__(self) -> None:
@@ -40,27 +50,55 @@ class ZarinpalPaymentGatewayConfig(PaymentGatewayConfigInterface):
             raise TypeError("start_payment_url must be a URL instance")
 
 
-class ZarinpalProvider(Provider):
+class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
+    PAYMENT_VERIFIED_STATUS_CODES = [100, 101]
+
+    def __init__(
+        self,
+        config: ZarinpalPaymentGatewayConfig,
+        message_service: MessageServiceInterface,
+        http_client: HttpClientInterface,
+        http_request_class: type[HttpRequestInterface],
+    ) -> None:
+        self._config = config
+        self._message_service = message_service
+        self._http_client = http_client
+        self._http_request_class = http_request_class
+
     @property
     def minimum_amount(self) -> Decimal:
         return Decimal(1000)
 
-    def create_payment_request(self, order_details: OrderDetails) -> HttpRequest:
+    def create_payment_request(self, order_details: OrderDetails) -> HttpRequestInterface:
         payment_token = self._create_payment_token(order_details)
-        url = URL(self.config.start_payment_url.join(payment_token))
-        return self.http_request_cls(
-            http_method=HttpMethod.GET, url=url, timeout=self.config.http_requests_timeout
+        url = self._config.start_payment_url.join(payment_token)
+        return self._http_request_class(
+            http_method=HttpMethod.GET, url=url, timeout=self._config.http_requests_timeout
         )
 
+    def verify_payment(self, reference_number: str, amount: Decimal) -> bool:
+        http_request = self._build_verify_payment_http_request(reference_number, amount)
+        http_response = self._http_client.send(http_request)
+        self._check_response(http_response)
+        json_body = http_response.json()
+        data = json_body.get("data")
+        if not data or "code" not in data or "message" not in data:
+            raise InternalInvalidGatewayResponseError(
+                "Invalid verify payment response: missing required fields"
+            )
+        return data['code'] in self.PAYMENT_VERIFIED_STATUS_CODES
+
     def _create_payment_token(self, order_details: OrderDetails) -> str:
+        # TODO: move check_minimum_amount function to PaymentGateway once `PaymentGateway` is implemented.
         self.check_minimum_amount(order_details)
+
         http_request = self._build_payment_token_http_request(order_details)
-        http_response = self.http_client.send(http_request)
+        http_response = self._http_client.send(http_request)
         self._check_response(http_response)
         return http_response.json()["data"]["authority"]
 
-    def _build_payment_token_http_request(self, order_details: OrderDetails) -> HttpRequest:
-        description = self.message_service.generate_message(
+    def _build_payment_token_http_request(self, order_details: OrderDetails) -> HttpRequestInterface:
+        description = self._message_service.generate_message(
             MessageType.DESCRIPTION,
             {
                 "tracking_code": order_details.tracking_code,
@@ -72,9 +110,9 @@ class ZarinpalProvider(Provider):
             "order_id": order_details.order_id,
         }
         data = {
-            'merchant_id': self.config.merchant_code,
+            'merchant_id': self._config.merchant_code,
             'amount': int(order_details.amount),
-            'callback_url': self.config.callback_url_generator(order_details),
+            'callback_url': self._config.callback_url_generator(order_details),
             'description': description,
             'metadata': {k: v for k, v in metadata.items() if v},
             "currency": "IRR",
@@ -83,12 +121,32 @@ class ZarinpalProvider(Provider):
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         }
-        return self.http_request_cls(
+        return self._http_request_class(
             HttpMethod.POST,
-            self.config.payment_request_url,
+            self._config.payment_request_url,
             headers=headers,
             data=data,
-            timeout=self.config.http_requests_timeout,
+            timeout=self._config.http_requests_timeout,
+        )
+
+    def _build_verify_payment_http_request(
+        self, reference_number: str, amount: decimal.Decimal
+    ) -> HttpRequestInterface:
+        data = {
+            'merchant_id': self._config.merchant_code,
+            'authority': reference_number,
+            'amount': int(amount),
+        }
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }
+        return self._http_request_class(
+            HttpMethod.POST,
+            self._config.verify_payment_url,
+            headers=headers,
+            data=data,
+            timeout=self._config.http_requests_timeout,
         )
 
     @classmethod
@@ -110,3 +168,7 @@ class ZarinpalProvider(Provider):
 
         if not response.ok:
             raise InternalRejectPaymentError(response.body)
+
+    def check_minimum_amount(self, order_details: OrderDetails) -> None:
+        if order_details.amount < self.minimum_amount:
+            raise InternalMinimumAmountError(order_details, self.minimum_amount)
