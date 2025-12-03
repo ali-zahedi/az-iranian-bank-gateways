@@ -31,15 +31,15 @@
 
  1. [درگاه پی ورژن ۱](https://www.pay.ir/)
 
-2. [درگاه ایران درگاه](https://irandargah.com/)
+ 1. [درگاه ایران درگاه](https://irandargah.com/)
+ 
+ 1. [درگاه آسان پرداخت](https://asanpardakht.ir/)
 
-[[_TOC_]]
 
 <h1 dir="rtl">آموزشی</h1>
 
 1. [یوتیوب](https://youtu.be/VnwY7DJlPKs)
 1. [آپارات](https://www.aparat.com/v/DxL5J)
-1. [آکادمی ژاک](https://academy.zhaak.com/course/236/python-tips)
 
 
 
@@ -102,6 +102,11 @@
              "MERCHANT_CODE": "<YOUR MERCHANT CODE>",
              "SANDBOX": 0,  # 0 disable, 1 active
          },
+         "ASANPARDAKHT": {
+             "MERCHANT_CONFIGURATION_ID": "<YOUR MERCHANT CONFIGURATION ID>",
+             "USERNAME": "<YOUR USERNAME>",
+             "PASSWORD": "<YOUR PASSWORD>",
+         },
      },
      "IS_SAMPLE_FORM_ENABLE": True,  # اختیاری و پیش فرض غیر فعال است
      "DEFAULT": "BMI",
@@ -151,7 +156,7 @@
     ```
      'SAMPLE_RESULT_NAMESPACE': 'api:payment:sample-result',
     ```
-1. `'IS_SAFE_GET_GATEWAY_PAYMENT'`:<br>
+1. `IS_SAFE_GET_GATEWAY_PAYMENT`:<br>
    ```
    'IS_SAFE_GET_GATEWAY_PAYMENT': True,
    ```
