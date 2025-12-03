@@ -604,6 +604,7 @@ pre-commit install
 * [mmfarahmand](https://github.com/mmfarahmand) برای حل مشکل  نوع ارز در درگاه زرین پال
 * [mahdizolqadr](https://github.com/mahdizolqadr) برای اضافه کردن تایم اوت به تنظیمات پروژه
 * [saber-be](https://github.com/saber-be) برای اضافه کردن درگاه ایران درگاه
+* [miladkoohi](https://github.com/miladkoohi) برای اضافه کردن درگاه آسان پرداخت
 
 ## Star History
 
