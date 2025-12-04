@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Any, Callable
 
 from azbankgateways.v3.protocols import ProviderProtocol
 
@@ -54,11 +54,11 @@ class BankEntityInterface(ABC):
 
 class MessageServiceInterface(ABC):
     @abstractmethod
-    def generate_message(self, key: MessageType, context: Dict[str, Any]) -> str:
+    def generate_message(self, key: MessageType, context: dict[str, Any]) -> str:
         raise NotImplementedError
 
     @abstractmethod
-    def get_required_parameters(self, key: MessageType) -> Optional[list]:
+    def get_required_parameters(self, key: MessageType) -> list | None:
         raise NotImplementedError
 
 
@@ -79,8 +79,8 @@ class HttpRequestInterface(ABC):
         http_method: HttpMethod,
         url: URL,
         timeout: int,
-        headers: Optional[dict[str, Any]] = None,
-        data: Optional[dict[str, Any]] = None,
+        headers: dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
     ) -> None:
         raise NotImplementedError
 
@@ -101,12 +101,12 @@ class HttpRequestInterface(ABC):
 
     @property
     @abstractmethod
-    def headers(self) -> Optional[dict[str, Any]]:
+    def headers(self) -> dict[str, Any] | None:
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def data(self) -> Optional[dict[str, Any]]:
+    def data(self) -> dict[str, Any] | None:
         raise NotImplementedError
 
     @property
@@ -175,7 +175,7 @@ class HttpResponseInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def json(self) -> Dict[str, Any]:
+    def json(self) -> dict[str, Any]:
         """
         Parses and returns the response body as a JSON object if available.
 
@@ -196,12 +196,12 @@ class OrderDetails:
 
     amount: Decimal
     tracking_code: str
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    phone_number: Optional[str] = None
-    email: Optional[str] = None
-    order_id: Optional[str] = None
-    description: Optional[str] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    phone_number: str | None = None
+    email: str | None = None
+    order_id: str | None = None
+    description: str | None = None
 
 
 CallbackURLType = Callable[[OrderDetails], "URL"]

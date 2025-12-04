@@ -1,4 +1,6 @@
-from typing import Any, Dict, Optional
+from __future__ import annotations
+
+from typing import Any
 
 from azbankgateways.v3.interfaces import MessageServiceInterface, MessageType
 
@@ -23,9 +25,9 @@ class MessageService(MessageServiceInterface):
             MessageType.MINIMUM_AMOUNT: ['minimum_amount'],
         }
 
-    def generate_message(self, key: MessageType, context: Dict[str, Any]) -> str:
+    def generate_message(self, key: MessageType, context: dict[str, Any]) -> str:
         message_template = context.get(f"{key.value}_template", self.__default_messages.get(key, ""))
         return message_template.format(**context)
 
-    def get_required_parameters(self, key: MessageType) -> Optional[list]:
+    def get_required_parameters(self, key: MessageType) -> list | None:
         return self.__message_parameters.get(key)
