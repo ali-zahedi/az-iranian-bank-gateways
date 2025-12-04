@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from azbankgateways.v3.interfaces import HttpMethod, HttpRequestInterface
 
@@ -15,8 +15,8 @@ class HttpRequest(HttpRequestInterface):
         http_method: HttpMethod,
         url: URL,
         timeout: int,
-        headers: Optional[dict[str, Any]] = None,
-        data: Optional[dict[str, Any]] = None,
+        headers: dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
     ) -> None:
         self._http_method = http_method
         self._url = url
