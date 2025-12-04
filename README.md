@@ -610,6 +610,7 @@ pre-commit install
 * [mahdizolqadr](https://github.com/mahdizolqadr) برای اضافه کردن تایم اوت به تنظیمات پروژه
 * [saber-be](https://github.com/saber-be) برای اضافه کردن درگاه ایران درگاه
 * [miladkoohi](https://github.com/miladkoohi) برای اضافه کردن درگاه آسان پرداخت
+* [zamoosh](https://github.com/zamoosh) رفع مشکل circular import در ماژول banks
 
 ## Star History
 
