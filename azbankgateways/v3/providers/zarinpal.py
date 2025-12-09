@@ -144,8 +144,12 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
             "authority": reference_number,
         }
         response = self._send_request(self._config.inquiry_payment_url, data=data)
-        data = response.get("data")
-        return PaymentInquiryResult(status=self._PAYMENT_STATUSES[data['status']], extra_information=data)
+        status = response.get("data", {}).get("status")
+        if not status:
+            raise InternalInvalidGatewayResponseError(
+                "inquiry payment failed: `status` field missing in gateway response."
+            )
+        return PaymentInquiryResult(status=self._PAYMENT_STATUSES[status], extra_information=response['data'])
 
     @classmethod
     def _check_response(cls, response: HttpResponseInterface) -> None:
