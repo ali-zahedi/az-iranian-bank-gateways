@@ -15,25 +15,19 @@
  در حال حاضر درگاه های با درگاه های زیر می توانید پرداخت کنید.
  </p>
 
- 1. [درگاه پرداخت بانک ملی ایران (BMI)](https://mmp.sadadpsp.ir/Browse/MerchantRequestForm?@TermType_Shaparakabbr=INT)
+<div dir="rtl">
 
- 1. [درگاه پرداخت بانک سامان (SEP)](https://www.sep.ir/iemerchantregister)
+* **درگاه پرداخت بانک ملی ایران (BMI)** - [**وبسایت**](https://sadadpsp.ir/) | [**مستندات**](docs/providers-documents/melli-1.10.pdf)
+* **درگاه پرداخت بانک سامان (SEP)** - [**وبسایت**](https://www.sep.ir/) | [**مستندات**](docs/providers-documents/saman-3.3.pdf)
+* **درگاه پرداخت زرین پال** - [**وبسایت**](https://www.zarinpal.com/) | [**مستندات**](https://www.zarinpal.com/docs/paymentGateway/)
+* **درگاه پرداخت آی دی پی (IDPay)** - [**وبسایت**](https://idpay.ir/) | [**مستندات**](https://idpay.ir/web-service/v1.1)
+* **درگاه پرداخت زیبال** - [**وبسایت**](https://zibal.ir/) | [**مستندات**](https://help.zibal.ir/IPG/API/)
+* **درگاه پرداخت باهمتا** - [**وبسایت**](https://bahamta.com/) | [**مستندات**](https://webpay.bahamta.com/doc/api)
+* **درگاه به پرداخت** - [**وبسایت**](https://www.behpardakht.ir/index.html) | [**مستندات**](docs/providers-documents/mellat-1.29.pdf)
+* **درگاه ایران درگاه** - [**وبسایت**](https://irandargah.com/) | [**مستندات**](https://docs.irandargah.com/)
+* **درگاه آسان پرداخت** - [**وبسایت**](https://asanpardakht.ir/) | [**مستندات**](docs/providers-documents/asanpardakht-3.6.pdf)
 
- 1. [درگاه پرداخت زرین پال](https://next.zarinpal.com/auth/register)
-
- 1. [درگاه پرداخت آی دی پی (IDPay)](https://idpay.ir/s/664153)
-
- 1. [درگاه پرداخت زیبال](https://zibal.ir)
-
- 1. [درگاه پرداخت باهمتا](https://webpay.bahamta.com?rc=Sv7oH)
-
- 1. [درگاه به پرداخت](http://www.behpardakht.com/)
-
- 1. [درگاه پی ورژن ۱](https://www.pay.ir/)
-
- 1. [درگاه ایران درگاه](https://irandargah.com/)
-
- 1. [درگاه آسان پرداخت](https://asanpardakht.ir/)
+</div>
 
 
 <h1 dir="rtl">آموزشی</h1>
