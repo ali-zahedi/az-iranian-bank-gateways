@@ -46,6 +46,20 @@ class HttpMethod(Enum):
     OPTIONS = "OPTIONS"
 
 
+class PaymentStatus(str, Enum):
+    PENDING = "pending"
+    PAID = "paid"
+    VERIFIED = "verified"
+    FAILED = "failed"
+    RESERVED = "reserved"
+
+
+@dataclass
+class PaymentInquiryResult:
+    status: PaymentStatus
+    extra_information: dict[str, Any] | None = None
+
+
 class BankEntityInterface(ABC):
     @abstractmethod
     def persist(self):
@@ -283,6 +297,10 @@ class ProviderInterface(ABC, ProviderProtocol):
 
     @abstractmethod
     def reverse_payment(self, reference_number: str) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
+    def inquiry_payment(self, reference_number: str) -> PaymentInquiryResult:
         raise NotImplementedError
 
 
