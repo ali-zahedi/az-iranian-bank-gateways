@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from azbankgateways.v3.interfaces import HttpMethod, HttpRequestInterface
+from azbankgateways.v3.interfaces import (
+    HttpHeadersInterface,
+    HttpMethod,
+    HttpRequestInterface,
+)
 
 
 if TYPE_CHECKING:
@@ -15,7 +19,7 @@ class HttpRequest(HttpRequestInterface):
         http_method: HttpMethod,
         url: URL,
         timeout: int,
-        headers: dict[str, Any] | None = None,
+        headers: HttpHeadersInterface | None = None,
         data: dict[str, Any] | None = None,
     ) -> None:
         self._http_method = http_method
@@ -37,7 +41,7 @@ class HttpRequest(HttpRequestInterface):
         return self._timeout
 
     @property
-    def headers(self) -> dict[str, Any]:
+    def headers(self) -> HttpHeadersInterface:
         return self._headers
 
     @property
@@ -46,4 +50,4 @@ class HttpRequest(HttpRequestInterface):
 
     @property
     def is_json(self) -> bool:
-        return self.headers.get("Content-Type") == "application/json"
+        return self.headers.is_json

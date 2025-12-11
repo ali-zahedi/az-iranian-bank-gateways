@@ -11,6 +11,7 @@ from azbankgateways.v3.http import URL
 from azbankgateways.v3.interfaces import (
     CallbackURLType,
     HttpClientInterface,
+    HttpHeadersInterface,
     HttpMethod,
     HttpRequestInterface,
     HttpResponseInterface,
@@ -59,11 +60,13 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
         message_service: MessageServiceInterface,
         http_client: HttpClientInterface,
         http_request_class: type[HttpRequestInterface],
+        http_headers_class: type[HttpHeadersInterface],
     ) -> None:
         self._config = config
         self._message_service = message_service
         self._http_client = http_client
         self._http_request_class = http_request_class
+        self._http_headers_class = http_headers_class
 
     @property
     def minimum_amount(self) -> Decimal:
@@ -117,10 +120,12 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
             'metadata': {k: v for k, v in metadata.items() if v},
             "currency": "IRR",
         }
-        headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        }
+        headers = self._http_headers_class(
+            headers={
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            }
+        )
         return self._http_request_class(
             HttpMethod.POST,
             self._config.payment_request_url,
@@ -137,10 +142,12 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
             'authority': reference_number,
             'amount': int(amount),
         }
-        headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        }
+        headers = self._http_headers_class(
+            headers={
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            }
+        )
         return self._http_request_class(
             HttpMethod.POST,
             self._config.verify_payment_url,

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import requests
 
 from azbankgateways.v3.exceptions.internal import InternalConnectionError
-from azbankgateways.v3.interfaces import HttpClientInterface
+from azbankgateways.v3.interfaces import HttpClientInterface, HttpHeadersInterface
 
 
 if TYPE_CHECKING:
@@ -14,8 +14,11 @@ if TYPE_CHECKING:
 
 
 class HttpClient(HttpClientInterface):
-    def __init__(self, http_response_class: type[HttpResponseInterface]) -> None:
+    def __init__(
+        self, http_response_class: type[HttpResponseInterface], http_headers_class: type[HttpHeadersInterface]
+    ) -> None:
         self._http_response_class = http_response_class
+        self._http_headers_class = http_headers_class
 
     @property
     def http_response_class(self) -> type[HttpResponseInterface]:
@@ -29,7 +32,7 @@ class HttpClient(HttpClientInterface):
                 request.http_method.value,
                 str(request.url),
                 data=data,
-                headers=request.headers,
+                headers=request.headers.to_dict(),
                 timeout=request.timeout,
             )
         except (
@@ -40,6 +43,6 @@ class HttpClient(HttpClientInterface):
             raise InternalConnectionError(request, exception=e) from e
         return self.http_response_class(
             status_code=response.status_code,
-            headers=response.headers,
+            headers=self._http_headers_class(response.headers),
             body=response.content,
         )

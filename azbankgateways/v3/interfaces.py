@@ -79,7 +79,7 @@ class HttpRequestInterface(ABC):
         http_method: HttpMethod,
         url: URL,
         timeout: int,
-        headers: dict[str, Any] | None = None,
+        headers: HttpHeadersInterface | None = None,
         data: dict[str, Any] | None = None,
     ) -> None:
         raise NotImplementedError
@@ -101,7 +101,7 @@ class HttpRequestInterface(ABC):
 
     @property
     @abstractmethod
-    def headers(self) -> dict[str, Any] | None:
+    def headers(self) -> HttpHeadersInterface | None:
         raise NotImplementedError
 
     @property
@@ -134,7 +134,7 @@ class HttpResponseInterface(ABC):
     """
 
     @abstractmethod
-    def __init__(self, status_code: int, headers: dict[str, Any], body: Any) -> None:
+    def __init__(self, status_code: int, headers: HttpHeadersInterface, body: Any) -> None:
         raise NotImplementedError
 
     @property
@@ -144,7 +144,7 @@ class HttpResponseInterface(ABC):
 
     @property
     @abstractmethod
-    def headers(self) -> dict[str, Any]:
+    def headers(self) -> HttpHeadersInterface:
         raise NotImplementedError
 
     @property
@@ -216,7 +216,9 @@ class PaymentGatewayConfigInterface(ABC):
 
 class HttpClientInterface(ABC):
     @abstractmethod
-    def __init__(self, http_response_class: type[HttpResponseInterface]) -> None:
+    def __init__(
+        self, http_response_class: type[HttpResponseInterface], http_headers_class: type[HttpHeadersInterface]
+    ) -> None:
         raise NotImplementedError
 
     @property
@@ -251,6 +253,7 @@ class ProviderInterface(ABC, ProviderProtocol):
         message_service: MessageServiceInterface,
         http_client: HttpClientInterface,
         http_request_class: type[HttpRequestInterface],
+        http_headers_class: type[HttpHeadersInterface],
     ) -> None:
         raise NotImplementedError
 
@@ -276,4 +279,23 @@ class ProviderInterface(ABC, ProviderProtocol):
 
     @abstractmethod
     def check_minimum_amount(self, order_details: OrderDetails) -> None:
+        raise NotImplementedError
+
+
+class HttpHeadersInterface(ABC):
+    @abstractmethod
+    def __init__(self, headers: dict[str, Any]) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get(self, name: str, default: Any = None) -> Any:
+        raise NotImplementedError
+
+    @abstractmethod
+    def to_dict(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def is_json(self) -> bool:
         raise NotImplementedError

@@ -33,6 +33,7 @@ def zarinpal_provider(
     message_service,
     http_client,
     http_request_class,
+    http_headers_class,
 ):
     """Fixture to create a ZarinpalProvider instance."""
     return ZarinpalProvider(
@@ -40,6 +41,7 @@ def zarinpal_provider(
         message_service,
         http_client,
         http_request_class,
+        http_headers_class,
     )
 
 

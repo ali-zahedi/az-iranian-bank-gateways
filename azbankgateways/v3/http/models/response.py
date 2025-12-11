@@ -4,11 +4,11 @@ import json
 from typing import Any
 
 from azbankgateways.v3.exceptions.internal import InternalInvalidJsonError
-from azbankgateways.v3.interfaces import HttpResponseInterface
+from azbankgateways.v3.interfaces import HttpHeadersInterface, HttpResponseInterface
 
 
 class HttpResponse(HttpResponseInterface):
-    def __init__(self, status_code: int, headers: dict[str, Any], body: Any) -> None:
+    def __init__(self, status_code: int, headers: HttpHeadersInterface, body: Any) -> None:
         self._status_code = status_code
         self._headers = headers or {}
         self._body = body
@@ -18,7 +18,7 @@ class HttpResponse(HttpResponseInterface):
         return self._status_code
 
     @property
-    def headers(self) -> dict[str, Any]:
+    def headers(self) -> HttpHeadersInterface:
         return self._headers
 
     @property
@@ -27,7 +27,7 @@ class HttpResponse(HttpResponseInterface):
 
     @property
     def is_json(self) -> bool:
-        return self.headers.get('Content-Type') == 'application/json'
+        return self.headers.is_json
 
     def json(self) -> dict[str, Any]:
         if not self.is_json:
