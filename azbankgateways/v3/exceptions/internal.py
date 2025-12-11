@@ -60,3 +60,10 @@ class InternalInvalidGatewayResponseError(AZBankInternalException):
 
     def __init__(self, message: str | None = None, *args) -> None:
         super().__init__(message, *args)
+
+
+class InternalInvalidGatewayConfigError(AZBankInternalException):
+    default_message = ""
+
+    def __init__(self, message: str | None = None, *args) -> None:
+        super().__init__(message, *args)

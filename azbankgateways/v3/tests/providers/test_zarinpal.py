@@ -5,6 +5,7 @@ from requests import ConnectionError, Timeout
 
 from azbankgateways.v3.exceptions.internal import (
     InternalConnectionError,
+    InternalInvalidGatewayResponseError,
     InternalMinimumAmountError,
     InternalRejectPaymentError,
 )
@@ -24,6 +25,7 @@ def zarinpal_payment_config(callback_url_generator):
         payment_request_url=URL("https://az.bank/request/"),
         start_payment_url=URL("https://az.bank/start/"),
         verify_payment_url=URL("https://az.bank/verify/"),
+        reverse_payment_url=URL("https://az.bank/reverse/"),
     )
 
 
@@ -58,7 +60,7 @@ def order_details():
     )
 
 
-def test_zarinpal__payment_request__successful(
+def test_zarinpal_payment_request__successful(
     zarinpal_provider,
     responses,
     order_details,
@@ -84,6 +86,30 @@ def test_zarinpal__payment_request__successful(
     assert str(payment_request.url) == 'https://az.bank/start/A00000001/'
 
 
+def test_zarinpal_payment_request__invalid_gateway_response(
+    zarinpal_provider,
+    responses,
+    order_details,
+):
+    responses.add(
+        responses.POST,
+        "https://az.bank/request/",
+        json={
+            "data": {
+                "code": 100,
+                "message": "Success",
+                "fee_type": "Merchant",
+                "fee": 100,
+            },
+            "errors": [],
+        },
+        status=200,
+    )
+
+    with pytest.raises(InternalInvalidGatewayResponseError):
+        zarinpal_provider.create_payment_request(order_details)
+
+
 @pytest.mark.parametrize(
     "errors",
     [
@@ -94,7 +120,7 @@ def test_zarinpal__payment_request__successful(
         ],
     ],
 )
-def test_zarinpal__payment_request__failed(
+def test_zarinpal_payment_request__failed(
     zarinpal_provider,
     responses,
     order_details,
@@ -112,7 +138,7 @@ def test_zarinpal__payment_request__failed(
 
 
 @pytest.mark.parametrize("side_effect", [ConnectionError, Timeout])
-def test_zarinpal__payment_request__failed__side_effect(
+def test_zarinpal_payment_request__failed_with_side_effect(
     zarinpal_provider, responses, side_effect, order_details
 ):
     responses.add(
@@ -125,7 +151,7 @@ def test_zarinpal__payment_request__failed__side_effect(
         assert zarinpal_provider.create_payment_request(order_details)
 
 
-def test_zarinpal__minimum_amount(
+def test_zarinpal_payment_reqeust__minimum_amount(
     zarinpal_provider,
     order_details,
 ):
@@ -155,7 +181,7 @@ def test_zarinpal__minimum_amount(
         ),
     ],
 )
-def test_zarinpal__verify(responses, zarinpal_provider, verify_code, is_verified, description):
+def test_zarinpal_verify(responses, zarinpal_provider, verify_code, is_verified, description):
     verify_response = {
         "data": {
             "code": verify_code,
@@ -176,3 +202,66 @@ def test_zarinpal__verify(responses, zarinpal_provider, verify_code, is_verified
     )
 
     assert zarinpal_provider.verify_payment("123", Decimal("100")) == is_verified
+
+
+def test_zarinpal_verify__invalid_gateway_response(responses, zarinpal_provider):
+    verify_response = {
+        "data": {
+            "card_hash": "1EBE3EBEBE35C",
+            "card_pan": "502229******5995",
+            "ref_id": 201,
+            "fee_type": "Merchant",
+            "fee": 0,
+        },
+        "errors": [],
+    }
+    responses.add(
+        responses.POST,
+        "https://az.bank/verify/",
+        json=verify_response,
+        status=200,
+    )
+
+    with pytest.raises(InternalInvalidGatewayResponseError):
+        zarinpal_provider.verify_payment("123", Decimal("100"))
+
+
+def test_zarinpal_reverse_payment__successful(responses, zarinpal_provider):
+    reverse_response = {"data": {"code": 100, "message": "Reversed"}, "errors": []}
+    responses.add(
+        responses.POST,
+        "https://az.bank/reverse/",
+        json=reverse_response,
+        status=200,
+    )
+
+    assert zarinpal_provider.reverse_payment("123") is True
+
+
+def test_zarinpal_reverse_payment__failed(responses, zarinpal_provider):
+    reverse_response = {
+        "data": {},
+        "errors": {"message": "Terminal ip limit most be active.", "code": -62, "validations": []},
+    }
+    responses.add(
+        responses.POST,
+        "https://az.bank/reverse/",
+        json=reverse_response,
+        status=200,
+    )
+
+    with pytest.raises(InternalRejectPaymentError):
+        zarinpal_provider.reverse_payment("123")
+
+
+def test_zarinpal_reverse_payment__invalid_gateway_response(responses, zarinpal_provider):
+    reverse_response = {"data": {"message": "Reversed"}, "errors": []}
+    responses.add(
+        responses.POST,
+        "https://az.bank/reverse/",
+        json=reverse_response,
+        status=200,
+    )
+
+    with pytest.raises(InternalInvalidGatewayResponseError):
+        zarinpal_provider.reverse_payment("123")

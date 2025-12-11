@@ -281,6 +281,10 @@ class ProviderInterface(ABC, ProviderProtocol):
     def check_minimum_amount(self, order_details: OrderDetails) -> None:
         raise NotImplementedError
 
+    @abstractmethod
+    def reverse_payment(self, reference_number: str) -> bool:
+        raise NotImplementedError
+
 
 class HttpHeadersInterface(ABC):
     @abstractmethod
