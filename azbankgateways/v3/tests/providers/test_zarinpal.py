@@ -10,7 +10,7 @@ from azbankgateways.v3.exceptions.internal import (
     InternalRejectPaymentError,
 )
 from azbankgateways.v3.http import URL
-from azbankgateways.v3.interfaces import OrderDetails
+from azbankgateways.v3.interfaces import OrderDetails, PaymentStatus
 from azbankgateways.v3.providers.zarinpal import (
     ZarinpalPaymentGatewayConfig,
     ZarinpalProvider,
@@ -26,6 +26,7 @@ def zarinpal_payment_config(callback_url_generator):
         start_payment_url=URL("https://az.bank/start/"),
         verify_payment_url=URL("https://az.bank/verify/"),
         reverse_payment_url=URL("https://az.bank/reverse/"),
+        inquiry_payment_url=URL("https://az.bank/inquiry/"),
     )
 
 
@@ -265,3 +266,28 @@ def test_zarinpal_reverse_payment__invalid_gateway_response(responses, zarinpal_
 
     with pytest.raises(InternalInvalidGatewayResponseError):
         zarinpal_provider.reverse_payment("123")
+
+
+def test_zarinpal_inquiry_payment(responses, zarinpal_provider):
+    response = {"data": {"status": "PAID", "code": 100, "message": "Success"}, "errors": []}
+    responses.add(
+        responses.POST,
+        "https://az.bank/inquiry/",
+        json=response,
+        status=200,
+    )
+
+    assert zarinpal_provider.inquiry_payment("123") == PaymentStatus.PAID
+
+
+def test_zarinpal_inquiry_payment__invalid_response(responses, zarinpal_provider):
+    response = {"data": {"code": 100, "message": "Success"}, "errors": []}
+    responses.add(
+        responses.POST,
+        "https://az.bank/inquiry/",
+        json=response,
+        status=200,
+    )
+
+    with pytest.raises(InternalInvalidGatewayResponseError):
+        zarinpal_provider.inquiry_payment("123")

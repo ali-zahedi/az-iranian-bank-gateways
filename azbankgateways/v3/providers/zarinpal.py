@@ -19,6 +19,7 @@ from azbankgateways.v3.interfaces import (
     MessageType,
     OrderDetails,
     PaymentGatewayConfigInterface,
+    PaymentStatus,
     ProviderInterface,
 )
 from azbankgateways.v3.mixins.check_dataclass_fields import CheckDataclassFieldsMixin
@@ -36,6 +37,7 @@ class ZarinpalPaymentGatewayConfig(CheckDataclassFieldsMixin, PaymentGatewayConf
     start_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/StartPay/"))
     verify_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/verify.json"))
     reverse_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/reverse.json"))
+    inquiry_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/inquiry.json"))
     http_requests_timeout: int = 20
 
     def __post_init__(self) -> None:
@@ -45,6 +47,13 @@ class ZarinpalPaymentGatewayConfig(CheckDataclassFieldsMixin, PaymentGatewayConf
 class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
     _PAYMENT_VERIFIED_STATUS_CODES = {100, 101}
     _REVERSED_SUCCESS_CODE = 100
+    _PAYMENT_STATUSES = {
+        'IN_BANK': PaymentStatus.PENDING,
+        'PAID': PaymentStatus.PAID,
+        'VERIFIED': PaymentStatus.VERIFIED,
+        'FAILED': PaymentStatus.FAILED,
+        'REVERSED': PaymentStatus.RESERVED,
+    }
 
     def __init__(
         self,
@@ -127,6 +136,19 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
         if status_code == self._REVERSED_SUCCESS_CODE:
             return True
         return False
+
+    def inquiry_payment(self, reference_number: str) -> PaymentStatus:
+        data = {
+            "merchant_id": self._config.merchant_code,
+            "authority": reference_number,
+        }
+        response = self._send_request(self._config.inquiry_payment_url, data=data)
+        status = response.get("data", {}).get("status")
+        if not status:
+            raise InternalInvalidGatewayResponseError(
+                "inquiry payment failed: `status` field missing in gateway response."
+            )
+        return self._PAYMENT_STATUSES[status]
 
     @classmethod
     def _check_response(cls, response: HttpResponseInterface) -> None:
