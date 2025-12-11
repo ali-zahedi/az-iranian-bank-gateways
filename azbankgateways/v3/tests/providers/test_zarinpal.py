@@ -277,10 +277,7 @@ def test_zarinpal_inquiry_payment(responses, zarinpal_provider):
         status=200,
     )
 
-    payment = zarinpal_provider.inquiry_payment("123")
-
-    assert payment.status == PaymentStatus.PAID
-    assert payment.extra_information == {'code': 100, 'message': 'Success', 'status': 'PAID'}
+    assert zarinpal_provider.inquiry_payment("123") == PaymentStatus.PAID
 
 
 def test_zarinpal_inquiry_payment__invalid_response(responses, zarinpal_provider):

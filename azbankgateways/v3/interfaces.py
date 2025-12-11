@@ -54,12 +54,6 @@ class PaymentStatus(str, Enum):
     RESERVED = "reserved"
 
 
-@dataclass
-class PaymentInquiryResult:
-    status: PaymentStatus
-    extra_information: dict[str, Any] | None = None
-
-
 class BankEntityInterface(ABC):
     @abstractmethod
     def persist(self):
@@ -300,7 +294,7 @@ class ProviderInterface(ABC, ProviderProtocol):
         raise NotImplementedError
 
     @abstractmethod
-    def inquiry_payment(self, reference_number: str) -> PaymentInquiryResult:
+    def inquiry_payment(self, reference_number: str) -> PaymentStatus:
         raise NotImplementedError
 
 

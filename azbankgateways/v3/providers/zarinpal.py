@@ -19,7 +19,6 @@ from azbankgateways.v3.interfaces import (
     MessageType,
     OrderDetails,
     PaymentGatewayConfigInterface,
-    PaymentInquiryResult,
     PaymentStatus,
     ProviderInterface,
 )
@@ -138,7 +137,7 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
             return True
         return False
 
-    def inquiry_payment(self, reference_number: str) -> PaymentInquiryResult:
+    def inquiry_payment(self, reference_number: str) -> PaymentStatus:
         data = {
             "merchant_id": self._config.merchant_code,
             "authority": reference_number,
@@ -149,7 +148,7 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
             raise InternalInvalidGatewayResponseError(
                 "inquiry payment failed: `status` field missing in gateway response."
             )
-        return PaymentInquiryResult(status=self._PAYMENT_STATUSES[status], extra_information=response['data'])
+        return self._PAYMENT_STATUSES[status]
 
     @classmethod
     def _check_response(cls, response: HttpResponseInterface) -> None:
