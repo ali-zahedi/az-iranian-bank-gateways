@@ -1,6 +1,6 @@
 from azbankgateways.v3.interfaces import (
     BankEntityInterface,
-    HttpRequestInterface,
+    HTTPRequestInterface,
     OrderDetails,
     ProviderInterface,
 )
@@ -12,10 +12,10 @@ class PaymentGateway:
         self.provider = provider
         self.storage = storage
 
-    def create_payment_request(self, order_details: OrderDetails) -> HttpRequestInterface:
+    def create_payment_request(self, order_details: OrderDetails) -> HTTPRequestInterface:
         return self.provider.create_payment_request(order_details)
 
-    def process_payment(self, transaction_data):
-        # self.provider.process_transaction(transaction_data)
-        # self.storage.save(transaction_data)
-        raise NotImplementedError()
+    # def process_payment(self, transaction_data):
+    # self.provider.process_transaction(transaction_data)
+    # self.storage.save(transaction_data)
+    # raise NotImplementedError()

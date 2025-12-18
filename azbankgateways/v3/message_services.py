@@ -7,7 +7,7 @@ from azbankgateways.v3.interfaces import MessageServiceInterface, MessageType
 
 class MessageService(MessageServiceInterface):
     # TODO: Temp solution
-    def __init__(self):
+    def __init__(self) -> None:
         self.__default_messages = {
             MessageType.DESCRIPTION: "Purchase with tracking code - {tracking_code}",
             MessageType.TIMEOUT_ERROR: "Timeout while connecting to {request.url} with data {request.data}",
@@ -26,8 +26,8 @@ class MessageService(MessageServiceInterface):
         }
 
     def generate_message(self, key: MessageType, context: dict[str, Any]) -> str:
-        message_template = context.get(f"{key.value}_template", self.__default_messages.get(key, ""))
+        message_template: str = context.get(f"{key.value}_template", self.__default_messages.get(key, ""))
         return message_template.format(**context)
 
-    def get_required_parameters(self, key: MessageType) -> list | None:
-        return self.__message_parameters.get(key)
+    def get_required_parameters(self, key: MessageType) -> list[str]:
+        return self.__message_parameters.get(key, [])

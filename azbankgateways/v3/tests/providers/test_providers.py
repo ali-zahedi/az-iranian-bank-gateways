@@ -1,7 +1,7 @@
 import importlib
 import inspect
 import pkgutil
-from typing import Set, Type
+from typing import Any, Set, Type
 
 import pytest
 
@@ -19,13 +19,13 @@ def discover_provider_modules() -> None:
         importlib.import_module(module_info.name)
 
 
-def get_init_params(cls: Type) -> Set[str]:
+def get_init_params(cls: Type[Any]) -> Set[str]:
     """Return the set of parameter names for a class __init__, excluding 'self'."""
     sig = inspect.signature(cls.__init__)
     return {p for p in sig.parameters if p != "self"}
 
 
-def test_provider_init_signature_and_attributes():
+def test_provider_init_signature_and_attributes() -> None:
     """
     Verify that each ProviderInterface subclass:
     1. Defines its own __init__ method.

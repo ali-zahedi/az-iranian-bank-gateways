@@ -1,7 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
 
 from azbankgateways.v3.exceptions.internal import InternalInvalidJsonError
-from azbankgateways.v3.http import HttpResponse
+from azbankgateways.v3.http import HTTPResponse
+
+
+if TYPE_CHECKING:
+    from azbankgateways.v3.interfaces import HTTPHeadersInterface
+    from azbankgateways.v3.typing import HTTPHeaders as HTTPHeadersType
 
 
 @pytest.mark.parametrize(
@@ -12,8 +21,8 @@ from azbankgateways.v3.http import HttpResponse
         (200, True),
     ],
 )
-def test_ok(status_code, expected_ok, http_headers_class):
-    response = HttpResponse(status_code=status_code, headers=http_headers_class({}), body={})
+def test_ok(status_code: int, expected_ok: bool, http_headers_class: type[HTTPHeadersInterface]) -> None:
+    response = HTTPResponse(status_code=status_code, headers=http_headers_class({}), body={})
 
     assert response.ok is expected_ok
 
@@ -25,15 +34,17 @@ def test_ok(status_code, expected_ok, http_headers_class):
         ({'content-type': 'text/xml'}, 'Incorrect Json'),
     ],
 )
-def test_invalid_json(headers, body, http_headers_class):
-    response = HttpResponse(status_code=200, headers=http_headers_class(headers), body=body)
+def test_invalid_json(
+    headers: HTTPHeadersType, body: str, http_headers_class: type[HTTPHeadersInterface]
+) -> None:
+    response = HTTPResponse(status_code=200, headers=http_headers_class(headers), body=body)
 
     with pytest.raises(InternalInvalidJsonError):
         response.json()
 
 
-def test_json(http_headers_class):
-    response = HttpResponse(
+def test_json(http_headers_class: type[HTTPHeadersInterface]) -> None:
+    response = HTTPResponse(
         status_code=200,
         headers=http_headers_class({'content-type': 'application/json'}),
         body='{"price": 100}',

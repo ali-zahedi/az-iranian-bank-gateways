@@ -2,15 +2,18 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from decimal import Decimal
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING
 
 from azbankgateways.v3.protocols import ProviderProtocol
 
 
 if TYPE_CHECKING:
+    from decimal import Decimal
+    from typing import Any
+
     from azbankgateways.v3.http import URL
+    from azbankgateways.v3.typing import HTTPHeaders as HTTPHeadersType, JSONDocument
 
 
 # TODO: abstract
@@ -36,7 +39,7 @@ class MessageType(Enum):
     JSON_DECODE_ERROR = 'json_decode_error'
 
 
-class HttpMethod(Enum):
+class HTTPMethod(Enum):
     GET = "GET"
     POST = "POST"
     PUT = "PUT"
@@ -56,7 +59,7 @@ class PaymentStatus(str, Enum):
 
 class BankEntityInterface(ABC):
     @abstractmethod
-    def persist(self):
+    def persist(self) -> None:
         raise NotImplementedError
 
 
@@ -66,11 +69,11 @@ class MessageServiceInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_required_parameters(self, key: MessageType) -> list | None:
+    def get_required_parameters(self, key: MessageType) -> list[str]:
         raise NotImplementedError
 
 
-class HttpRequestInterface(ABC):
+class HTTPRequestInterface(ABC):
     """
     An interface for defining the structure of a redirect request, typically used to
      manage payment redirections or external API redirects.
@@ -84,17 +87,17 @@ class HttpRequestInterface(ABC):
     @abstractmethod
     def __init__(
         self,
-        http_method: HttpMethod,
+        http_method: HTTPMethod,
         url: URL,
         timeout: int,
-        headers: HttpHeadersInterface | None = None,
+        headers: HTTPHeadersInterface | None = None,
         data: dict[str, Any] | None = None,
     ) -> None:
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def http_method(self) -> HttpMethod:
+    def http_method(self) -> HTTPMethod:
         raise NotImplementedError
 
     @property
@@ -109,7 +112,7 @@ class HttpRequestInterface(ABC):
 
     @property
     @abstractmethod
-    def headers(self) -> HttpHeadersInterface | None:
+    def headers(self) -> HTTPHeadersInterface | None:
         raise NotImplementedError
 
     @property
@@ -128,7 +131,7 @@ class HttpRequestInterface(ABC):
         raise NotImplementedError
 
 
-class HttpResponseInterface(ABC):
+class HTTPResponseInterface(ABC):
     """
     An interface representing the structure of an HTTP response.
 
@@ -142,7 +145,7 @@ class HttpResponseInterface(ABC):
     """
 
     @abstractmethod
-    def __init__(self, status_code: int, headers: HttpHeadersInterface, body: Any) -> None:
+    def __init__(self, status_code: int, headers: HTTPHeadersInterface, body: Any) -> None:
         raise NotImplementedError
 
     @property
@@ -152,7 +155,7 @@ class HttpResponseInterface(ABC):
 
     @property
     @abstractmethod
-    def headers(self) -> HttpHeadersInterface:
+    def headers(self) -> HTTPHeadersInterface:
         raise NotImplementedError
 
     @property
@@ -183,12 +186,12 @@ class HttpResponseInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def json(self) -> dict[str, Any]:
+    def json(self) -> JSONDocument:
         """
         Parses and returns the response body as a JSON object if available.
 
-        :return: Dictionary representing the JSON body.
-        :raises BankGatewayHttpResponseError: If the body cannot be parsed as JSON.
+        :return: Dictionary or list representing the JSON body.
+        :raises InternalInvalidJsonError: If the body cannot be parsed as JSON.
         """
         raise NotImplementedError
 
@@ -212,9 +215,6 @@ class OrderDetails:
     description: str | None = None
 
 
-CallbackURLType = Callable[[OrderDetails], "URL"]
-
-
 class PaymentGatewayConfigInterface(ABC):
     """Payment Gateway configuration interface."""
 
@@ -222,33 +222,33 @@ class PaymentGatewayConfigInterface(ABC):
     #  decorated with @dataclass(frozen=True, slots=True).
 
 
-class HttpClientInterface(ABC):
+class HTTPClientInterface(ABC):
     @abstractmethod
     def __init__(
-        self, http_response_class: type[HttpResponseInterface], http_headers_class: type[HttpHeadersInterface]
+        self, http_response_class: type[HTTPResponseInterface], http_headers_class: type[HTTPHeadersInterface]
     ) -> None:
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def http_response_class(self) -> type[HttpResponseInterface]:
+    def http_response_class(self) -> type[HTTPResponseInterface]:
         raise NotImplementedError
 
     @abstractmethod
     def send(
         self,
-        http_request: HttpRequestInterface,
-    ) -> HttpResponseInterface:
+        http_request: HTTPRequestInterface,
+    ) -> HTTPResponseInterface:
         """
         Send an HTTP request and return the corresponding response.
 
         Implementations must perform the network call and return a response object conforming to HttpResponseInterface.
 
         Args:
-            http_request (HttpRequestInterface): The request to send.
+            http_request (HTTPRequestInterface): The request to send.
 
         Returns:
-            HttpResponseInterface: The response associated with the request.
+            HTTPResponseInterface: The response associated with the request.
         """
         raise NotImplementedError
 
@@ -259,9 +259,9 @@ class ProviderInterface(ABC, ProviderProtocol):
         self,
         config: PaymentGatewayConfigInterface,
         message_service: MessageServiceInterface,
-        http_client: HttpClientInterface,
-        http_request_class: type[HttpRequestInterface],
-        http_headers_class: type[HttpHeadersInterface],
+        http_client: HTTPClientInterface,
+        http_request_class: type[HTTPRequestInterface],
+        http_headers_class: type[HTTPHeadersInterface],
     ) -> None:
         raise NotImplementedError
 
@@ -277,7 +277,7 @@ class ProviderInterface(ABC, ProviderProtocol):
         raise NotImplementedError
 
     @abstractmethod
-    def create_payment_request(self, order_details: OrderDetails) -> HttpRequestInterface:
+    def create_payment_request(self, order_details: OrderDetails) -> HTTPRequestInterface:
         # TODO: add proper doc string
         raise NotImplementedError
 
@@ -298,9 +298,9 @@ class ProviderInterface(ABC, ProviderProtocol):
         raise NotImplementedError
 
 
-class HttpHeadersInterface(ABC):
+class HTTPHeadersInterface(ABC):
     @abstractmethod
-    def __init__(self, headers: dict[str, Any]) -> None:
+    def __init__(self, headers: HTTPHeadersType) -> None:
         raise NotImplementedError
 
     @abstractmethod
@@ -308,7 +308,7 @@ class HttpHeadersInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> HTTPHeadersType:
         raise NotImplementedError
 
     @property

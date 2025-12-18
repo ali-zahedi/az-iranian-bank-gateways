@@ -1,16 +1,23 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import responses as responses_lib
 from pytest import fixture
 
-from azbankgateways.v3.interfaces import (
-    CallbackURLType,
-    MessageServiceInterface,
-    OrderDetails,
-)
+from azbankgateways.v3.http import URL
 from azbankgateways.v3.message_services import MessageService
 
 
+if TYPE_CHECKING:
+    from typing import Any
+
+    from azbankgateways.v3.interfaces import MessageServiceInterface, OrderDetails
+    from azbankgateways.v3.typing import CallbackURL
+
+
 @fixture(autouse=True)
-def responses():
+def responses() -> Any:
     """
     Globally register responses in every test.
     This causes every test to fail that makes external HTTP requests via the "requests" library.
@@ -38,8 +45,8 @@ def base_callback_url() -> str:
 
 
 @fixture
-def callback_url_generator(base_callback_url: str) -> CallbackURLType:
-    def callback(order_details: OrderDetails) -> str:
-        return f"{base_callback_url}/{order_details.tracking_code}"
+def callback_url_generator(base_callback_url: str) -> CallbackURL:
+    def callback(order_details: OrderDetails) -> URL:
+        return URL(base_callback_url).join(order_details.tracking_code)
 
     return callback

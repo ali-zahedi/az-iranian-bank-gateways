@@ -2,34 +2,31 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from azbankgateways.v3.interfaces import (
-    HttpHeadersInterface,
-    HttpMethod,
-    HttpRequestInterface,
-)
+from azbankgateways.v3.interfaces import HTTPRequestInterface
 
 
 if TYPE_CHECKING:
     from azbankgateways.v3.http import URL
+    from azbankgateways.v3.interfaces import HTTPHeadersInterface, HTTPMethod
 
 
-class HttpRequest(HttpRequestInterface):
+class HTTPRequest(HTTPRequestInterface):
     def __init__(
         self,
-        http_method: HttpMethod,
+        http_method: HTTPMethod,
         url: URL,
         timeout: int,
-        headers: HttpHeadersInterface | None = None,
+        headers: HTTPHeadersInterface | None = None,
         data: dict[str, Any] | None = None,
     ) -> None:
         self._http_method = http_method
         self._url = url
-        self._headers = headers or {}
+        self._headers = headers
         self._data = data or {}
         self._timeout = timeout
 
     @property
-    def http_method(self) -> HttpMethod:
+    def http_method(self) -> HTTPMethod:
         return self._http_method
 
     @property
@@ -41,7 +38,7 @@ class HttpRequest(HttpRequestInterface):
         return self._timeout
 
     @property
-    def headers(self) -> HttpHeadersInterface:
+    def headers(self) -> HTTPHeadersInterface | None:
         return self._headers
 
     @property
@@ -50,4 +47,4 @@ class HttpRequest(HttpRequestInterface):
 
     @property
     def is_json(self) -> bool:
-        return self.headers.is_json
+        return self.headers.is_json if self.headers else False

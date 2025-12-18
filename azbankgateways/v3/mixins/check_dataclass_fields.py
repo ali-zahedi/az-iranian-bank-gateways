@@ -1,12 +1,21 @@
-from dataclasses import fields
-from types import UnionType
-from typing import get_args, get_origin
+from __future__ import annotations
 
-from azbankgateways.v3.exceptions.internal import AZBankInternalException
+from dataclasses import fields, is_dataclass
+from types import UnionType
+from typing import TYPE_CHECKING, get_args, get_origin
+
+
+if TYPE_CHECKING:
+    from azbankgateways.v3.exceptions.internal import AZBankInternalException
 
 
 class CheckDataclassFieldsMixin:
-    def check_fields(self, error_class: type[AZBankInternalException]):
+    def check_fields(self, error_class: type[AZBankInternalException]) -> None:
+        if not is_dataclass(self):
+            raise TypeError(
+                f"{self.__class__.__name__} must be a dataclass to use CheckDataclassFieldsMixin."
+            )
+
         for config_field in fields(self):
             annotation = config_field.type
             field_name = config_field.name

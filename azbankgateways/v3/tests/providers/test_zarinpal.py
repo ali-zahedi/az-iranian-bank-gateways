@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 import pytest
 from requests import ConnectionError, Timeout
@@ -11,14 +14,26 @@ from azbankgateways.v3.exceptions.internal import (
 )
 from azbankgateways.v3.http import URL
 from azbankgateways.v3.interfaces import OrderDetails, PaymentStatus
+from azbankgateways.v3.message_services import MessageService
 from azbankgateways.v3.providers.zarinpal import (
     ZarinpalPaymentGatewayConfig,
     ZarinpalProvider,
 )
 
 
+if TYPE_CHECKING:
+    from responses import RequestsMock
+
+    from azbankgateways.v3.interfaces import (
+        HTTPClientInterface,
+        HTTPHeadersInterface,
+        HTTPRequestInterface,
+    )
+    from azbankgateways.v3.typing import CallbackURL, JSONDocument
+
+
 @pytest.fixture
-def zarinpal_payment_config(callback_url_generator):
+def zarinpal_payment_config(callback_url_generator: CallbackURL) -> ZarinpalPaymentGatewayConfig:
     return ZarinpalPaymentGatewayConfig(
         merchant_code="zarinpal-merchant-code",
         callback_url_generator=callback_url_generator,
@@ -32,12 +47,12 @@ def zarinpal_payment_config(callback_url_generator):
 
 @pytest.fixture
 def zarinpal_provider(
-    zarinpal_payment_config,
-    message_service,
-    http_client,
-    http_request_class,
-    http_headers_class,
-):
+    zarinpal_payment_config: ZarinpalPaymentGatewayConfig,
+    message_service: MessageService,
+    http_client: HTTPClientInterface,
+    http_request_class: type[HTTPRequestInterface],
+    http_headers_class: type[HTTPHeadersInterface],
+) -> ZarinpalProvider:
     """Fixture to create a ZarinpalProvider instance."""
     return ZarinpalProvider(
         zarinpal_payment_config,
@@ -49,7 +64,7 @@ def zarinpal_provider(
 
 
 @pytest.fixture
-def order_details():
+def order_details() -> OrderDetails:
     return OrderDetails(
         amount=Decimal(1000.01),
         tracking_code="tracking-code-1",
@@ -62,10 +77,10 @@ def order_details():
 
 
 def test_zarinpal_payment_request__successful(
-    zarinpal_provider,
-    responses,
-    order_details,
-):
+    zarinpal_provider: ZarinpalProvider,
+    responses: RequestsMock,
+    order_details: OrderDetails,
+) -> None:
     responses.add(
         responses.POST,
         "https://az.bank/request/",
@@ -88,10 +103,10 @@ def test_zarinpal_payment_request__successful(
 
 
 def test_zarinpal_payment_request__invalid_gateway_response(
-    zarinpal_provider,
-    responses,
-    order_details,
-):
+    zarinpal_provider: ZarinpalProvider,
+    responses: RequestsMock,
+    order_details: OrderDetails,
+) -> None:
     responses.add(
         responses.POST,
         "https://az.bank/request/",
@@ -122,11 +137,11 @@ def test_zarinpal_payment_request__invalid_gateway_response(
     ],
 )
 def test_zarinpal_payment_request__failed(
-    zarinpal_provider,
-    responses,
-    order_details,
-    errors,
-):
+    zarinpal_provider: ZarinpalProvider,
+    responses: RequestsMock,
+    order_details: OrderDetails,
+    errors: JSONDocument,
+) -> None:
     responses.add(
         responses.POST,
         "https://az.bank/request/",
@@ -140,8 +155,11 @@ def test_zarinpal_payment_request__failed(
 
 @pytest.mark.parametrize("side_effect", [ConnectionError, Timeout])
 def test_zarinpal_payment_request__failed_with_side_effect(
-    zarinpal_provider, responses, side_effect, order_details
-):
+    zarinpal_provider: ZarinpalProvider,
+    responses: RequestsMock,
+    side_effect: type[Exception],
+    order_details: OrderDetails,
+) -> None:
     responses.add(
         responses.POST,
         "https://az.bank/request/",
@@ -153,9 +171,9 @@ def test_zarinpal_payment_request__failed_with_side_effect(
 
 
 def test_zarinpal_payment_reqeust__minimum_amount(
-    zarinpal_provider,
-    order_details,
-):
+    zarinpal_provider: ZarinpalProvider,
+    order_details: OrderDetails,
+) -> None:
     order_details.amount = Decimal(100)
 
     with pytest.raises(InternalMinimumAmountError):
@@ -182,7 +200,13 @@ def test_zarinpal_payment_reqeust__minimum_amount(
         ),
     ],
 )
-def test_zarinpal_verify(responses, zarinpal_provider, verify_code, is_verified, description):
+def test_zarinpal_verify(
+    responses: RequestsMock,
+    zarinpal_provider: ZarinpalProvider,
+    verify_code: int,
+    is_verified: bool,
+    description: str,
+) -> None:
     verify_response = {
         "data": {
             "code": verify_code,
@@ -205,7 +229,9 @@ def test_zarinpal_verify(responses, zarinpal_provider, verify_code, is_verified,
     assert zarinpal_provider.verify_payment("123", Decimal("100")) == is_verified
 
 
-def test_zarinpal_verify__invalid_gateway_response(responses, zarinpal_provider):
+def test_zarinpal_verify__invalid_gateway_response(
+    responses: RequestsMock, zarinpal_provider: ZarinpalProvider
+) -> None:
     verify_response = {
         "data": {
             "card_hash": "1EBE3EBEBE35C",
@@ -227,7 +253,9 @@ def test_zarinpal_verify__invalid_gateway_response(responses, zarinpal_provider)
         zarinpal_provider.verify_payment("123", Decimal("100"))
 
 
-def test_zarinpal_reverse_payment__successful(responses, zarinpal_provider):
+def test_zarinpal_reverse_payment__successful(
+    responses: RequestsMock, zarinpal_provider: ZarinpalProvider
+) -> None:
     reverse_response = {"data": {"code": 100, "message": "Reversed"}, "errors": []}
     responses.add(
         responses.POST,
@@ -239,7 +267,9 @@ def test_zarinpal_reverse_payment__successful(responses, zarinpal_provider):
     assert zarinpal_provider.reverse_payment("123") is True
 
 
-def test_zarinpal_reverse_payment__failed(responses, zarinpal_provider):
+def test_zarinpal_reverse_payment__failed(
+    responses: RequestsMock, zarinpal_provider: ZarinpalProvider
+) -> None:
     reverse_response = {
         "data": {},
         "errors": {"message": "Terminal ip limit most be active.", "code": -62, "validations": []},
@@ -255,7 +285,9 @@ def test_zarinpal_reverse_payment__failed(responses, zarinpal_provider):
         zarinpal_provider.reverse_payment("123")
 
 
-def test_zarinpal_reverse_payment__invalid_gateway_response(responses, zarinpal_provider):
+def test_zarinpal_reverse_payment__invalid_gateway_response(
+    responses: RequestsMock, zarinpal_provider: ZarinpalProvider
+) -> None:
     reverse_response = {"data": {"message": "Reversed"}, "errors": []}
     responses.add(
         responses.POST,
@@ -268,7 +300,7 @@ def test_zarinpal_reverse_payment__invalid_gateway_response(responses, zarinpal_
         zarinpal_provider.reverse_payment("123")
 
 
-def test_zarinpal_inquiry_payment(responses, zarinpal_provider):
+def test_zarinpal_inquiry_payment(responses: RequestsMock, zarinpal_provider: ZarinpalProvider) -> None:
     response = {"data": {"status": "PAID", "code": 100, "message": "Success"}, "errors": []}
     responses.add(
         responses.POST,
@@ -280,7 +312,9 @@ def test_zarinpal_inquiry_payment(responses, zarinpal_provider):
     assert zarinpal_provider.inquiry_payment("123") == PaymentStatus.PAID
 
 
-def test_zarinpal_inquiry_payment__invalid_response(responses, zarinpal_provider):
+def test_zarinpal_inquiry_payment__invalid_response(
+    responses: RequestsMock, zarinpal_provider: ZarinpalProvider
+) -> None:
     response = {"data": {"code": 100, "message": "Success"}, "errors": []}
     responses.add(
         responses.POST,

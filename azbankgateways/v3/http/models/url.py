@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Self
 from urllib.parse import urlparse
 
 
@@ -21,6 +22,6 @@ class URL:
     def __repr__(self) -> str:
         return f"URL({self.value!r})"
 
-    def join(self, path: str) -> Self:
+    def join(self, path: str) -> "URL":
         """Join a relative path to this base URL"""
         return URL(self.value.rstrip("/") + "/" + path.lstrip("/"))

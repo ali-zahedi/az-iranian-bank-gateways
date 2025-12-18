@@ -1,20 +1,19 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Any
+from typing import Any, cast
 
 from azbankgateways.v3.exceptions.internal import (
     InternalInvalidGatewayConfigError,
     InternalInvalidGatewayResponseError,
     InternalRejectPaymentError,
 )
-from azbankgateways.v3.http import URL, HttpHeaders
+from azbankgateways.v3.http import URL, HTTPHeaders
 from azbankgateways.v3.interfaces import (
-    CallbackURLType,
-    HttpClientInterface,
-    HttpHeadersInterface,
-    HttpMethod,
-    HttpRequestInterface,
-    HttpResponseInterface,
+    HTTPClientInterface,
+    HTTPHeadersInterface,
+    HTTPMethod,
+    HTTPRequestInterface,
+    HTTPResponseInterface,
     MessageServiceInterface,
     MessageType,
     OrderDetails,
@@ -24,6 +23,7 @@ from azbankgateways.v3.interfaces import (
 )
 from azbankgateways.v3.mixins.check_dataclass_fields import CheckDataclassFieldsMixin
 from azbankgateways.v3.mixins.minimum_amount_check import MinimumAmountCheckMixin
+from azbankgateways.v3.typing import CallbackURL, JSONObject
 
 
 # TODO: Ensure all subclasses of PaymentGatewayConfigInterface are
@@ -31,7 +31,7 @@ from azbankgateways.v3.mixins.minimum_amount_check import MinimumAmountCheckMixi
 @dataclass(frozen=True, slots=True)
 class ZarinpalPaymentGatewayConfig(CheckDataclassFieldsMixin, PaymentGatewayConfigInterface):
     merchant_code: str
-    callback_url_generator: CallbackURLType
+    callback_url_generator: CallbackURL
 
     payment_request_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/request.json/"))
     start_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/StartPay/"))
@@ -45,7 +45,7 @@ class ZarinpalPaymentGatewayConfig(CheckDataclassFieldsMixin, PaymentGatewayConf
 
 
 class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
-    _PAYMENT_VERIFIED_STATUS_CODES = {100, 101}
+    _PAYMENT_VERIFIED_CODES = {100, 101}
     _REVERSED_SUCCESS_CODE = 100
     _PAYMENT_STATUSES = {
         'IN_BANK': PaymentStatus.PENDING,
@@ -59,9 +59,9 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
         self,
         config: ZarinpalPaymentGatewayConfig,
         message_service: MessageServiceInterface,
-        http_client: HttpClientInterface,
-        http_request_class: type[HttpRequestInterface],
-        http_headers_class: type[HttpHeadersInterface],
+        http_client: HTTPClientInterface,
+        http_request_class: type[HTTPRequestInterface],
+        http_headers_class: type[HTTPHeadersInterface],
     ) -> None:
         self._config = config
         self._message_service = message_service
@@ -73,13 +73,13 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
     def minimum_amount(self) -> Decimal:
         return Decimal(1000)
 
-    def create_payment_request(self, order_details: OrderDetails) -> HttpRequestInterface:
+    def create_payment_request(self, order_details: OrderDetails) -> HTTPRequestInterface:
         # TODO: move check_minimum_amount function to PaymentGateway once `PaymentGateway` is implemented.
         self.check_minimum_amount(order_details)
         data = {
             'merchant_id': self._config.merchant_code,
             'amount': int(order_details.amount),
-            'callback_url': self._config.callback_url_generator(order_details),
+            'callback_url': str(self._config.callback_url_generator(order_details)),
             'description': self._message_service.generate_message(
                 MessageType.DESCRIPTION,
                 {
@@ -98,14 +98,14 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
             "currency": "IRR",
         }
         http_response = self._send_request(self._config.payment_request_url, data=data)
-        payment_token = http_response.get("data", {}).get("authority")
+        payment_token = self._get_response_data(http_response).get("authority")
         if not payment_token:
             raise InternalInvalidGatewayResponseError(
                 "Payment request failed: `authority` token missing in gateway response."
             )
-        redirect_url = self._config.start_payment_url.join(payment_token)
+        redirect_url = self._config.start_payment_url.join(cast(str, payment_token))
         return self._http_request_class(
-            http_method=HttpMethod.GET, url=redirect_url, timeout=self._config.http_requests_timeout
+            http_method=HTTPMethod.GET, url=redirect_url, timeout=self._config.http_requests_timeout
         )
 
     def verify_payment(self, reference_number: str, amount: Decimal) -> bool:
@@ -115,12 +115,12 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
             'amount': int(amount),
         }
         http_response = self._send_request(self._config.verify_payment_url, data=data)
-        status_code = http_response.get("data", {}).get("code")
-        if not status_code:
+        code = self._get_response_data(http_response).get("code")
+        if not code:
             raise InternalInvalidGatewayResponseError(
                 "Payment verification failed: `code` field missing in gateway response."
             )
-        return status_code in self._PAYMENT_VERIFIED_STATUS_CODES
+        return code in self._PAYMENT_VERIFIED_CODES
 
     def reverse_payment(self, reference_number: str) -> bool:
         data = {
@@ -128,39 +128,39 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
             "authority": reference_number,
         }
         http_response = self._send_request(self._config.reverse_payment_url, data=data)
-        status_code = http_response.get('data', {}).get('code')
-        if not status_code:
+        code = self._get_response_data(http_response).get('code')
+        if not code:
             raise InternalInvalidGatewayResponseError(
                 "Reverse payment failed: `code` field missing in gateway response."
             )
-        if status_code == self._REVERSED_SUCCESS_CODE:
-            return True
-        return False
+        return code == self._REVERSED_SUCCESS_CODE
 
     def inquiry_payment(self, reference_number: str) -> PaymentStatus:
         data = {
             "merchant_id": self._config.merchant_code,
             "authority": reference_number,
         }
-        response = self._send_request(self._config.inquiry_payment_url, data=data)
-        status = response.get("data", {}).get("status")
+        http_response = self._send_request(self._config.inquiry_payment_url, data=data)
+        status = self._get_response_data(http_response).get("status")
         if not status:
             raise InternalInvalidGatewayResponseError(
                 "inquiry payment failed: `status` field missing in gateway response."
             )
-        return self._PAYMENT_STATUSES[status]
+        return self._PAYMENT_STATUSES[cast(str, status)]
 
     @classmethod
-    def _check_response(cls, response: HttpResponseInterface) -> None:
-        errors = response.json().get('errors')
+    def _check_response(cls, response: HTTPResponseInterface) -> None:
+        errors = cast(JSONObject, response.json()).get('errors')
 
         if errors:
             if isinstance(errors, dict):
                 # Single error dict
-                message = errors.get("message", str(errors))
+                message = str(errors.get("message", errors))
             elif isinstance(errors, list):
                 # Multiple errors
-                message = "; ".join(err.get("message", str(err)) for err in errors)
+                message = "; ".join(
+                    str(err.get("message", err)) if isinstance(err, dict) else str(err) for err in errors
+                )
             else:
                 # Unexpected type
                 message = str(errors)
@@ -171,9 +171,9 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
             raise InternalRejectPaymentError(response.body)
 
     def _send_request(
-        self, url: URL, data: dict[str, Any], method: HttpMethod = HttpMethod.POST
-    ) -> dict[str, Any]:
-        headers = HttpHeaders(
+        self, url: URL, data: dict[str, Any], method: HTTPMethod = HTTPMethod.POST
+    ) -> JSONObject:
+        headers = HTTPHeaders(
             headers={
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -184,4 +184,8 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
         )
         http_response = self._http_client.send(http_request)
         self._check_response(http_response)
-        return http_response.json()
+        return cast(JSONObject, http_response.json())
+
+    @classmethod
+    def _get_response_data(cls, response: JSONObject) -> JSONObject:
+        return cast(JSONObject, response.get("data", {}))
