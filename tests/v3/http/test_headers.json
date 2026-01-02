@@ -1,0 +1,19 @@
+{
+    "test_headers": [
+        {
+            "id": "headers-application-json",
+            "headers_data": {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        },
+        {
+            "id": "headers-application-xml",
+            "headers_data": {
+                "Content-Type": "application/xml",
+                "Accept": "application/xml"
+            }
+        }
+    ]
+
+}

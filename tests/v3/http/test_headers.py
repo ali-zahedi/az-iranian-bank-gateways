@@ -1,26 +1,28 @@
-from azbankgateways.v3.http import HTTPHeaders
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+import parametrize_from_file as pff
+from syrupy import SnapshotAssertion
 
 
-def test_get() -> None:
-    headers = HTTPHeaders({'Content-Type': 'application/json'})
-
-    assert headers.get('Content-Type') == 'application/json'
-    assert headers.get('content-type') == 'application/json'  # case-insensitive
+if TYPE_CHECKING:
+    from azbankgateways.v3.interfaces import HTTPHeadersInterface
 
 
-def test_to_dict() -> None:
-    headers = HTTPHeaders({'Content-Type': 'application/json', 'ACCEPT': '*/*'})
+def test_get_header_case_insensitive(http_headers_class: type[HTTPHeadersInterface]) -> None:
+    headers = http_headers_class({'Content-Type': 'application/json'})
 
-    assert headers.to_dict() == {'Content-Type': 'application/json', 'ACCEPT': '*/*'}
-
-
-def test_is_json() -> None:
-    headers = HTTPHeaders({'Content-Type': 'application/json'})
-
-    assert headers.is_json is True
+    assert headers.get('content-type') == headers.get('Content-Type') == 'application/json'
 
 
-def test_is_not_json() -> None:
-    headers = HTTPHeaders({'Content-Type': 'text/plain'})
+@pff.parametrize()
+def test_headers(
+    http_headers_class: type[HTTPHeadersInterface],
+    headers_data: dict[str, str],
+    snapshot: SnapshotAssertion,
+) -> None:
+    headers = http_headers_class(headers_data)
 
-    assert headers.is_json is False
+    assert headers.to_dict() == snapshot(name="expected_headers_dict")
+    assert headers.is_json == snapshot(name="expected_is_json")
