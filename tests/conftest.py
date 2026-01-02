@@ -1,23 +1,31 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generator
 
+import pytest
 import responses as responses_lib
-from pytest import fixture
 
-from azbankgateways.v3.http import URL
+from azbankgateways.v3.http import URL, HTTPClient, HTTPRequest, HTTPResponse
+from azbankgateways.v3.http.models.headers import HTTPHeaders
 from azbankgateways.v3.message_services import MessageService
 
 
 if TYPE_CHECKING:
-    from typing import Any
-
-    from azbankgateways.v3.interfaces import MessageServiceInterface, OrderDetails
+    from azbankgateways.v3.interfaces import (
+        HTTPClientInterface,
+        HTTPHeadersInterface,
+        HTTPRequestInterface,
+        HTTPResponseInterface,
+        MessageServiceInterface,
+        OrderDetails,
+    )
     from azbankgateways.v3.typing import CallbackURL
 
+pytest_plugins = ("azbankgateways.v3.testing.syrupy.fixtures",)
 
-@fixture(autouse=True)
-def responses() -> Any:
+
+@pytest.fixture(autouse=True)
+def responses() -> Generator[responses_lib.RequestsMock, responses_lib.RequestsMock, None]:
     """
     Globally register responses in every test.
     This causes every test to fail that makes external HTTP requests via the "requests" library.
@@ -30,21 +38,43 @@ def responses() -> Any:
 
     See: https://github.com/getsentry/responses?tab=readme-ov-file#responses-as-a-pytest-fixture
     """
-    with responses_lib.RequestsMock() as rsps:
-        yield rsps
+    with responses_lib.RequestsMock() as requests_mock:
+        yield requests_mock
 
 
-@fixture
+@pytest.fixture
+def http_request_class() -> type[HTTPRequestInterface]:
+    return HTTPRequest
+
+
+@pytest.fixture
+def http_response_class() -> type[HTTPResponseInterface]:
+    return HTTPResponse
+
+
+@pytest.fixture
+def http_headers_class() -> type[HTTPHeadersInterface]:
+    return HTTPHeaders
+
+
+@pytest.fixture
+def http_client(
+    http_response_class: type[HTTPResponseInterface], http_headers_class: type[HTTPHeadersInterface]
+) -> HTTPClientInterface:
+    return HTTPClient(http_response_class, http_headers_class)
+
+
+@pytest.fixture
 def message_service() -> MessageServiceInterface:
     return MessageService()
 
 
-@fixture
+@pytest.fixture
 def base_callback_url() -> str:
     return 'https://az.bank/callback'
 
 
-@fixture
+@pytest.fixture
 def callback_url_generator(base_callback_url: str) -> CallbackURL:
     def callback(order_details: OrderDetails) -> URL:
         return URL(base_callback_url).join(order_details.tracking_code)

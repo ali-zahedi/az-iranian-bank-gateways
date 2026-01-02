@@ -29,3 +29,6 @@ sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 [tool.pytest.ini_options]
 python_files = ["tests.py", "test_*.py", "*_tests.py", ]
 norecursedirs = [".git", ".pytest_cache", ".vscode", ".idea", "__pycache__", "dumps", "env", "venv", ]
+
+addopts = "--cov=azbankgateways.v3 --cov-report=term --cov-report=xml  --import-mode=importlib --snapshot-default-extension=azbankgateways.v3.testing.syrupy.extensions.NestedDirectoryJSONSnapshotExtension --strict-markers"
+testpaths = ["tests"]

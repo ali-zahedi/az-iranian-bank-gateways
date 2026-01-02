@@ -1,0 +1,41 @@
+{
+    "defaults": {
+        "test_send": {
+            "method": "POST",
+            "url": "https://az.bank/test/",
+            "timeout": 10,
+            "response_headers": {"Content-Type": "application/json"},
+            "data": "{\"success\": true}",
+            "exception": null,
+            "status_code": 200
+        }
+    },
+    "test_send":[
+        {
+            "id":"200_success"
+        },
+        {
+            "id":"500_service_error",
+            "status_code":500,
+            "data":"{\"detail\":\"Service error\"}"
+        },
+        {
+            "id":"timeout_error",
+            "exception":"Timeout",
+            "status_code":null
+        },
+        {
+            "id":"response_header_is_not_json",
+            "response_headers":{"Content-Type":"text/html"}
+        },
+        {
+            "id":"invalid_json_response",
+            "data": ""
+        },
+        {
+            "id":"json_response_not_list_or_dict",
+            "data":"12345"
+        }
+
+    ]
+}
