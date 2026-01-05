@@ -1,53 +1,36 @@
 from __future__ import annotations
 
+import json
+from importlib.resources import files
 from typing import TYPE_CHECKING
 
-import pytest
-
-from azbankgateways.v3.exceptions.internal import InternalInvalidJsonError
-from azbankgateways.v3.http import HTTPResponse
+import parametrize_from_file as pff
+from syrupy import SnapshotAssertion
 
 
 if TYPE_CHECKING:
-    from azbankgateways.v3.interfaces import HTTPHeadersInterface
-    from azbankgateways.v3.typing import HTTPHeaders as HTTPHeadersType
+    from azbankgateways.v3.interfaces import HTTPHeadersInterface, HTTPResponseInterface
+    from azbankgateways.v3.testing.syrupy.fixtures import ExceptionAssertion
+
+TEST_DATA = json.load((files("tests.v3.http") / "test_response.json").open())
 
 
-@pytest.mark.parametrize(
-    "status_code,expected_ok",
-    [
-        (201, True),
-        (404, False),
-        (200, True),
-    ],
-)
-def test_ok(status_code: int, expected_ok: bool, http_headers_class: type[HTTPHeadersInterface]) -> None:
-    response = HTTPResponse(status_code=status_code, headers=http_headers_class({}), body={})
-
-    assert response.ok is expected_ok
-
-
-@pytest.mark.parametrize(
-    "headers,body",
-    [
-        ({'content-type': 'application/json'}, 'Incorrect Json'),
-        ({'content-type': 'text/xml'}, 'Incorrect Json'),
-    ],
-)
-def test_invalid_json(
-    headers: HTTPHeadersType, body: str, http_headers_class: type[HTTPHeadersInterface]
-) -> None:
-    response = HTTPResponse(status_code=200, headers=http_headers_class(headers), body=body)
-
-    with pytest.raises(InternalInvalidJsonError):
-        response.json()
-
-
-def test_json(http_headers_class: type[HTTPHeadersInterface]) -> None:
-    response = HTTPResponse(
-        status_code=200,
-        headers=http_headers_class({'content-type': 'application/json'}),
-        body='{"price": 100}',
+@pff.parametrize(schema=pff.defaults(**TEST_DATA["defaults"]["test_response"]))
+def test_response(
+    http_headers_class: type[HTTPHeadersInterface],
+    http_response_class: type[HTTPResponseInterface],
+    status_code: int,
+    headers: dict[str, str],
+    body: str,
+    snapshot: SnapshotAssertion,
+    capture_exception: ExceptionAssertion,
+):
+    response = http_response_class(
+        status_code=status_code,
+        headers=http_headers_class(headers),
+        body=body,
     )
 
-    assert response.json() == {'price': 100}
+    with capture_exception():
+        assert response.json() == snapshot(name="expected_json")
+        assert response.ok == snapshot(name="expected_ok")

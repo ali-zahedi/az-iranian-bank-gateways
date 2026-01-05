@@ -1,0 +1,47 @@
+{
+    "defaults": {
+        "test_response": {
+            "status_code": 200,
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "body": "{ \"message\": \"Success\" }"
+        }
+    },
+    "test_response": [
+        {
+            "id": "200-success"
+        },
+        {
+            "id": "201-created",
+            "status_code": 201,
+            "body": "{ \"message\": \"Resource Created\" }"
+        },
+        {
+            "id": "404-not-found",
+            "status_code": 404,
+            "body": "{ \"error\": \"Not Found\" }"
+        },
+        {
+            "id": "500-server-error",
+            "status_code": 500,
+            "body": "{ \"error\": \"Internal Server Error\" }"
+        },
+        {
+            "id": "xml-response",
+            "headers": {
+                "Content-Type": "application/xml"
+            },
+            "body": "<response><message>Success</message></response>"
+        },
+        {
+            "id": "Invalid-json",
+            "body": "{ message: Success }"
+        },
+        {
+            "id": "invalid-body-type",
+            "body": "1"
+        }
+
+    ]
+}
