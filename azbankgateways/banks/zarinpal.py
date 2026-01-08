@@ -60,14 +60,17 @@ class Zarinpal(BaseBank):
     def get_pay_data(self):
         description = "خرید با شماره پیگیری - {}".format(self.get_tracking_code())
 
+        callback_url = self.get_custom_callback_url() or self._get_gateway_callback_url()
+
         data = {
             "description": description,
             "merchant_id": self._merchant_code,
             "amount": self.get_gateway_amount(),
             "currency": self.get_gateway_currency(),
             "metadata": {},
-            "callback_url": self._get_gateway_callback_url(),
+            "callback_url": callback_url,
         }
+        
         mobile_number = self.get_mobile_number()
         if mobile_number:
             data["metadata"].update({"mobile": mobile_number})
