@@ -92,4 +92,4 @@ class NestedDirectoryJSONSnapshotExtension(JSONSnapshotExtension):
     @classmethod
     def _clean_filename(cls, filename: str) -> str:
         """Clean a string to be used as a filename."""
-        return SingleFileSnapshotExtension._SingleFileSnapshotExtension__clean_filename(filename)
+        return SingleFileSnapshotExtension._SingleFileSnapshotExtension__clean_filename(filename)  # type: ignore

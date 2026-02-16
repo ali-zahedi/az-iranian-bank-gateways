@@ -215,10 +215,10 @@ class OrderDetails:
     description: str | None = None
 
 
-class PaymentGatewayConfigInterface(ABC):
-    """Payment Gateway configuration interface."""
+class ProviderConfigInterface(ABC):
+    """Provider configuration interface."""
 
-    # TODO: Ensure all subclasses of PaymentGatewayConfigInterface are
+    # TODO: Ensure all subclasses of ProviderConfigInterface are
     #  decorated with @dataclass(frozen=True, slots=True).
 
 
@@ -257,7 +257,7 @@ class ProviderInterface(ABC, ProviderProtocol):
     @abstractmethod
     def __init__(
         self,
-        config: PaymentGatewayConfigInterface,
+        config: ProviderConfigInterface,
         message_service: MessageServiceInterface,
         http_client: HTTPClientInterface,
         http_request_class: type[HTTPRequestInterface],

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Generator
 import pytest
 import responses as responses_lib
 
-from azbankgateways.v3.http import URL, HTTPClient, HTTPRequest, HTTPResponse
+from azbankgateways.v3.http import HTTPClient, HTTPRequest, HTTPResponse
 from azbankgateways.v3.http.models.headers import HTTPHeaders
 from azbankgateways.v3.message_services import MessageService
 
@@ -17,9 +17,7 @@ if TYPE_CHECKING:
         HTTPRequestInterface,
         HTTPResponseInterface,
         MessageServiceInterface,
-        OrderDetails,
     )
-    from azbankgateways.v3.typing import CallbackURL
 
 pytest_plugins = ("azbankgateways.v3.testing.syrupy.fixtures",)
 
@@ -64,19 +62,6 @@ def http_client(
     return HTTPClient(http_response_class, http_headers_class)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def message_service() -> MessageServiceInterface:
     return MessageService()
-
-
-@pytest.fixture
-def base_callback_url() -> str:
-    return 'https://az.bank/callback'
-
-
-@pytest.fixture
-def callback_url_generator(base_callback_url: str) -> CallbackURL:
-    def callback(order_details: OrderDetails) -> URL:
-        return URL(base_callback_url).join(order_details.tracking_code)
-
-    return callback

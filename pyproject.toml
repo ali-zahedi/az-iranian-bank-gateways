@@ -1,3 +1,6 @@
+[tool.mypy]
+strict = true
+
 [build-system]
 requires = ['setuptools>=40.8.0']
 build-backend = 'setuptools.build_meta'
@@ -32,3 +35,10 @@ norecursedirs = [".git", ".pytest_cache", ".vscode", ".idea", "__pycache__", "du
 
 addopts = "--cov=azbankgateways.v3 --cov-report=term --cov-report=xml  --import-mode=importlib --snapshot-default-extension=azbankgateways.v3.testing.syrupy.extensions.NestedDirectoryJSONSnapshotExtension --strict-markers"
 testpaths = ["tests"]
+
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = [
+  "parametrize_from_file",
+]

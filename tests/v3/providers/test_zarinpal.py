@@ -12,12 +12,13 @@ from azbankgateways.v3.exceptions.internal import (
     InternalMinimumAmountError,
     InternalRejectPaymentError,
 )
+from azbankgateways.v3.factories import ZarinpalProviderConfigFactory
 from azbankgateways.v3.http import URL
 from azbankgateways.v3.interfaces import OrderDetails, PaymentStatus
 from azbankgateways.v3.message_services import MessageService
 from azbankgateways.v3.providers.zarinpal import (
-    ZarinpalPaymentGatewayConfig,
     ZarinpalProvider,
+    ZarinpalProviderConfig,
 )
 
 
@@ -29,14 +30,12 @@ if TYPE_CHECKING:
         HTTPHeadersInterface,
         HTTPRequestInterface,
     )
-    from azbankgateways.v3.typing import CallbackURL, JSONDocument
+    from azbankgateways.v3.typing import JSONDocument
 
 
 @pytest.fixture
-def zarinpal_payment_config(callback_url_generator: CallbackURL) -> ZarinpalPaymentGatewayConfig:
-    return ZarinpalPaymentGatewayConfig(
-        merchant_code="zarinpal-merchant-code",
-        callback_url_generator=callback_url_generator,
+def zarinpal_payment_config() -> ZarinpalProviderConfig:
+    return ZarinpalProviderConfigFactory.create(
         payment_request_url=URL("https://az.bank/request/"),
         start_payment_url=URL("https://az.bank/start/"),
         verify_payment_url=URL("https://az.bank/verify/"),
@@ -47,7 +46,7 @@ def zarinpal_payment_config(callback_url_generator: CallbackURL) -> ZarinpalPaym
 
 @pytest.fixture
 def zarinpal_provider(
-    zarinpal_payment_config: ZarinpalPaymentGatewayConfig,
+    zarinpal_payment_config: ZarinpalProviderConfig,
     message_service: MessageService,
     http_client: HTTPClientInterface,
     http_request_class: type[HTTPRequestInterface],

@@ -1,22 +1,7 @@
-import importlib
 import inspect
-import pkgutil
 from typing import Any, Set, Type
 
-import pytest
-
 from azbankgateways.v3.interfaces import ProviderInterface
-from azbankgateways.v3.providers import __path__ as providers_path
-
-
-@pytest.fixture(autouse=True)
-def discover_provider_modules() -> None:
-    """
-    Dynamically import all provider modules to ensure all subclasses
-    of ProviderInterface are loaded.
-    """
-    for module_info in pkgutil.walk_packages(providers_path, prefix="azbankgateways.v3.providers."):
-        importlib.import_module(module_info.name)
 
 
 def get_init_params(cls: Type[Any]) -> Set[str]:
@@ -25,19 +10,18 @@ def get_init_params(cls: Type[Any]) -> Set[str]:
     return {p for p in sig.parameters if p != "self"}
 
 
-def test_provider_init_signature_and_attributes() -> None:
+def test_provider_init_signature_and_attributes(provider_classes: list[type[ProviderInterface]]) -> None:
     """
     Verify that each ProviderInterface subclass:
     1. Defines its own __init__ method.
     2. Matches required parameters from the interface.
     3. Sets instance attributes for each parameter.
     """
-    subclasses = ProviderInterface.__subclasses__()
-    assert subclasses, "No ProviderInterface subclasses found."
+    assert provider_classes, "No ProviderInterface subclasses found."
 
     interface_params = get_init_params(ProviderInterface)
 
-    for provider_class in subclasses:
+    for provider_class in provider_classes:
         # 1. Ensure subclass defines its own __init__
         assert (
             "__init__" in provider_class.__dict__

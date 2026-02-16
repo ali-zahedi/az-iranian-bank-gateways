@@ -5,7 +5,7 @@ from importlib.resources import files
 from typing import TYPE_CHECKING
 
 import parametrize_from_file as pff
-from syrupy import SnapshotAssertion
+from syrupy.assertion import SnapshotAssertion
 
 
 if TYPE_CHECKING:
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 TEST_DATA = json.load((files("tests.v3.http") / "test_response.json").open())
 
 
-@pff.parametrize(schema=pff.defaults(**TEST_DATA["defaults"]["test_response"]))
+@pff.parametrize(schema=pff.defaults(**TEST_DATA["defaults"]["test_response"]))  # type: ignore[untyped-decorator]
 def test_response(
     http_headers_class: type[HTTPHeadersInterface],
     http_response_class: type[HTTPResponseInterface],
@@ -24,7 +24,7 @@ def test_response(
     body: str,
     snapshot: SnapshotAssertion,
     capture_exception: ExceptionAssertion,
-):
+) -> None:
     response = http_response_class(
         status_code=status_code,
         headers=http_headers_class(headers),

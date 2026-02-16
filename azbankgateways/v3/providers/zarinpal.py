@@ -17,8 +17,8 @@ from azbankgateways.v3.interfaces import (
     MessageServiceInterface,
     MessageType,
     OrderDetails,
-    PaymentGatewayConfigInterface,
     PaymentStatus,
+    ProviderConfigInterface,
     ProviderInterface,
 )
 from azbankgateways.v3.mixins.check_dataclass_fields import CheckDataclassFieldsMixin
@@ -26,10 +26,10 @@ from azbankgateways.v3.mixins.minimum_amount_check import MinimumAmountCheckMixi
 from azbankgateways.v3.typing import CallbackURL, JSONObject
 
 
-# TODO: Ensure all subclasses of PaymentGatewayConfigInterface are
+# TODO: Ensure all subclasses of ProviderConfigInterface are
 #  decorated with @dataclass(frozen=True, slots=True).
 @dataclass(frozen=True, slots=True)
-class ZarinpalPaymentGatewayConfig(CheckDataclassFieldsMixin, PaymentGatewayConfigInterface):
+class ZarinpalProviderConfig(CheckDataclassFieldsMixin, ProviderConfigInterface):
     merchant_code: str
     callback_url_generator: CallbackURL
 
@@ -57,7 +57,7 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
 
     def __init__(
         self,
-        config: ZarinpalPaymentGatewayConfig,
+        config: ZarinpalProviderConfig,
         message_service: MessageServiceInterface,
         http_client: HTTPClientInterface,
         http_request_class: type[HTTPRequestInterface],

@@ -18,14 +18,14 @@ from azbankgateways.v3.interfaces import (
 
 if TYPE_CHECKING:
     from responses import RequestsMock
-    from syrupy import SnapshotAssertion
+    from syrupy.assertion import SnapshotAssertion
 
     from azbankgateways.v3.testing.syrupy.fixtures import ExceptionAssertion
 
 TEST_DATA = json.load((files("tests.v3.http") / "test_client.json").open())
 
 
-@pff.parametrize(schema=pff.defaults(**TEST_DATA["defaults"]["test_send"]))
+@pff.parametrize(schema=pff.defaults(**TEST_DATA["defaults"]["test_send"]))  # type: ignore[untyped-decorator]
 def test_send(
     responses: RequestsMock,
     http_headers_class: type[HTTPHeadersInterface],

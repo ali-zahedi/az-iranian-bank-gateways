@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import parametrize_from_file as pff
-from syrupy import SnapshotAssertion
+from syrupy.assertion import SnapshotAssertion
 
 
 if TYPE_CHECKING:
@@ -16,7 +16,7 @@ def test_get_header_case_insensitive(http_headers_class: type[HTTPHeadersInterfa
     assert headers.get('content-type') == headers.get('Content-Type') == 'application/json'
 
 
-@pff.parametrize()
+@pff.parametrize  # type: ignore[untyped-decorator]
 def test_headers(
     http_headers_class: type[HTTPHeadersInterface],
     headers_data: dict[str, str],
