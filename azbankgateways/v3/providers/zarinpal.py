@@ -20,6 +20,7 @@ from azbankgateways.v3.interfaces import (
     PaymentStatus,
     ProviderConfigInterface,
     ProviderInterface,
+    ProviderName,
 )
 from azbankgateways.v3.mixins.check_dataclass_fields import CheckDataclassFieldsMixin
 from azbankgateways.v3.mixins.minimum_amount_check import MinimumAmountCheckMixin
@@ -35,9 +36,9 @@ class ZarinpalProviderConfig(CheckDataclassFieldsMixin, ProviderConfigInterface)
 
     payment_request_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/request.json/"))
     start_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/StartPay/"))
-    verify_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/verify.json"))
-    reverse_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/reverse.json"))
-    inquiry_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/inquiry.json"))
+    verify_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/verify.json/"))
+    reverse_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/reverse.json/"))
+    inquiry_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/inquiry.json/"))
     http_requests_timeout: int = 20
 
     def __post_init__(self) -> None:
@@ -68,6 +69,10 @@ class ZarinpalProvider(MinimumAmountCheckMixin, ProviderInterface):
         self._http_client = http_client
         self._http_request_class = http_request_class
         self._http_headers_class = http_headers_class
+
+    @property
+    def name(self) -> ProviderName:
+        return ProviderName.ZARINPAL
 
     @property
     def minimum_amount(self) -> Decimal:

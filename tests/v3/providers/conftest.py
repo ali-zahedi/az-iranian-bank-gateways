@@ -4,7 +4,14 @@ import pkgutil
 import pytest
 
 import azbankgateways.v3.factories as factories
-from azbankgateways.v3.interfaces import ProviderConfigInterface, ProviderInterface
+from azbankgateways.v3.http import HTTPClient
+from azbankgateways.v3.interfaces import (
+    HTTPHeadersInterface,
+    HTTPRequestInterface,
+    ProviderConfigInterface,
+    ProviderInterface,
+)
+from azbankgateways.v3.message_services import MessageService
 from azbankgateways.v3.providers import __path__ as providers_path
 
 
@@ -23,9 +30,13 @@ def provider_classes(discover_provider_modules: None) -> list[type[ProviderInter
 
 
 @pytest.fixture(scope="session")
-def provider_config_factory_pairs(
+def provider_config_pairs(
     provider_classes: list[type[ProviderInterface]],
-) -> list[tuple[type[ProviderInterface], type[ProviderConfigInterface]]]:
+    message_service: MessageService,
+    http_client: HTTPClient,
+    http_request_class: type[HTTPRequestInterface],
+    http_headers_class: type[HTTPHeadersInterface],
+) -> list[tuple[ProviderInterface, ProviderConfigInterface]]:
     provider_config_factory_pairs = []
 
     for provider_class in provider_classes:
@@ -38,6 +49,14 @@ def provider_config_factory_pairs(
                 f"No ProviderConfigFactory found for provider: {provider_class.__name__} in factories"
             )
 
-        provider_config_factory_pairs.append((provider_class, provider_config_factory))
+        config = provider_config_factory()
+        provider = provider_class(
+            config=config,
+            message_service=message_service,
+            http_client=http_client,
+            http_request_class=http_request_class,
+            http_headers_class=http_headers_class,
+        )
+        provider_config_factory_pairs.append((provider, config))
 
     return provider_config_factory_pairs

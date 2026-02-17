@@ -23,8 +23,8 @@ class Currency(Enum):
 
 
 # TODO: abstract
-class BankType(Enum):
-    pass
+class ProviderName(Enum):
+    ZARINPAL = 'ZARINPAL'
 
 
 # TODO: abstract
@@ -274,6 +274,11 @@ class ProviderInterface(ABC, ProviderProtocol):
 
         :return: A Decimal value representing the minimum payment amount.
         """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def name(self) -> ProviderName:
         raise NotImplementedError
 
     @abstractmethod

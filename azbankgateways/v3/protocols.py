@@ -5,12 +5,20 @@ from typing import TYPE_CHECKING, Protocol
 
 
 if TYPE_CHECKING:
-    from azbankgateways.v3.interfaces import HTTPRequestInterface, OrderDetails
+    from azbankgateways.v3.interfaces import (
+        HTTPRequestInterface,
+        OrderDetails,
+        ProviderName,
+    )
 
 
 class ProviderProtocol(Protocol):
     @property
     def minimum_amount(self) -> Decimal:
+        ...
+
+    @property
+    def name(self) -> ProviderName:
         ...
 
     def create_payment_request(self, order_details: OrderDetails) -> HTTPRequestInterface:

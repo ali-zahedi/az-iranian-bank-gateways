@@ -1,0 +1,10 @@
+{
+    "data": {
+        "code": 100,
+        "message": "Success",
+        "authority": "TEST_PAYMENT_TOKEN",
+        "fee_type": "Merchant",
+        "fee": 100
+    },
+    "errors": []
+}

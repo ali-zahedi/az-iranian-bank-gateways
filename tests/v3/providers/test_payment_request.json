@@ -1,0 +1,33 @@
+{
+    "defaults": {
+        "test_payment_request": {
+            "status_code": 200,
+            "exception": null,
+            "expected_token": null,
+            "response_fixture": null
+        }
+    },
+    "test_payment_request": [
+        {
+            "id": "successful_payment",
+            "expected_token": "TEST_PAYMENT_TOKEN",
+            "response_fixture": "successful"
+        },
+        {
+            "id": "invalid_gateway_response",
+            "response_fixture": "invalid_gateway_response"
+        },
+        {
+            "id": "payment_rejected",
+            "response_fixture": "faild"
+        },
+        {
+            "id": "connection_error",
+            "exception": "ConnectionError"
+        },
+        {
+            "id": "timeout_error",
+            "exception": "Timeout"
+        }
+    ]
+}
