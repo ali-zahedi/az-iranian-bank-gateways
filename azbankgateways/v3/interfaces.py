@@ -16,18 +16,15 @@ if TYPE_CHECKING:
     from azbankgateways.v3.typing import HTTPHeaders as HTTPHeadersType, JSONDocument
 
 
-# TODO: abstract
 class Currency(Enum):
     IRT = 'IRT'
     IRR = 'IRR'
 
 
-# TODO: abstract
 class ProviderName(Enum):
     ZARINPAL = 'ZARINPAL'
 
 
-# TODO: abstract
 class MessageType(Enum):
     DESCRIPTION = 'description'
     TIMEOUT_ERROR = 'timeout_error'
@@ -220,6 +217,11 @@ class ProviderConfigInterface(ABC):
 
     # TODO: Ensure all subclasses of ProviderConfigInterface are
     #  decorated with @dataclass(frozen=True, slots=True).
+
+    @property
+    @abstractmethod
+    def payment_request_url(self) -> URL:
+        raise NotImplementedError
 
 
 class HTTPClientInterface(ABC):

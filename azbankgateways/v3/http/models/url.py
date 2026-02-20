@@ -13,9 +13,6 @@ class URL:
         if not parsed.scheme or not parsed.netloc:
             raise ValueError(f"Invalid URL: {self.value}")
 
-        normalized = self.value.removesuffix("/") + "/"
-        object.__setattr__(self, "value", normalized)
-
     def __str__(self) -> str:
         return self.value
 

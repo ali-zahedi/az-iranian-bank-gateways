@@ -4,22 +4,16 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 import pytest
-from requests import ConnectionError, Timeout
 
 from azbankgateways.v3.exceptions.internal import (
-    InternalConnectionError,
     InternalInvalidGatewayResponseError,
     InternalMinimumAmountError,
     InternalRejectPaymentError,
 )
 from azbankgateways.v3.factories import ZarinpalProviderConfigFactory
 from azbankgateways.v3.http import URL
-from azbankgateways.v3.interfaces import OrderDetails, PaymentStatus
-from azbankgateways.v3.message_services import MessageService
-from azbankgateways.v3.providers.zarinpal import (
-    ZarinpalProvider,
-    ZarinpalProviderConfig,
-)
+from azbankgateways.v3.interfaces import PaymentStatus
+from azbankgateways.v3.providers.zarinpal import ZarinpalProvider
 
 
 if TYPE_CHECKING:
@@ -29,8 +23,10 @@ if TYPE_CHECKING:
         HTTPClientInterface,
         HTTPHeadersInterface,
         HTTPRequestInterface,
+        OrderDetails,
     )
-    from azbankgateways.v3.typing import JSONDocument
+    from azbankgateways.v3.message_services import MessageService
+    from azbankgateways.v3.providers.zarinpal import ZarinpalProviderConfig
 
 
 @pytest.fixture
@@ -60,113 +56,6 @@ def zarinpal_provider(
         http_request_class,
         http_headers_class,
     )
-
-
-@pytest.fixture
-def order_details() -> OrderDetails:
-    return OrderDetails(
-        amount=Decimal(1000.01),
-        tracking_code="tracking-code-1",
-        first_name='John',
-        last_name='Doe',
-        phone_number='+989112223344',
-        email='mail@az.bank',
-        order_id='order-id',
-    )
-
-
-def test_zarinpal_payment_request__successful(
-    zarinpal_provider: ZarinpalProvider,
-    responses: RequestsMock,
-    order_details: OrderDetails,
-) -> None:
-    responses.add(
-        responses.POST,
-        "https://az.bank/request/",
-        json={
-            "data": {
-                "code": 100,
-                "message": "Success",
-                "authority": "A00000001",
-                "fee_type": "Merchant",
-                "fee": 100,
-            },
-            "errors": [],
-        },
-        status=200,
-    )
-
-    payment_request = zarinpal_provider.create_payment_request(order_details)
-
-    assert str(payment_request.url) == 'https://az.bank/start/A00000001/'
-
-
-def test_zarinpal_payment_request__invalid_gateway_response(
-    zarinpal_provider: ZarinpalProvider,
-    responses: RequestsMock,
-    order_details: OrderDetails,
-) -> None:
-    responses.add(
-        responses.POST,
-        "https://az.bank/request/",
-        json={
-            "data": {
-                "code": 100,
-                "message": "Success",
-                "fee_type": "Merchant",
-                "fee": 100,
-            },
-            "errors": [],
-        },
-        status=200,
-    )
-
-    with pytest.raises(InternalInvalidGatewayResponseError):
-        zarinpal_provider.create_payment_request(order_details)
-
-
-@pytest.mark.parametrize(
-    "errors",
-    [
-        {"message": "The metadata.mobile must be a string.", "code": -9, "validations": []},
-        [
-            {"message": "The metadata.mobile must be a string.", "code": -9, "validations": []},
-            {"message": "The metadata.order_id must be a string.", "code": -9, "validations": []},
-        ],
-    ],
-)
-def test_zarinpal_payment_request__failed(
-    zarinpal_provider: ZarinpalProvider,
-    responses: RequestsMock,
-    order_details: OrderDetails,
-    errors: JSONDocument,
-) -> None:
-    responses.add(
-        responses.POST,
-        "https://az.bank/request/",
-        json={"data": {}, "errors": errors},
-        status=422,
-    )
-
-    with pytest.raises(InternalRejectPaymentError):
-        assert zarinpal_provider.create_payment_request(order_details)
-
-
-@pytest.mark.parametrize("side_effect", [ConnectionError, Timeout])
-def test_zarinpal_payment_request__failed_with_side_effect(
-    zarinpal_provider: ZarinpalProvider,
-    responses: RequestsMock,
-    side_effect: type[Exception],
-    order_details: OrderDetails,
-) -> None:
-    responses.add(
-        responses.POST,
-        "https://az.bank/request/",
-        body=side_effect(),
-    )
-
-    with pytest.raises(InternalConnectionError):
-        assert zarinpal_provider.create_payment_request(order_details)
 
 
 def test_zarinpal_payment_reqeust__minimum_amount(

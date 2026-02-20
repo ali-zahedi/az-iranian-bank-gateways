@@ -34,11 +34,11 @@ class ZarinpalProviderConfig(CheckDataclassFieldsMixin, ProviderConfigInterface)
     merchant_code: str
     callback_url_generator: CallbackURL
 
-    payment_request_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/request.json/"))
+    payment_request_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/request.json"))
     start_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/StartPay/"))
-    verify_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/verify.json/"))
-    reverse_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/reverse.json/"))
-    inquiry_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/inquiry.json/"))
+    verify_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/verify.json"))
+    reverse_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/reverse.json"))
+    inquiry_payment_url: URL = field(default=URL("https://payment.zarinpal.com/pg/v4/payment/inquiry.json"))
     http_requests_timeout: int = 20
 
     def __post_init__(self) -> None:
